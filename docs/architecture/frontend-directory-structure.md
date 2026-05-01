@@ -40,3 +40,41 @@ services/
 lib/
 types/
 ```
+
+## 디렉토리 역할
+
+### `app/`
+
+- MUST App Router route segment를 둔다.
+- MUST `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`는 App Router 규칙에 따라 배치한다.
+- MUST route 전용 component는 해당 route segment 내부 `components/`에 둔다.
+
+### `components/ui/`
+
+- MUST shadcn/ui 기반 primitive component를 둔다.
+- MUST 특정 화면 전용 business logic을 포함하지 않는다.
+
+### `components/shared/`
+
+- MUST 두 개 이상의 route 또는 feature에서 재사용하는 UI component를 둔다.
+- MUST 단일 route 전용 component를 두지 않는다.
+
+### `hooks/`
+
+- MUST 여러 route 또는 component에서 재사용하는 custom hook을 둔다.
+- MUST route 전용 hook은 해당 route 내부에 둔다.
+
+### `services/`
+
+- MUST API client, API service, 외부 데이터 요청 책임을 둔다.
+- MUST UI component에서 직접 API request를 작성하지 않는다.
+
+### `lib/`
+
+- MUST 공통 utility, helper, config성 코드를 둔다.
+- MUST domain business logic을 무분별하게 넣지 않는다.
+
+### `types/`
+
+- MUST 여러 영역에서 공유하는 TypeScript type을 둔다.
+- MUST API response type과 UI model type을 구분한다.
