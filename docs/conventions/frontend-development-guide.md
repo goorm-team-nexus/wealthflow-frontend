@@ -139,11 +139,16 @@ fix: API error handling 수정
 ## 8. 로컬 검증 규칙
 
 - MUST PR 생성 전 local verification을 수행한다.
+- MUST PR 생성 전 프로젝트에 정의된 통합 검증 script를 실행한다.
+- MUST AI agent는 작업 후 변경 범위에 맞는 local verification을 수행한다.
 - MUST local verification 결과를 PR 설명에 기록한다.
 - MUST 변경 범위와 관련된 화면 또는 흐름을 직접 확인한다.
 - MUST API 연동 변경은 contract 기준으로 request와 response shape을 확인한다.
 - MUST env 변경이 필요한 작업은 public env와 private env 노출 범위를 확인한다.
 - MUST 검증 실패 항목은 PR 설명에 남긴다.
+- MUST 검증 실패 시 실패 원인에 해당하는 범위만 수정한다.
+- MUST 추후 GitHub Actions는 local verification에 사용하는 프로젝트 script를 재사용한다.
+- MUST NOT 검증 실패를 이유로 범위 밖 리팩토링을 수행한다.
 - MUST NOT 검증 실패를 숨기고 PR을 병합한다.
 
 ## 9. 문서 참조 규칙
