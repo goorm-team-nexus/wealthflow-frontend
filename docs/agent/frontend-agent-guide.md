@@ -30,7 +30,8 @@
 
 ## Task Routing
 
-- MUST UI/component 작업은 `docs/conventions/frontend-code-convention.md`와 `docs/conventions/frontend-code-style.md`를 확인한다.
+- MUST UI design 작업은 `docs/design/frontend-ui-design-guide.md`를 확인한다.
+- MUST UI/component 구현 작업은 `docs/design/frontend-ui-design-guide.md`, `docs/conventions/frontend-code-convention.md`, `docs/conventions/frontend-code-style.md`를 확인한다.
 - MUST App Router, page, layout 작업은 `docs/conventions/frontend-code-convention.md`를 확인한다.
 - MUST API 연동 작업은 `docs/api/README.md`와 OpenAPI contract를 확인한다.
 - MUST env 또는 API Base URL 작업은 `docs/conventions/frontend-development-guide.md`와 `docs/api/README.md`를 확인한다.

@@ -5,6 +5,7 @@
 - `project/mvp-scope.md` - MVP 범위
 - `agent/frontend-agent-guide.md` - frontend agent 작업 문서 라우터
 - `architecture/frontend-directory-structure.md` - frontend directory structure
+- `design/frontend-ui-design-guide.md` - frontend UI design guide
 - `domain/README.md` - domain 문서 라우터
 - `domain/asset-separation.md` - 실자산/모의투자 데이터 분리 원칙
 - `api/README.md` - API 문서 라우터
