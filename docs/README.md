@@ -2,6 +2,7 @@
 
 ## 문서 네비게이션
 
+- `project/project-overview.md` - 프로젝트 개요 및 도메인 설명
 - `project/mvp-scope.md` - MVP 범위
 - `agent/frontend-agent-guide.md` - frontend agent 작업 문서 라우터
 - `architecture/frontend-directory-structure.md` - frontend directory structure
