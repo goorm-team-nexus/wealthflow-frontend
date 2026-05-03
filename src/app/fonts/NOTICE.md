@@ -1,7 +1,7 @@
 # Font Notice
 
-This directory contains local font files used by the application build so `next/font/google`
-is not required at build time.
+This directory contains local font files used by the application build so the Google Fonts
+loader is not required at build time.
 
 ## Geist
 
