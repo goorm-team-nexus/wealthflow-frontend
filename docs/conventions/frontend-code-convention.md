@@ -184,9 +184,13 @@
 
 ## 15. TailwindCSS 사용 기준
 
+- MUST component styling은 Tailwind className을 기본으로 한다.
 - MUST TailwindCSS는 layout, spacing, sizing, color 보조 스타일에 사용한다.
 - MUST shadcn/ui primitive를 기반으로 한 구조 조정은 wrapper component에서 처리한다.
 - MUST Tailwind class는 component 책임 범위 안에서 사용한다.
+- MUST NOT React inline style을 기본 스타일링 수단으로 사용한다.
+- MUST 반복되는 styling pattern은 shared component, variant, utility function으로 분리한다.
+- EXCEPTION 동적 계산값, CSS variable, canvas/chart 좌표, third-party library 연동처럼 Tailwind class로 표현하기 어려운 경우 inline style을 사용할 수 있다.
 - MUST 동일한 스타일 조합이 재사용 책임을 가질 경우 component로 분리한다.
 - MUST domain 상태를 Tailwind class 문자열에 직접 결합하지 않는다.
 - MUST theme token 또는 기존 design token을 우선 사용한다.

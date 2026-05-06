@@ -3,7 +3,7 @@
 ## Scope
 
 - MUST 이 문서는 frontend 협업 및 개발 운영 규칙에 적용한다.
-- MUST 이 문서는 branch, commit, pull request, review, environment, API base URL, local verification, document reference 규칙에 적용한다.
+- MUST 이 문서는 branch, commit, pull request, review, local verification, document reference 규칙에 적용한다.
 - MUST frontend 코드 구조와 책임 기준은 `docs/conventions/frontend-code-convention.md`를 따른다.
 - MUST frontend 코드 작성 스타일 기준은 `docs/conventions/frontend-code-style.md`를 따른다.
 
@@ -115,26 +115,11 @@ fix: API error handling 수정
 
 ## 6. 환경변수 공통 원칙
 
-- MUST 환경별 설정값은 env로 관리한다.
-- MUST 민감한 설정값은 env 또는 승인된 secret 관리 수단으로 관리한다.
-- MUST public env와 private env를 구분한다.
-- MUST browser에 노출되는 값만 public env로 정의한다.
-- MUST server runtime에서만 필요한 값은 private env로 정의한다.
-- MUST env 값의 의미와 사용 위치는 코드에서 추적 가능해야 한다.
-- MUST env 기본값에 secret, credential, token, 운영 설정값을 포함하지 않는다.
-- MUST NOT env 값을 코드에 하드코딩한다.
-- MUST NOT private env 값을 Client Component에서 참조한다.
-- MUST NOT env 변수 목록이나 실제 값을 문서에 기록한다.
+- MUST API Base URL과 env 기준은 `docs/api/frontend-api-integration.md`를 따른다.
 
 ## 7. API Base URL 원칙
 
-- MUST API Base URL은 env로 관리한다.
-- MUST API Base URL은 환경별로 분리한다.
-- MUST API client는 env에서 주입된 API Base URL을 기준으로 request를 구성한다.
-- MUST API Base URL 사용 위치는 frontend API client 책임 안에 둔다.
-- MUST NOT API Base URL을 코드에 하드코딩한다.
-- MUST NOT component 또는 page에서 API Base URL 문자열을 직접 조합한다.
-- MUST NOT backend endpoint 변경을 frontend 임의 규칙으로 보정한다.
+- MUST API Base URL과 env 기준은 `docs/api/frontend-api-integration.md`를 따른다.
 
 ## 8. 로컬 검증 규칙
 
@@ -173,9 +158,7 @@ fix: API error handling 수정
 - MUST NOT 검증하지 않은 PR을 병합한다.
 - MUST NOT 동작 변경이 있는 PR을 review 없이 self-merge한다.
 - MUST NOT secret, credential, token을 코드, commit message, PR 설명, 문서에 포함한다.
-- MUST NOT API Base URL을 코드에 하드코딩한다.
-- MUST NOT public env와 private env를 섞는다.
-- MUST NOT private env 값을 browser에 노출한다.
+- MUST API Base URL과 env 금지 기준은 `docs/api/frontend-api-integration.md`를 따른다.
 - MUST NOT frontend repo에서 backend 책임을 구현한다.
 - MUST NOT 실자산과 모의투자 domain state를 섞는다.
 - MUST NOT 코드 스타일 또는 코드 구조 규칙을 이 문서에 중복 정의한다.

@@ -2,7 +2,6 @@
 
 ## 규칙 기준
 
-- MUST 작업 전 먼저 `AGENTS.md`를 읽는다.
 - MUST `AGENTS.md`는 전역 agent operating rules의 기준으로 간주한다.
 - MUST 도메인/API/기능 세부 규칙은 `docs/`를 authoritative source로 간주한다.
 - MUST agent operating rules가 다른 파일과 충돌할 경우 `AGENTS.md`를 따른다.
@@ -34,7 +33,7 @@
 - MUST 상세 규칙은 `docs/README.md`에서 필요한 문서만 찾아 확인한다.
 - MUST `docs/`에 새 문서를 추가하거나 위치를 변경할 때 `docs/README.md`의 문서 링크를 함께 갱신한다.
 - MUST 확정되지 않은 command를 임의로 실행하거나 정의하지 않는다.
-- 프로젝트 개요가 필요한 경우 `docs/project/project-overview.md`를 확인한다.
+- MUST 프로젝트 개요가 필요한 경우 `docs/project/project-overview.md`를 확인한다.
 
 ## 문서 라우팅
 

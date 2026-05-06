@@ -24,6 +24,7 @@
 
 ```txt
 app/
+  globals.css
   (route)/
     page.tsx
     layout.tsx
@@ -78,3 +79,22 @@ types/
 
 - MUST 여러 영역에서 공유하는 TypeScript type을 둔다.
 - MUST API response type과 UI model type을 구분한다.
+
+## CSS 파일 위치 기준
+
+- MUST 전역 스타일, Tailwind import, theme variable은 `src/app/globals.css`에 둔다.
+- MUST component styling은 기본적으로 Tailwind class와 shadcn/ui variant로 처리한다.
+- MUST 반복되는 UI 스타일은 별도 CSS보다 shared component 또는 variant로 분리한다.
+- MUST NOT component별 CSS file을 임의로 생성한다.
+- MUST NOT CSS module을 기본 styling 수단으로 사용한다.
+- EXCEPTION third-party library override, animation keyframes, browser reset, global token처럼 Tailwind class만으로 관리하기 어려운 스타일은 CSS로 작성할 수 있다.
+
+## Modal / Dialog 위치 기준
+
+- MUST shadcn/ui Dialog primitive는 `components/ui/`에 둔다.
+- MUST 단일 route에서만 사용하는 modal/dialog는 해당 route 내부 `components/`에 둔다.
+- MUST 여러 route 또는 feature에서 재사용하는 modal/dialog는 `components/shared/`에 둔다.
+- MUST confirmation, alert, common form dialog처럼 공용성이 있는 modal은 shared component로 분리한다.
+- MUST modal 내부 business logic은 component에 직접 섞지 않고 필요한 경우 hook 또는 service 계층으로 분리한다.
+- MUST NOT 단일 route 전용 modal을 `components/shared/`에 둔다.
+- MUST NOT 공용 modal에서 특정 route의 business rule을 직접 포함한다.

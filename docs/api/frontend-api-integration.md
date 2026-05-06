@@ -5,7 +5,7 @@
 - MUST 이 문서는 frontend repo의 API 호출, 인증 전달, 응답 변환, 에러 처리, mock data 사용 기준에 적용한다.
 - MUST API contract 기준은 `docs/api/api-contract.md`와 OpenAPI contract를 따른다.
 - MUST API client 구조는 `docs/conventions/frontend-code-convention.md`와 충돌하지 않아야 한다.
-- MUST env 규칙은 `docs/conventions/frontend-development-guide.md`와 충돌하지 않아야 한다.
+- MUST API Base URL과 env 기준은 이 문서를 따른다.
 
 ## Out of Scope
 
@@ -13,18 +13,27 @@
 - MUST NOT 이 문서는 특정 도메인 API 목록을 나열한다.
 - MUST NOT 이 문서는 backend 구현 규칙을 정의한다.
 
-## 1. API Base URL 규칙
+## 1. API Base URL / env 규칙
 
+- MUST 환경별 설정값은 env로 관리한다.
+- MUST 민감한 설정값은 env 또는 승인된 secret 관리 수단으로 관리한다.
+- MUST public env와 private env를 구분한다.
+- MUST browser에 노출되는 값만 public env로 정의한다.
+- MUST server runtime에서만 필요한 값은 private env로 정의한다.
+- MUST env 값의 의미와 사용 위치는 코드에서 추적 가능해야 한다.
+- MUST env 기본값에 secret, credential, token, 운영 설정값을 포함하지 않는다.
 - MUST API Base URL은 env로 관리한다.
 - MUST API Base URL은 환경별 env 값으로 분리한다.
 - MUST API Base URL 조합은 API client 책임 안에서만 처리한다.
 - MUST API client는 env에서 주입된 API Base URL을 기준으로 request URL을 구성한다.
-- MUST public env와 private env를 구분한다.
 - MUST browser에 노출되는 API Base URL만 public env로 정의한다.
 - MUST server runtime에서만 필요한 API Base URL은 private env로 정의한다.
+- MUST NOT env 값을 코드에 하드코딩한다.
+- MUST NOT env 변수 목록이나 실제 값을 문서에 기록한다.
 - MUST NOT API Base URL을 코드에 하드코딩한다.
 - MUST NOT component 또는 page에서 API Base URL 문자열을 직접 조합한다.
 - MUST NOT Client Component에서 private env 값을 참조한다.
+- MUST NOT backend endpoint 변경을 frontend 임의 규칙으로 보정한다.
 
 ## 2. 인증 토큰 전달 방식
 
@@ -85,7 +94,7 @@
 
 - MUST API contract 기준은 `docs/api/api-contract.md`를 따른다.
 - MUST frontend API client 구조는 `docs/conventions/frontend-code-convention.md`를 따른다.
-- MUST env와 API Base URL 운영 기준은 `docs/conventions/frontend-development-guide.md`를 따른다.
+- MUST API Base URL과 env 기준은 이 문서를 따른다.
 - MUST 보안 관련 기준은 `docs/security/security-guidelines.md`를 따른다.
 - MUST 기능 범위 판단은 `docs/project/mvp-scope.md`를 따른다.
 - MUST 문서 간 규칙이 충돌할 경우 `AGENTS.md`를 따른다.
