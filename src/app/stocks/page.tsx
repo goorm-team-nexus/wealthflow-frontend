@@ -8,7 +8,6 @@ import {
   Clock3,
   Heart,
   Menu,
-  Star,
   Trophy,
   X,
 } from "lucide-react";
@@ -58,8 +57,15 @@ const copy = {
   naver: "\ub124\uc774\ubc84",
   kakao: "\uce74\uce74\uc624",
   hyundai: "\ud604\ub300\ucc28",
-  aiNews: "AI \ub274\uc2a4",
-  aiNewsBody: "\uc624\ub298\uc758 \uc2dc\uc7a5 \uc694\uc57d\uacfc \uc8fc\uc694 \uc885\ubaa9 \ud750\ub984\uc744 \ub354\ubbf8 \ub370\uc774\ud130\ub85c \ud45c\uc2dc\ud569\ub2c8\ub2e4.",
+  lgEnergy: "LG\uc5d0\ub108\uc9c0\uc194\ub8e8\uc158",
+  posco: "POSCO\ud640\ub529\uc2a4",
+  celltrion: "\uc140\ud2b8\ub9ac\uc628",
+  kbFinance: "KB\uae08\uc735",
+  shinhan: "\uc2e0\ud55c\uc9c0\uc8fc",
+  hanwha: "\ud55c\ud654\uc624\uc158",
+  krafton: "\ud06c\ub798\ud504\ud1a4",
+  moreStocks: "\ub354\ubcf4\uae30",
+  foldStocks: "\uc811\uae30",
   menu: "\uba54\ub274",
   marketTrade: "\uc2dc\uc7a5/\uac70\ub798",
   favorites: "\uad00\uc2ec \uc885\ubaa9",
@@ -127,6 +133,14 @@ const stocks: Stock[] = [
   { id: 6, logo: "S", name: copy.samsung, price: "\u20a9217,000", priceValue: 217000, change: "\u25bc 1.42%", volumeRank: 6 },
   { id: 7, logo: "N", name: copy.naver, price: "\u20a9212,000", priceValue: 212000, change: "\u25bc 1.15%", volumeRank: 8 },
   { id: 8, logo: "K", name: copy.kakao, price: "\u20a956,400", priceValue: 56400, change: "\u25bc 0.48%", volumeRank: 7 },
+  { id: 9, logo: "L", name: copy.lgEnergy, price: "\u20a9378,500", priceValue: 378500, change: "\u25bc 0.74%", volumeRank: 9 },
+  { id: 10, logo: "P", name: copy.posco, price: "\u20a9318,000", priceValue: 318000, change: "\u25bc 1.21%", volumeRank: 10 },
+  { id: 11, logo: "C", name: copy.celltrion, price: "\u20a9176,300", priceValue: 176300, change: "\u25bc 0.36%", volumeRank: 11 },
+  { id: 12, logo: "H", name: copy.hyundai, price: "\u20a9241,000", priceValue: 241000, change: "\u25bc 1.02%", volumeRank: 12 },
+  { id: 13, logo: "K", name: copy.kbFinance, price: "\u20a984,200", priceValue: 84200, change: "\u25bc 0.67%", volumeRank: 13 },
+  { id: 14, logo: "S", name: copy.shinhan, price: "\u20a957,900", priceValue: 57900, change: "\u25bc 0.58%", volumeRank: 14 },
+  { id: 15, logo: "H", name: copy.hanwha, price: "\u20a963,100", priceValue: 63100, change: "\u25bc 1.33%", volumeRank: 15 },
+  { id: 16, logo: "K", name: copy.krafton, price: "\u20a9295,500", priceValue: 295500, change: "\u25bc 0.41%", volumeRank: 16 },
 ];
 
 const navigationItems: NavigationItem[] = [
@@ -143,7 +157,7 @@ export default function Home() {
   const [sortType, setSortType] = useState<SortType>("volume");
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
-  const [isAiNewsOpen, setIsAiNewsOpen] = useState(false);
+  const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
   const [isMarketSliding, setIsMarketSliding] = useState(false);
   const [slideDirection, setSlideDirection] = useState<SlideDirection>("next");
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -217,7 +231,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
       <div className="mx-auto flex min-h-screen w-full max-w-[390px] justify-center bg-white">
-        <section className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white px-8 pb-4 pt-6 [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
+        <section className="relative flex min-h-screen w-full flex-col overflow-y-auto bg-white px-8 pb-24 pt-6 [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
           <Header isNoticeOpen={isNoticeOpen} onToggleNotice={() => setIsNoticeOpen((isOpen) => !isOpen)} />
           {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
           <MarketIndexSection
@@ -232,12 +246,14 @@ export default function Home() {
           />
           <MainStockSection
             favoriteIds={favoriteIds}
+            isMoreStocksOpen={isMoreStocksOpen}
             sortType={sortType}
             stocks={sortedStocks}
             onFavoriteStock={handleFavoriteStock}
+            onMoreStocksClose={() => setIsMoreStocksOpen(false)}
+            onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
             onSortChange={setSortType}
           />
-          <AiNewsSection isOpen={isAiNewsOpen} onToggle={() => setIsAiNewsOpen((isOpen) => !isOpen)} />
           <BottomNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} />
         </section>
       </div>
@@ -393,17 +409,32 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
 
 function MainStockSection({
   favoriteIds,
+  isMoreStocksOpen,
   sortType,
   stocks,
   onFavoriteStock,
+  onMoreStocksClose,
+  onMoreStocksOpen,
   onSortChange,
 }: {
   favoriteIds: Set<number>;
+  isMoreStocksOpen: boolean;
   sortType: SortType;
   stocks: Stock[];
   onFavoriteStock: (stockId: number) => void;
+  onMoreStocksClose: () => void;
+  onMoreStocksOpen: () => void;
   onSortChange: (sortType: SortType) => void;
 }) {
+  const stockListRef = useRef<HTMLDivElement | null>(null);
+  const visibleStocks = isMoreStocksOpen ? stocks : stocks.slice(0, 10);
+
+  useEffect(() => {
+    if (isMoreStocksOpen && stockListRef.current) {
+      stockListRef.current.scrollTop = 0;
+    }
+  }, [isMoreStocksOpen]);
+
   return (
     <section className="flex flex-col gap-4 pt-8">
       <div className="flex h-6 items-end justify-between">
@@ -426,8 +457,15 @@ function MainStockSection({
           </button>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        {stocks.map((stock) => (
+      <div
+        ref={stockListRef}
+        className={`flex flex-col gap-2 ${
+          isMoreStocksOpen
+            ? "max-h-[452px] overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            : ""
+        }`}
+      >
+        {visibleStocks.map((stock) => (
           <StockRow
             key={stock.id}
             isFavorite={favoriteIds.has(stock.id)}
@@ -435,8 +473,27 @@ function MainStockSection({
             onFavoriteStock={onFavoriteStock}
           />
         ))}
+        {!isMoreStocksOpen ? (
+          <MoreStocksButton label={copy.moreStocks} onClick={onMoreStocksOpen} />
+        ) : (
+          <MoreStocksButton label={copy.foldStocks} onClick={onMoreStocksClose} />
+        )}
       </div>
     </section>
+  );
+}
+
+function MoreStocksButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className="mx-auto grid h-9 w-[86%] shrink-0 grid-cols-[20px_minmax(0,1fr)_20px] items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-500 shadow-sm shadow-zinc-200/70 transition-colors hover:text-zinc-950"
+      onClick={onClick}
+    >
+      <span aria-hidden="true" />
+      <span className="text-center">{label}</span>
+      <span aria-hidden="true" />
+    </button>
   );
 }
 
@@ -450,7 +507,7 @@ function StockRow({
   onFavoriteStock: (stockId: number) => void;
 }) {
   return (
-    <div className="grid h-9 grid-cols-[20px_minmax(0,1fr)_76px_42px_20px] items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 shadow-sm shadow-zinc-200/70">
+    <div className="grid h-9 w-full shrink-0 grid-cols-[20px_minmax(0,1fr)_76px_42px_20px] items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 shadow-sm shadow-zinc-200/70">
       <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-[11px] font-normal text-blue-600">
         {stock.logo}
       </span>
@@ -474,28 +531,6 @@ function StockRow({
   );
 }
 
-function AiNewsSection({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
-  return (
-    <section className="pt-4">
-      <button type="button" className="w-full text-left" aria-expanded={isOpen} onClick={onToggle}>
-        <Card
-          className={`${isOpen ? "h-28" : "h-20"} rounded-lg border border-blue-100 bg-blue-50 py-2 shadow-sm shadow-zinc-200/80`}
-        >
-          <CardContent className="flex flex-col gap-2 px-3">
-            <div className="flex items-start gap-2">
-              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-white">
-                <Star className="size-3 fill-white" aria-hidden="true" />
-              </span>
-              <h2 className="text-sm font-semibold leading-5 text-indigo-500">{copy.aiNews}</h2>
-            </div>
-            {isOpen ? <p className="text-xs leading-5 text-zinc-600">{copy.aiNewsBody}</p> : null}
-          </CardContent>
-        </Card>
-      </button>
-    </section>
-  );
-}
-
 function BottomNavigation({
   selectedTab,
   onSelectTab,
@@ -504,16 +539,21 @@ function BottomNavigation({
   onSelectTab: (tab: string) => void;
 }) {
   return (
-    <nav className="mt-auto grid h-[58px] grid-cols-5 items-end" aria-label="Bottom navigation">
-      {navigationItems.map((navigationItem) => (
-        <BottomNavigationItem
-          key={navigationItem.label}
-          isSelected={selectedTab === navigationItem.label}
-          icon={navigationItem.icon}
-          label={navigationItem.label}
-          onSelectTab={onSelectTab}
-        />
-      ))}
+    <nav
+      className="absolute inset-x-0 bottom-0 z-20 border-t border-zinc-100 bg-white px-8 pb-4 pt-2"
+      aria-label="Bottom navigation"
+    >
+      <div className="grid h-14 grid-cols-5 items-center">
+        {navigationItems.map((navigationItem) => (
+          <BottomNavigationItem
+            key={navigationItem.label}
+            isSelected={selectedTab === navigationItem.label}
+            icon={navigationItem.icon}
+            label={navigationItem.label}
+            onSelectTab={onSelectTab}
+          />
+        ))}
+      </div>
     </nav>
   );
 }
@@ -530,8 +570,8 @@ function BottomNavigationItem({
   return (
     <button
       type="button"
-      className={`flex flex-col items-center gap-2 text-[10px] font-semibold ${
-        isSelected ? "text-zinc-950" : "text-zinc-600"
+      className={`flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] transition-colors ${
+        isSelected ? "bg-zinc-100 font-semibold text-zinc-950" : "font-semibold text-zinc-600"
       }`}
       aria-pressed={isSelected}
       onClick={() => onSelectTab(label)}
