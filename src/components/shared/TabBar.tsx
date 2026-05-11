@@ -33,7 +33,7 @@ export function TabBar() {
                       setIsMenuOpen(true);
                       setActiveTab("menu");
                     }}
-                    className={`flex flex-col items-center pt-1.5 w-16 h-[44px] rounded-lg cursor-pointer transition-all duration-150 ${
+                    className={`flex flex-col items-center pt-1.5 w-16 h-[44px] rounded-lg cursor-pointer transition-[transform,box-shadow] duration-100 ${
                       isActive
                         ? "bg-muted text-foreground font-semibold shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner"
@@ -49,7 +49,7 @@ export function TabBar() {
                       e.preventDefault();
                       setActiveTab(tab.id);
                     }}
-                    className={`flex flex-col items-center pt-1.5 w-16 h-[44px] rounded-lg cursor-pointer transition-all duration-150 ${
+                    className={`flex flex-col items-center pt-1.5 w-16 h-[44px] rounded-lg cursor-pointer transition-[transform,box-shadow] duration-100 ${
                       isActive
                         ? "bg-muted text-foreground font-semibold shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner"
