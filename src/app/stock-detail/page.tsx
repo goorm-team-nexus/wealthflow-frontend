@@ -157,9 +157,9 @@ export default function StockDetailPage() {
           <StockInfoCard />
           <Button
             asChild
-            className="h-11 w-full bg-red-400 text-base font-semibold text-white hover:bg-red-500"
+            className="h-11 w-full bg-red-400 text-base font-semibold text-white hover:bg-red-500 [a]:hover:bg-red-500"
           >
-            <Link href="/stock-detail/purchase">구매하기</Link>
+            <Link href="/purchase">구매하기</Link>
           </Button>
           <BottomNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} />
         </section>
