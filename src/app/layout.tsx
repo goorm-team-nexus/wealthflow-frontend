@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import GlobalNavigationBar from "@/components/shared/GlobalNavigationBar";
 
 const geistSans = localFont({
   src: "./fonts/Geist-Variable.woff2",
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} min-h-full flex flex-col`}
       >
+        <GlobalNavigationBar />
         {children}
       </body>
     </html>
