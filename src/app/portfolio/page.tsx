@@ -1,3 +1,4 @@
+import PortfolioHoldingsRatio from "@/components/portfolio/PortfolioHoldingsRatio";
 import PortfolioMyRanking from "@/components/portfolio/PortfolioMyRanking";
 import PortfolioTotalAssets from "@/components/portfolio/PortfolioTotalAssets";
 
@@ -12,6 +13,7 @@ export default function PortfolioPage() {
       <h1 className="text-2xl font-bold">포트폴리오</h1>
       <PortfolioMyRanking />
       <PortfolioTotalAssets />
+      <PortfolioHoldingsRatio />
     </main>
   );
 }
