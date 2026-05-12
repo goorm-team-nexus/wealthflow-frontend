@@ -11,6 +11,7 @@ import {
   Trophy,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -137,11 +138,6 @@ export default function StockDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("1일");
   const [selectedTab, setSelectedTab] = useState("메뉴");
-  const [isPurchased, setIsPurchased] = useState(false);
-
-  const handleBuyStock = () => {
-    setIsPurchased((currentIsPurchased) => !currentIsPurchased);
-  };
 
   return (
     <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
@@ -160,11 +156,10 @@ export default function StockDetailPage() {
           <AiSummary />
           <StockInfoCard />
           <Button
+            asChild
             className="h-11 w-full bg-red-400 text-base font-semibold text-white hover:bg-red-500"
-            aria-pressed={isPurchased}
-            onClick={handleBuyStock}
           >
-            {isPurchased ? "구매 완료" : "구매하기"}
+            <Link href="/stock-detail/purchase">구매하기</Link>
           </Button>
           <BottomNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} />
         </section>
