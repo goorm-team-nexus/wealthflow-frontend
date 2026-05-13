@@ -176,6 +176,9 @@
 
 - MUST 기본 UI primitive는 shadcn/ui를 기준으로 사용한다.
 - MUST button, dialog, dropdown, form control, table, tabs, toast 계열 UI는 shadcn/ui component를 우선 기준으로 삼는다.
+- MUST shadcn/ui primitive가 필요한 경우 먼저 `src/components/ui/`에 해당 component가 존재하는지 확인한다.
+- MUST 필요한 shadcn/ui primitive가 없고 `shadcn add` 등으로 새 component 파일을 생성해야 하는 경우 사용자 승인을 먼저 받아야 한다.
+- MUST `shadcn add` 실행 시 dependency 또는 lockfile 변경이 발생할 수 있으므로 실행 전 승인 범위에 dependency 변경 가능성을 포함한다.
 - MUST shadcn/ui component를 수정할 경우 기존 사용처 영향을 확인한다.
 - MUST shadcn/ui primitive의 구조 변경이 필요할 경우 wrapper component에서 처리한다.
 - MUST 화면 전용 variant는 해당 화면의 wrapper component에서 처리한다.
