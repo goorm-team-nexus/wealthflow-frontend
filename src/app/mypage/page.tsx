@@ -10,9 +10,7 @@ export default function MyPage() {
     <div className="flex flex-col min-h-screen bg-white">
       {/* Header Section */}
       <header className="flex items-center justify-between px-6 py-5 border-b border-gray-50">
-        <h1 className="text-[28px] font-bold tracking-tight text-[#0f172a]">
-          WealthFlow
-        </h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-[#0f172a]">WealthFlow</h1>
         <button className="p-1 text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
           <Bell className="w-7 h-7" />
         </button>
@@ -26,15 +24,9 @@ export default function MyPage() {
               <CircleUserRound className="w-10 h-10 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-[18px] text-gray-900">
-                @투자자 김성실
-              </span>
-              <span className="text-[15px] text-gray-600 font-medium">
-                이메일일@kakao.com
-              </span>
-              <span className="text-[13px] text-gray-400 mt-0.5">
-                December 2021(가입일)
-              </span>
+              <span className="font-bold text-[18px] text-gray-900">@투자자 김성실</span>
+              <span className="text-[15px] text-gray-600 font-medium">이메일일@kakao.com</span>
+              <span className="text-[13px] text-gray-400 mt-0.5">December 2021(가입일)</span>
             </div>
           </div>
         </Card>
@@ -43,9 +35,7 @@ export default function MyPage() {
         <div className="text-center space-y-3">
           <span className="text-[18px] font-bold text-gray-900">총액</span>
           <div className="flex flex-col items-center gap-4">
-            <h2 className="text-[36px] font-black tracking-tight text-gray-900">
-              ₩12,235,230.00
-            </h2>
+            <h2 className="text-[36px] font-black tracking-tight text-gray-900">₩12,235,230.00</h2>
             <div className="inline-flex items-center bg-[#ef4444] px-5 py-2 rounded-full text-white font-bold text-[14px] shadow-sm">
               +12,555,550 (+12.3%)
             </div>
@@ -58,15 +48,13 @@ export default function MyPage() {
             variant="outline"
             className="w-full h-[52px] rounded-xl border-gray-200 text-gray-900 text-[16px] font-bold gap-3 hover:bg-gray-50 transition-all shadow-sm"
           >
-            <Trophy className="w-5 h-5" />
-            내 랭킹
+            <Trophy className="w-5 h-5" />내 랭킹
           </Button>
           <Button
             variant="outline"
             className="w-full h-[52px] rounded-xl border-gray-200 text-gray-900 text-[16px] font-bold gap-3 hover:bg-gray-50 transition-all shadow-sm"
           >
-            <User className="w-5 h-5" />
-            내 정보 조회 및 수정
+            <User className="w-5 h-5" />내 정보 조회 및 수정
           </Button>
           <Button
             variant="outline"

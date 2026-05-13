@@ -6,9 +6,7 @@ export default function EditInfo() {
       <div className="w-full max-w-[400px]">
         {/* Header Section */}
         <div className="mb-6">
-          <h1 className="text-[32px] font-bold tracking-tight text-[#0f172a]">
-            WealthFlow
-          </h1>
+          <h1 className="text-[32px] font-bold tracking-tight text-[#0f172a]">WealthFlow</h1>
           <p className="mt-1 text-[15px] text-gray-500">
             모든 자산을 WealthFlow로 한번에 관리하세요
           </p>
@@ -21,10 +19,7 @@ export default function EditInfo() {
           <form className="space-y-6">
             {/* Name Field */}
             <div className="space-y-2.5">
-              <label
-                htmlFor="name"
-                className="block text-[15px] font-bold text-gray-900"
-              >
+              <label htmlFor="name" className="block text-[15px] font-bold text-gray-900">
                 이름
               </label>
               <input
@@ -36,10 +31,7 @@ export default function EditInfo() {
 
             {/* Password Change Field */}
             <div className="space-y-2.5">
-              <label
-                htmlFor="password"
-                className="block text-[15px] font-bold text-gray-900"
-              >
+              <label htmlFor="password" className="block text-[15px] font-bold text-gray-900">
                 비밀번호 변경
               </label>
               <input
@@ -67,19 +59,13 @@ export default function EditInfo() {
                 placeholder="********"
                 className="block w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900"
               />
-              <p className="mt-1.5 text-xs text-red-500">
-                비밀번호가 다릅니다
-              </p>
+              <p className="mt-1.5 text-xs text-red-500">비밀번호가 다릅니다</p>
             </div>
 
             {/* Email Field (Static) */}
             <div className="space-y-2.5">
-              <label className="block text-[15px] font-bold text-gray-900">
-                이메일
-              </label>
-              <div className="px-4 py-2 text-lg text-gray-900">
-                xxxx@gmail.com
-              </div>
+              <label className="block text-[15px] font-bold text-gray-900">이메일</label>
+              <div className="px-4 py-2 text-lg text-gray-900">xxxx@gmail.com</div>
             </div>
 
             {/* Submit Button */}
