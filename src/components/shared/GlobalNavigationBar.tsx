@@ -1,13 +1,25 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const pathMap: Record<string, string> = {
+  "/portfolio": "Portfolio",
+  "/ranking": "Ranking",
+  "/mypage": "My Page",
+};
 
 export default function GlobalNavigationBar() {
+  const pathname = usePathname();
+  const title = pathMap[pathname] || "WealthFlow";
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-[50px] items-center justify-between px-4">
+    <header className="w-full border-b bg-background rounded-t-[1.5rem]">
+      <div className="flex h-[56px] items-center justify-between px-4">
         {/* Left: Logo Placeholder + Title */}
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-sm bg-muted" aria-hidden="true" />
-          <span className="text-xl font-bold tracking-tight">WealthFlow</span>
+          <span className="text-xl font-bold tracking-tight">{title}</span>
         </div>
 
         {/* Right: My Page Link (Profile Circle Placeholder) */}

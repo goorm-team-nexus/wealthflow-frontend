@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import GlobalNavigationBar from "@/components/shared/GlobalNavigationBar";
+import { TabBar } from "@/components/shared/TabBar";
 
 const geistSans = localFont({
   src: "./fonts/Geist-Variable.woff2",
@@ -25,8 +26,6 @@ const notoSansKr = localFont({
   adjustFontFallback: false,
 });
 
-import { TabBar } from "@/components/shared/TabBar";
-
 export const metadata: Metadata = {
   title: "WealthFlow",
   description: "WealthFlow - Manage all your assets at once",
@@ -38,12 +37,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="h-full antialiased">
+    <html lang="ko" className="h-full antialiased overflow-hidden">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} min-h-full flex flex-col font-noto-sans-kr`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} h-full flex flex-col font-noto-sans-kr bg-gray-50`}
       >
-        <GlobalNavigationBar />
-        {children}
+        {/* Fixed Mobile-first container */}
+        <div className="w-full max-w-[500px] mx-auto bg-background h-full flex flex-col relative border-x border-border shadow-sm overflow-hidden md:rounded-[1.5rem]">
+          {/* Header Fixed */}
+          <GlobalNavigationBar />
+
+          {/* Scrollable Content */}
+          <main className="flex-1 overflow-y-auto">{children}</main>
+
+          {/* TabBar Fixed */}
+          <TabBar />
+        </div>
       </body>
     </html>
   );
