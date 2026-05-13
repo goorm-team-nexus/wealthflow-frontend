@@ -71,7 +71,7 @@
 ## Output Format
 
 - MUST 기본 출력은 PR 제목과 PR 본문을 분리해서 제공한다.
-- MUST `Title`에는 GitHub PR title input에 넣을 제목만 한 줄로 제공한다.
+- MUST `Title`에는 GitHub PR title input에 넣을 제목만 `text` fenced code block으로 제공한다.
 - MUST `Body`에는 GitHub PR body textarea에 붙여넣을 본문만 `markdown` fenced code block으로 제공한다.
 - MUST `Body` code block 안에 PR 제목을 포함하지 않는다.
 - MUST 별도 요청이 없는 한 Preview를 따로 출력하지 않는다.
