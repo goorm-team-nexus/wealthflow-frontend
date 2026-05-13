@@ -8,4 +8,6 @@ allowed-tools: Bash(git branch *) Bash(git rev-parse *) Bash(git status *) Bash(
 
 Follow `.agents/workflows/pr-draft.md` exactly.
 
+Treat any text after `/pr-draft` as invocation input for the shared workflow.
+
 Do not create a PR, commit, push, merge, or edit files.

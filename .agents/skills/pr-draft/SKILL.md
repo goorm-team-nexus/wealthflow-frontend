@@ -10,6 +10,7 @@ Follow `.agents/workflows/pr-draft.md` exactly.
 When invoked:
 
 1. Read the shared workflow.
-2. Run only the preflight and analysis commands defined there.
-3. Draft the PR title and body from the current branch.
-4. Do not create a PR, commit, push, merge, or edit files.
+2. Treat any text after `$pr-draft` or `/pr-draft` as invocation input for the shared workflow.
+3. Run only the preflight and analysis commands defined there.
+4. Draft the PR title and body from the current branch.
+5. Do not create a PR, commit, push, merge, or edit files.

@@ -7,6 +7,8 @@ description: Draft a GitHub PR title and body from the current branch using the 
 
 Follow @.agents/workflows/pr-draft.md exactly.
 
+Treat arguments after `/pr-draft` as invocation input for the shared workflow.
+
 Do not create a PR, commit, push, merge, or edit files.
 
 Arguments, if provided: $ARGUMENTS

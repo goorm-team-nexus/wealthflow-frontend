@@ -10,6 +10,12 @@
 - MUST 파일을 생성하거나 수정하지 않는다.
 - MUST 결과는 복사 붙여넣기 쉬운 형태로 응답한다.
 
+## Invocation Input
+
+- MUST 사용자가 command와 함께 추가 프롬프트를 입력한 경우 해당 내용을 우선 반영한다.
+- MUST 추가 프롬프트는 PR 제목, 관련 이슈, 검증 결과, 스크린샷 여부, 특별히 강조할 변경점 같은 PR draft 작성 힌트로만 사용한다.
+- MUST 추가 프롬프트가 git diff, commit log, PR template, `AGENTS.md` 규칙과 충돌하면 프로젝트 규칙과 실제 변경사항을 우선한다.
+
 ## Required Reading
 
 - MUST `AGENTS.md`를 확인한다.
@@ -64,6 +70,9 @@
 
 ## Output Format
 
-- MUST `Preview`와 `Markdown Code Block` 두 형태를 모두 제공한다.
-- MUST `Preview`에는 PR 제목과 PR 본문을 일반 Markdown으로 보여준다.
-- MUST `Markdown Code Block`에는 PR 제목과 전체 본문을 복사 가능한 `markdown` fenced code block으로 제공한다.
+- MUST 기본 출력은 PR 제목과 PR 본문을 분리해서 제공한다.
+- MUST `Title`에는 GitHub PR title input에 넣을 제목만 한 줄로 제공한다.
+- MUST `Body`에는 GitHub PR body textarea에 붙여넣을 본문만 `markdown` fenced code block으로 제공한다.
+- MUST `Body` code block 안에 PR 제목을 포함하지 않는다.
+- MUST 별도 요청이 없는 한 Preview를 따로 출력하지 않는다.
+- MUST 사용자가 Preview를 요청한 경우에만 code block 밖에 렌더링된 Preview를 추가한다.
