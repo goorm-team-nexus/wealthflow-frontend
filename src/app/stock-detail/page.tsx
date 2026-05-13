@@ -2,18 +2,14 @@
 
 import {
   ArrowLeft,
-  ChartNoAxesColumnIncreasing,
   CircleDollarSign,
-  Clock3,
   Heart,
-  Menu,
   Sparkles,
-  Trophy,
-  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { TabBar, tabLabels } from "@/components/shared/TabBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -34,20 +30,9 @@ type StockMetric = {
 
 type ChartPeriod = "1일" | "1주" | "1달" | "3달" | "1년";
 
-type NavigationItem = {
-  label: string;
-  icon: LucideIcon;
-};
 
 const chartPeriods: ChartPeriod[] = ["1일", "1주", "1달", "3달", "1년"];
 
-const navigationItems: NavigationItem[] = [
-  { label: "메뉴", icon: Menu },
-  { label: "시장/거래", icon: ChartNoAxesColumnIncreasing },
-  { label: "관심 종목", icon: Heart },
-  { label: "포트폴리오", icon: Clock3 },
-  { label: "랭킹", icon: Trophy },
-];
 
 const chartBarsByPeriod: Record<ChartPeriod, ChartBar[]> = {
   "1일": [
@@ -137,7 +122,7 @@ const stockMetrics: StockMetric[] = [
 export default function StockDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("1일");
-  const [selectedTab, setSelectedTab] = useState("메뉴");
+  const [selectedTab, setSelectedTab] = useState<string>(tabLabels.menu);
 
   return (
     <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
@@ -161,7 +146,7 @@ export default function StockDetailPage() {
           >
             <Link href="/purchase">구매하기</Link>
           </Button>
-          <BottomNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} />
+          <TabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
         </section>
       </div>
     </main>
@@ -357,53 +342,3 @@ function StockInfoCard() {
   );
 }
 
-function BottomNavigation({
-  selectedTab,
-  onSelectTab,
-}: {
-  selectedTab: string;
-  onSelectTab: (tab: string) => void;
-}) {
-  return (
-    <nav
-      className="absolute inset-x-0 bottom-0 z-20 border-t border-zinc-100 bg-white px-8 pb-4 pt-2"
-      aria-label="Bottom navigation"
-    >
-      <div className="grid h-14 grid-cols-5 items-center">
-        {navigationItems.map((navigationItem) => (
-          <BottomNavigationItem
-            key={navigationItem.label}
-            isSelected={selectedTab === navigationItem.label}
-            icon={navigationItem.icon}
-            label={navigationItem.label}
-            onSelectTab={onSelectTab}
-          />
-        ))}
-      </div>
-    </nav>
-  );
-}
-
-function BottomNavigationItem({
-  icon: Icon,
-  isSelected,
-  label,
-  onSelectTab,
-}: NavigationItem & {
-  isSelected: boolean;
-  onSelectTab: (tab: string) => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={`flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] transition-colors ${
-        isSelected ? "bg-zinc-100 font-semibold text-zinc-950" : "font-semibold text-zinc-600"
-      }`}
-      aria-pressed={isSelected}
-      onClick={() => onSelectTab(label)}
-    >
-      <Icon className="size-6 stroke-[2] text-current" aria-hidden="true" />
-      <span className="whitespace-nowrap">{label}</span>
-    </button>
-  );
-}

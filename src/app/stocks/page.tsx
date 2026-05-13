@@ -2,17 +2,14 @@
 
 import {
   Bell,
-  ChartNoAxesColumnIncreasing,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   Heart,
-  Menu,
-  Trophy,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ComponentType, type SVGProps } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { TabBar } from "@/components/shared/TabBar";
 import { Card, CardContent } from "@/components/ui/card";
 
 type MarketIndex = {
@@ -35,11 +32,6 @@ type Stock = {
 
 type SortType = "volume" | "price";
 type SlideDirection = "next" | "previous";
-
-type NavigationItem = {
-  label: string;
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-};
 
 const copy = {
   kospi: "\ucf54\uc2a4\ud53c",
@@ -141,14 +133,6 @@ const stocks: Stock[] = [
   { id: 14, logo: "S", name: copy.shinhan, price: "\u20a957,900", priceValue: 57900, change: "\u25bc 0.58%", volumeRank: 14 },
   { id: 15, logo: "H", name: copy.hanwha, price: "\u20a963,100", priceValue: 63100, change: "\u25bc 1.33%", volumeRank: 15 },
   { id: 16, logo: "K", name: copy.krafton, price: "\u20a9295,500", priceValue: 295500, change: "\u25bc 0.41%", volumeRank: 16 },
-];
-
-const navigationItems: NavigationItem[] = [
-  { label: copy.menu, icon: Menu },
-  { label: copy.marketTrade, icon: ChartNoAxesColumnIncreasing },
-  { label: copy.favorites, icon: Heart },
-  { label: copy.portfolio, icon: Clock3 },
-  { label: copy.ranking, icon: Trophy },
 ];
 
 export default function Home() {
@@ -254,7 +238,7 @@ export default function Home() {
             onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
             onSortChange={setSortType}
           />
-          <BottomNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} />
+          <TabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
         </section>
       </div>
     </main>
@@ -528,56 +512,5 @@ function StockRow({
         />
       </button>
     </div>
-  );
-}
-
-function BottomNavigation({
-  selectedTab,
-  onSelectTab,
-}: {
-  selectedTab: string;
-  onSelectTab: (tab: string) => void;
-}) {
-  return (
-    <nav
-      className="absolute inset-x-0 bottom-0 z-20 border-t border-zinc-100 bg-white px-8 pb-4 pt-2"
-      aria-label="Bottom navigation"
-    >
-      <div className="grid h-14 grid-cols-5 items-center">
-        {navigationItems.map((navigationItem) => (
-          <BottomNavigationItem
-            key={navigationItem.label}
-            isSelected={selectedTab === navigationItem.label}
-            icon={navigationItem.icon}
-            label={navigationItem.label}
-            onSelectTab={onSelectTab}
-          />
-        ))}
-      </div>
-    </nav>
-  );
-}
-
-function BottomNavigationItem({
-  icon: Icon,
-  isSelected,
-  label,
-  onSelectTab,
-}: NavigationItem & {
-  isSelected: boolean;
-  onSelectTab: (tab: string) => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={`flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] transition-colors ${
-        isSelected ? "bg-zinc-100 font-semibold text-zinc-950" : "font-semibold text-zinc-600"
-      }`}
-      aria-pressed={isSelected}
-      onClick={() => onSelectTab(label)}
-    >
-      <Icon className="size-6 stroke-[2] text-current" aria-hidden="true" />
-      <span className="whitespace-nowrap">{label}</span>
-    </button>
   );
 }

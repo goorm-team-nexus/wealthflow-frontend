@@ -2,25 +2,16 @@
 
 import {
   ArrowLeft,
-  ChartNoAxesColumnIncreasing,
   CircleX,
-  Clock3,
-  Heart,
-  Menu,
-  Trophy,
-  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { TabBar, tabLabels } from "@/components/shared/TabBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-type NavigationItem = {
-  label: string;
-  icon: LucideIcon;
-};
 
 type KeypadItem = {
   label: string;
@@ -41,13 +32,6 @@ type QuickQuantityItem =
 const maxPurchaseQuantity = 99;
 const stockPrice = 219500;
 
-const navigationItems: NavigationItem[] = [
-  { label: "메뉴", icon: Menu },
-  { label: "시장/거래", icon: ChartNoAxesColumnIncreasing },
-  { label: "관심 종목", icon: Heart },
-  { label: "포트폴리오", icon: Clock3 },
-  { label: "랭킹", icon: Trophy },
-];
 
 const quickQuantityItems: QuickQuantityItem[] = [
   { label: "1주", increment: 1, type: "add" },
@@ -73,7 +57,7 @@ const keypadItems: KeypadItem[] = [
 export default function StockPurchasePage() {
   const [quantity, setQuantity] = useState("0");
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("메뉴");
+  const [selectedTab, setSelectedTab] = useState<string>(tabLabels.menu);
   const purchaseControlsRef = useRef<HTMLDivElement>(null);
   const purchaseQuantity = Number(quantity);
   const purchasePrice = stockPrice * purchaseQuantity;
@@ -215,37 +199,10 @@ export default function StockPurchasePage() {
             구매하기
           </Button>
 
-          <BottomNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} />
+          <TabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
         </section>
       </div>
     </main>
-  );
-}
-
-function BottomNavigation({
-  selectedTab,
-  onSelectTab,
-}: {
-  selectedTab: string;
-  onSelectTab: (tab: string) => void;
-}) {
-  return (
-    <nav
-      className="absolute inset-x-0 bottom-0 z-20 bg-white px-8 pb-4 pt-2"
-      aria-label="하단 내비게이션"
-    >
-      <div className="grid h-14 grid-cols-5 items-center">
-        {navigationItems.map((navigationItem) => (
-          <BottomNavigationItem
-            key={navigationItem.label}
-            isSelected={selectedTab === navigationItem.label}
-            icon={navigationItem.icon}
-            label={navigationItem.label}
-            onSelectTab={onSelectTab}
-          />
-        ))}
-      </div>
-    </nav>
   );
 }
 
@@ -253,26 +210,3 @@ function formatCurrency(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
 }
 
-function BottomNavigationItem({
-  icon: Icon,
-  isSelected,
-  label,
-  onSelectTab,
-}: NavigationItem & {
-  isSelected: boolean;
-  onSelectTab: (tab: string) => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={`flex h-12 flex-col items-center justify-center gap-1 rounded-md text-[10px] transition-colors ${
-        isSelected ? "bg-zinc-100 font-semibold text-zinc-950" : "font-semibold text-zinc-600"
-      }`}
-      aria-pressed={isSelected}
-      onClick={() => onSelectTab(label)}
-    >
-      <Icon className="size-5 stroke-[2]" aria-hidden="true" />
-      <span className="whitespace-nowrap">{label}</span>
-    </button>
-  );
-}
