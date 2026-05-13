@@ -48,6 +48,9 @@ export default function FindPassword() {
                 placeholder="xxxx@gmail.com"
                 className="block w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
               />
+              <p className="mt-1.5 text-xs text-red-500">
+                이메일 형식을 맞춰주세요 m@example.com
+              </p>
             </div>
 
             {/* Submit Button */}
