@@ -113,12 +113,6 @@ jobs:
             --region "${{ vars.AWS_REGION }}" \
             --name "${{ vars.EKS_CLUSTER_NAME }}"
 
-      - name: Ensure namespace
-        run: |
-          kubectl create namespace "${K8S_NAMESPACE}" \
-            --dry-run=client \
-            -o yaml | kubectl apply -f -
-
       - name: Render Kubernetes deployment
         env:
           IMAGE_URI: ${{ steps.image.outputs.uri }}
