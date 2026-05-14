@@ -6,12 +6,12 @@ import Link from "next/link";
 
 import { Card, CardContent } from "@/components/ui/card";
 
-import naverLogo from "@/logo/NAVER_login_Dark_EN_green_icon_H48.png";
-import tossLogo from "@/logo/toss.png";
-import kakaobankLogo from "@/logo/Kakao_Bank_of_Korea_Logo.jpg";
-import shinhanLogo from "@/logo/신한은행.png";
-import cjLogo from "@/logo/CJ_logo.svg.png";
-import kbLogo from "@/logo/KB.svg";
+import naverLogo from "@/assets/images/logos/stocks/stock-naver.svg";
+import tossLogo from "@/assets/images/logos/stocks/stock-toss.svg";
+import kakaobankLogo from "@/assets/images/logos/stocks/stock-kakaobank.svg";
+import shinhanLogo from "@/assets/images/logos/stocks/stock-sinhanbank.svg";
+import cjLogo from "@/assets/images/logos/stocks/stock-CJ.svg";
+import kbLogo from "@/assets/images/logos/stocks/stock-kb.svg";
 import type { StaticImageData } from "next/image";
 
 // TODO: 백엔드 연동 시 API 응답 타입으로 교체
@@ -32,6 +32,7 @@ const HOLDINGS_DATA: HoldingItem[] = [
     value: 300000,
     profitRate: 2.0,
     logoSrc: naverLogo,
+    logoClassName: "w-full h-full object-cover",
   },
   {
     name: "토스",
@@ -53,7 +54,7 @@ const HOLDINGS_DATA: HoldingItem[] = [
     value: 300000,
     profitRate: 2.0,
     logoSrc: shinhanLogo,
-    logoClassName: "w-10 h-10 object-cover",
+    logoClassName: "w-full h-full object-cover",
   },
   {
     name: "CJ",
@@ -61,7 +62,7 @@ const HOLDINGS_DATA: HoldingItem[] = [
     value: 300000,
     profitRate: 2.0,
     logoSrc: cjLogo,
-    logoClassName: "w-7 h-7 object-contain",
+    logoClassName: "w-8 h-8 object-contain",
   },
   {
     name: "KB",
@@ -69,7 +70,7 @@ const HOLDINGS_DATA: HoldingItem[] = [
     value: 300000,
     profitRate: 2.0,
     logoSrc: kbLogo,
-    logoClassName: "w-7 h-7 object-contain",
+    logoClassName: "w-8 h-8 object-contain",
   },
   {
     name: "삼성전자",
@@ -158,7 +159,7 @@ export default function PortfolioHoldingsList() {
                         alt={`${item.name} 로고`}
                         width={40}
                         height={40}
-                        className={item.logoClassName ?? "w-10 h-10 object-cover"}
+                        className={item.logoClassName ?? "w-8 h-8 object-contain"}
                       />
                     </div>
                     <div className="flex flex-col gap-0.5 group-hover:translate-x-1 transition-transform duration-300">
