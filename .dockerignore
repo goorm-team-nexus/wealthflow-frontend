@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.env.*
+.git
+.github
+.husky
+.next
+coverage
+Dockerfile
+node_modules
+npm-debug.log*
