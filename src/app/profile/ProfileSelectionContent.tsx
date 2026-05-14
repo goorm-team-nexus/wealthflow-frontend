@@ -21,9 +21,7 @@ export default function ProfileSelectionContent() {
     <div className="flex flex-col min-h-screen bg-white">
       {/* Header Section */}
       <header className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-        <h1 className="text-[28px] font-bold tracking-tight text-[#0f172a]">
-          WealthFlow
-        </h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-[#0f172a]">WealthFlow</h1>
         <button className="p-1 text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
           <Bell className="w-7 h-7" />
         </button>

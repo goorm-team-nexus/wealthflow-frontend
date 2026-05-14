@@ -26,15 +26,9 @@ export default function MyPage() {
                 <CircleUserRound className="w-10 h-10 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-[18px] text-gray-900">
-                  @투자자 김성실
-                </span>
-                <span className="text-[15px] text-gray-600 font-medium">
-                  이메일일@kakao.com
-                </span>
-                <span className="text-[13px] text-gray-400 mt-0.5">
-                  December 2021(가입일)
-                </span>
+                <span className="font-bold text-[18px] text-gray-900">@투자자 김성실</span>
+                <span className="text-[15px] text-gray-600 font-medium">이메일일@kakao.com</span>
+                <span className="text-[13px] text-gray-400 mt-0.5">December 2021(가입일)</span>
               </div>
             </div>
           </Card>
@@ -64,8 +58,7 @@ export default function MyPage() {
               variant="outline"
               className="w-full h-[52px] rounded-xl border-gray-200 text-gray-900 text-[16px] font-bold gap-3 hover:bg-gray-50 transition-all shadow-sm"
             >
-              <User className="w-5 h-5" />
-              내 정보 조회 및 수정
+              <User className="w-5 h-5" />내 정보 조회 및 수정
             </Button>
           </Link>
           <Button
