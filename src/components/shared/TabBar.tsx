@@ -5,14 +5,39 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { FullMenuPopup } from "./FullMenuPopup";
 
-export function TabBar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("menu");
+export const tabLabels = {
+  menu: "menu",
+  market: "market",
+  watchlist: "watchlist",
+  portfolio: "portfolio",
+  ranking: "ranking",
+} as const;
 
-  type TabBarProps = {
-    selectedTab: string;
-    onSelectTab: (tab: string) => void;
+interface TabBarProps {
+  selectedTab?: string;
+  onSelectTab?: (tab: string) => void;
+}
+
+export function TabBar({ selectedTab: propSelectedTab, onSelectTab }: TabBarProps = {}) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [internalActiveTab, setInternalActiveTab] = useState("menu");
+
+  const activeTab = propSelectedTab ?? internalActiveTab;
+  const setActiveTab = (tab: string) => {
+    if (onSelectTab) {
+      onSelectTab(tab);
+    } else {
+      setInternalActiveTab(tab);
+    }
   };
+
+  const tabs = [
+    { id: "menu", label: "메뉴", icon: Menu },
+    { id: "market", label: "시장/거래", icon: LineChart },
+    { id: "watchlist", label: "관심 종목", icon: Heart },
+    { id: "portfolio", label: "포트폴리오", icon: PieChart },
+    { id: "ranking", label: "랭킹", icon: Trophy },
+  ];
 
   return (
     <>
