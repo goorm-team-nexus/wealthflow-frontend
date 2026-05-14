@@ -5,9 +5,31 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { FullMenuPopup } from "./FullMenuPopup";
 
-export function TabBar() {
+export const tabLabels = {
+  menu: "menu",
+  market: "market",
+  watchlist: "watchlist",
+  portfolio: "portfolio",
+  ranking: "ranking",
+} as const;
+
+interface TabBarProps {
+  selectedTab?: string;
+  onSelectTab?: (tab: string) => void;
+}
+
+export function TabBar({ selectedTab: propSelectedTab, onSelectTab }: TabBarProps = {}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("menu");
+  const [internalActiveTab, setInternalActiveTab] = useState("menu");
+
+  const activeTab = propSelectedTab ?? internalActiveTab;
+  const setActiveTab = (tab: string) => {
+    if (onSelectTab) {
+      onSelectTab(tab);
+    } else {
+      setInternalActiveTab(tab);
+    }
+  };
 
   const tabs = [
     { id: "menu", label: "메뉴", icon: Menu },
