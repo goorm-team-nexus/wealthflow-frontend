@@ -3,12 +3,10 @@ name: CD
 on:
   workflow_call:
     inputs:
-      environment:
-        required: true
-        type: string
       namespace:
-        required: true
+        required: false
         type: string
+        default: ""
       image_tag:
         required: true
         type: string
@@ -18,15 +16,11 @@ on:
         default: ""
   workflow_dispatch:
     inputs:
-      environment:
-        description: GitHub deployment environment name
-        required: true
-        type: string
-        default: development
       namespace:
-        description: Kubernetes namespace to deploy into
-        required: true
+        description: Optional Kubernetes namespace override
+        required: false
         type: string
+        default: ""
       image_tag:
         description: Docker image tag to publish
         required: true
@@ -44,7 +38,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    env:
+      K8S_NAMESPACE: ${{ inputs.namespace || vars.K8S_NAMESPACE }}
 
     steps:
       - name: Checkout
@@ -55,13 +50,12 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION }}
           ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
           EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
-          K8S_NAMESPACE: ${{ inputs.namespace }}
           IMAGE_TAG: ${{ inputs.image_tag }}
         run: |
           : "${AWS_REGION:?AWS_REGION repository or environment variable is required}"
           : "${ECR_REPOSITORY:?ECR_REPOSITORY repository or environment variable is required}"
           : "${EKS_CLUSTER_NAME:?EKS_CLUSTER_NAME repository or environment variable is required}"
-          : "${K8S_NAMESPACE:?namespace input is required}"
+          : "${K8S_NAMESPACE:?K8S_NAMESPACE environment variable or namespace input is required}"
           : "${IMAGE_TAG:?image_tag input is required}"
 
       - name: Configure AWS credentials
@@ -120,8 +114,6 @@ jobs:
             --name "${{ vars.EKS_CLUSTER_NAME }}"
 
       - name: Ensure namespace
-        env:
-          K8S_NAMESPACE: ${{ inputs.namespace }}
         run: |
           kubectl create namespace "${K8S_NAMESPACE}" \
             --dry-run=client \
@@ -137,15 +129,11 @@ jobs:
             k8s/deployment.yaml > /tmp/wealthflow-frontend-deployment.yaml
 
       - name: Apply Kubernetes manifests
-        env:
-          K8S_NAMESPACE: ${{ inputs.namespace }}
         run: |
           kubectl apply -n "${K8S_NAMESPACE}" -f /tmp/wealthflow-frontend-deployment.yaml
           kubectl apply -n "${K8S_NAMESPACE}" -f k8s/service.yaml
 
       - name: Wait for rollout
-        env:
-          K8S_NAMESPACE: ${{ inputs.namespace }}
         run: |
           kubectl rollout status deployment/wealthflow-frontend \
             -n "${K8S_NAMESPACE}"

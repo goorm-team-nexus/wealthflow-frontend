@@ -22,8 +22,6 @@ jobs:
     needs: ci
     uses: ./.github/workflows/cd.yaml
     with:
-      environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
-      namespace: ${{ github.ref_name == 'main' && vars.K8S_NAMESPACE_PRODUCTION || vars.K8S_NAMESPACE_DEVELOPMENT }}
       image_tag: sha-${{ github.sha }}
       image_alias: ${{ github.ref_name }}-latest
     secrets: inherit
