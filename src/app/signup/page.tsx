@@ -4,9 +4,7 @@ export default function SignUp() {
       <div className="w-full max-w-[400px]">
         {/* Header Section */}
         <div className="mb-6">
-          <h1 className="text-[32px] font-bold tracking-tight text-[#0f172a]">
-            WealthFlow
-          </h1>
+          <h1 className="text-[32px] font-bold tracking-tight text-[#0f172a]">WealthFlow</h1>
           <p className="mt-1 text-[15px] text-gray-500">
             모든 자산을 WealthFlow로 한번에 관리하세요
           </p>
@@ -19,10 +17,7 @@ export default function SignUp() {
           <form className="space-y-6">
             {/* Name Field */}
             <div className="space-y-2">
-              <label
-                htmlFor="name"
-                className="block text-[15px] font-bold text-gray-900"
-              >
+              <label htmlFor="name" className="block text-[15px] font-bold text-gray-900">
                 이름
               </label>
               <input
@@ -34,10 +29,7 @@ export default function SignUp() {
 
             {/* Email Field & Verification Button */}
             <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="block text-[15px] font-bold text-gray-900"
-              >
+              <label htmlFor="email" className="block text-[15px] font-bold text-gray-900">
                 이메일
               </label>
               <input
@@ -58,10 +50,7 @@ export default function SignUp() {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="block text-[15px] font-bold text-gray-900"
-              >
+              <label htmlFor="password" className="block text-[15px] font-bold text-gray-900">
                 비밀번호
               </label>
               <input
@@ -89,9 +78,7 @@ export default function SignUp() {
                 placeholder="********"
                 className="block w-full rounded-lg border border-gray-200 px-4 py-2.5 text-gray-900 placeholder-gray-500 outline-none transition-colors focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
               />
-              <p className="mt-1.5 text-xs text-red-500">
-                비밀번호가 다릅니다
-              </p>
+              <p className="mt-1.5 text-xs text-red-500">비밀번호가 다릅니다</p>
             </div>
 
             {/* Signup Button */}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Draft"
+  short_description: "Draft a GitHub PR title and body from the current branch"
+  default_prompt: "Use $pr-draft to draft a GitHub PR title and body from the current branch."

@@ -61,6 +61,7 @@
 
 - MUST Button, Input, Card, Dialog, Select, Tabs 같은 기본 UI primitive는 shadcn/ui component를 기준으로 설계한다.
 - MUST Figma에서는 shadcn/ui에 대응되는 Assets component instance를 사용한다.
+- MUST Figma 또는 스크린샷 시안을 참고해 구현하더라도 shadcn/ui로 표현 가능한 기본 primitive는 시각적 도형을 직접 Tailwind로 재현하지 않고 shadcn/ui component로 매핑한다.
 - MUST component instance는 코드의 `@/components/ui/*` import와 매핑 가능해야 한다.
 - MUST shadcn/ui component의 기본 구조와 accessibility 패턴을 유지한다.
 - MUST variant가 필요한 경우 shadcn/ui가 제공하는 variant 또는 프로젝트에 이미 정의된 wrapper variant를 기준으로 한다.
