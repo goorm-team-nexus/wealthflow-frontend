@@ -1,75 +1,67 @@
 "use client";
 
-import { ChartNoAxesColumnIncreasing, Clock3, Heart, Menu, Trophy } from "lucide-react";
-import type { ComponentType, SVGProps } from "react";
+import { Heart, LineChart, Menu, PieChart, Trophy } from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
+import { FullMenuPopup } from "./FullMenuPopup";
 
-type NavigationItem = {
-  label: string;
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-};
+export function TabBar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("menu");
 
 type TabBarProps = {
   selectedTab: string;
   onSelectTab: (tab: string) => void;
 };
 
-export const tabLabels = {
-  menu: "\uba54\ub274",
-  marketTrade: "\uc2dc\uc7a5/\uac70\ub798",
-  favorites: "\uad00\uc2ec \uc885\ubaa9",
-  portfolio: "\ud3ec\ud2b8\ud3f4\ub9ac\uc624",
-  ranking: "\ub7ad\ud0b9",
-} as const;
-
-const navigationItems: NavigationItem[] = [
-  { label: tabLabels.menu, icon: Menu },
-  { label: tabLabels.marketTrade, icon: ChartNoAxesColumnIncreasing },
-  { label: tabLabels.favorites, icon: Heart },
-  { label: tabLabels.portfolio, icon: Clock3 },
-  { label: tabLabels.ranking, icon: Trophy },
-];
-
-export function TabBar({ selectedTab, onSelectTab }: TabBarProps) {
   return (
-    <nav
-      className="absolute inset-x-0 bottom-0 z-20 border-t border-zinc-100 bg-white px-8 pb-4 pt-2"
-      aria-label="Bottom navigation"
-    >
-      <div className="grid h-14 grid-cols-5 items-center">
-        {navigationItems.map((navigationItem) => (
-          <TabBarItem
-            key={navigationItem.label}
-            isSelected={selectedTab === navigationItem.label}
-            icon={navigationItem.icon}
-            label={navigationItem.label}
-            onSelectTab={onSelectTab}
-          />
-        ))}
+    <>
+      <div className="w-full bg-white border-t border-border flex justify-around items-center h-[56px] px-2 gap-1 shadow-[0_-2px_8px_rgba(0,0,0,0.05)] rounded-b-[1.5rem]">
+        {tabs.map((tab, index) => {
+          const Icon = tab.icon;
+          const isActive = tab.id === activeTab || (tab.id === "menu" && isMenuOpen);
+
+          return (
+            <React.Fragment key={tab.id}>
+              {tab.id === "menu" ? (
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(true);
+                    setActiveTab("menu");
+                  }}
+                  className={`flex flex-col items-center pt-2 w-16 h-[50px] rounded-lg cursor-pointer transition-[transform,box-shadow] duration-100 ${
+                    isActive
+                      ? "bg-muted text-foreground font-semibold shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner"
+                  }`}
+                >
+                  <Icon className="w-5 h-5 mb-1" />
+                  <span className="text-[10px] leading-none">{tab.label}</span>
+                </button>
+              ) : (
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveTab(tab.id);
+                  }}
+                  className={`flex flex-col items-center pt-2 w-16 h-[50px] rounded-lg cursor-pointer transition-[transform,box-shadow] duration-100 ${
+                    isActive
+                      ? "bg-muted text-foreground font-semibold shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner"
+                  }`}
+                >
+                  <Icon className="w-5 h-5 mb-1" />
+                  <span className="text-[10px] leading-none">{tab.label}</span>
+                </Link>
+              )}
+              {index < tabs.length - 1 && <div className="w-px h-5 bg-border shrink-0" />}
+            </React.Fragment>
+          );
+        })}
       </div>
-    </nav>
-  );
-}
 
-function TabBarItem({
-  icon: Icon,
-  isSelected,
-  label,
-  onSelectTab,
-}: NavigationItem & {
-  isSelected: boolean;
-  onSelectTab: (tab: string) => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={`flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] transition-colors ${
-        isSelected ? "bg-zinc-100 font-semibold text-zinc-950" : "font-semibold text-zinc-600"
-      }`}
-      aria-pressed={isSelected}
-      onClick={() => onSelectTab(label)}
-    >
-      <Icon className="size-6 stroke-[2] text-current" aria-hidden="true" />
-      <span className="whitespace-nowrap">{label}</span>
-    </button>
+      <FullMenuPopup isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+    </>
   );
 }
