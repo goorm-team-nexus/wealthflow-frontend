@@ -112,7 +112,7 @@ export default function StockPurchasePage() {
         <section className="relative flex min-h-[844px] w-full flex-col gap-6 bg-white px-8 pb-24 pt-6 [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
           <header className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
             <Button asChild variant="ghost" size="icon" className="size-8">
-              <Link href="/stock-detail" aria-label="종목 상세로 돌아가기">
+              <Link href="/stock-detail/samsung-electronics" aria-label="종목 상세로 돌아가기">
                 <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
               </Link>
             </Button>
