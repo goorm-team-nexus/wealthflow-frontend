@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Bell,
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  X,
-} from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, Heart, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { TabBar } from "@/components/shared/TabBar";
@@ -67,7 +61,8 @@ const copy = {
   alarm: "\uc54c\ub9bc",
   close: "\ub2eb\uae30",
   noticeTitle: "\uc54c\ub9bc",
-  noticeBody: "\uc0c8\ub85c\uc6b4 AI \ub274\uc2a4 \uc694\uc57d\uc774 \ub3c4\ucc29\ud588\uc2b5\ub2c8\ub2e4.",
+  noticeBody:
+    "\uc0c8\ub85c\uc6b4 AI \ub274\uc2a4 \uc694\uc57d\uc774 \ub3c4\ucc29\ud588\uc2b5\ub2c8\ub2e4.",
   favoriteStock: "\uad00\uc2ec \uc885\ubaa9",
 };
 
@@ -77,14 +72,16 @@ const marketIndexes: MarketIndex[] = [
     change: "-24.78 (0.39%)",
     price: "\u20a96,413.25",
     tone: "blue",
-    points: "1,50 7,32 13,43 20,18 26,36 33,27 40,15 47,24 54,17 61,39 68,20 75,31 82,23 89,18 95,12",
+    points:
+      "1,50 7,32 13,43 20,18 26,36 33,27 40,15 47,24 54,17 61,39 68,20 75,31 82,23 89,18 95,12",
   },
   {
     name: copy.kosdaq,
     change: "+0.47 (0.04%)",
     price: "\u20a91,179.57",
     tone: "red",
-    points: "1,49 7,31 14,45 21,35 28,48 35,17 42,27 49,20 56,26 63,15 70,43 77,29 84,22 91,17 95,14",
+    points:
+      "1,49 7,31 14,45 21,35 28,48 35,17 42,27 49,20 56,26 63,15 70,43 77,29 84,22 91,17 95,14",
   },
   {
     name: copy.nasdaq,
@@ -117,22 +114,150 @@ const marketIndexes: MarketIndex[] = [
 ];
 
 const stocks: Stock[] = [
-  { id: 1, logo: "S", name: copy.samsung, price: "\u20a9217,000", priceValue: 217000, change: "\u25bc 1.42%", volumeRank: 1 },
-  { id: 2, logo: "S", name: copy.skHynix, price: "\u20a9189,500", priceValue: 189500, change: "\u25bc 0.92%", volumeRank: 2 },
-  { id: 3, logo: "N", name: copy.naver, price: "\u20a9212,000", priceValue: 212000, change: "\u25bc 1.15%", volumeRank: 5 },
-  { id: 4, logo: "K", name: copy.kakao, price: "\u20a956,400", priceValue: 56400, change: "\u25bc 0.48%", volumeRank: 3 },
-  { id: 5, logo: "H", name: copy.hyundai, price: "\u20a9241,000", priceValue: 241000, change: "\u25bc 1.02%", volumeRank: 4 },
-  { id: 6, logo: "S", name: copy.samsung, price: "\u20a9217,000", priceValue: 217000, change: "\u25bc 1.42%", volumeRank: 6 },
-  { id: 7, logo: "N", name: copy.naver, price: "\u20a9212,000", priceValue: 212000, change: "\u25bc 1.15%", volumeRank: 8 },
-  { id: 8, logo: "K", name: copy.kakao, price: "\u20a956,400", priceValue: 56400, change: "\u25bc 0.48%", volumeRank: 7 },
-  { id: 9, logo: "L", name: copy.lgEnergy, price: "\u20a9378,500", priceValue: 378500, change: "\u25bc 0.74%", volumeRank: 9 },
-  { id: 10, logo: "P", name: copy.posco, price: "\u20a9318,000", priceValue: 318000, change: "\u25bc 1.21%", volumeRank: 10 },
-  { id: 11, logo: "C", name: copy.celltrion, price: "\u20a9176,300", priceValue: 176300, change: "\u25bc 0.36%", volumeRank: 11 },
-  { id: 12, logo: "H", name: copy.hyundai, price: "\u20a9241,000", priceValue: 241000, change: "\u25bc 1.02%", volumeRank: 12 },
-  { id: 13, logo: "K", name: copy.kbFinance, price: "\u20a984,200", priceValue: 84200, change: "\u25bc 0.67%", volumeRank: 13 },
-  { id: 14, logo: "S", name: copy.shinhan, price: "\u20a957,900", priceValue: 57900, change: "\u25bc 0.58%", volumeRank: 14 },
-  { id: 15, logo: "H", name: copy.hanwha, price: "\u20a963,100", priceValue: 63100, change: "\u25bc 1.33%", volumeRank: 15 },
-  { id: 16, logo: "K", name: copy.krafton, price: "\u20a9295,500", priceValue: 295500, change: "\u25bc 0.41%", volumeRank: 16 },
+  {
+    id: 1,
+    logo: "S",
+    name: copy.samsung,
+    price: "\u20a9217,000",
+    priceValue: 217000,
+    change: "\u25bc 1.42%",
+    volumeRank: 1,
+  },
+  {
+    id: 2,
+    logo: "S",
+    name: copy.skHynix,
+    price: "\u20a9189,500",
+    priceValue: 189500,
+    change: "\u25bc 0.92%",
+    volumeRank: 2,
+  },
+  {
+    id: 3,
+    logo: "N",
+    name: copy.naver,
+    price: "\u20a9212,000",
+    priceValue: 212000,
+    change: "\u25bc 1.15%",
+    volumeRank: 5,
+  },
+  {
+    id: 4,
+    logo: "K",
+    name: copy.kakao,
+    price: "\u20a956,400",
+    priceValue: 56400,
+    change: "\u25bc 0.48%",
+    volumeRank: 3,
+  },
+  {
+    id: 5,
+    logo: "H",
+    name: copy.hyundai,
+    price: "\u20a9241,000",
+    priceValue: 241000,
+    change: "\u25bc 1.02%",
+    volumeRank: 4,
+  },
+  {
+    id: 6,
+    logo: "S",
+    name: copy.samsung,
+    price: "\u20a9217,000",
+    priceValue: 217000,
+    change: "\u25bc 1.42%",
+    volumeRank: 6,
+  },
+  {
+    id: 7,
+    logo: "N",
+    name: copy.naver,
+    price: "\u20a9212,000",
+    priceValue: 212000,
+    change: "\u25bc 1.15%",
+    volumeRank: 8,
+  },
+  {
+    id: 8,
+    logo: "K",
+    name: copy.kakao,
+    price: "\u20a956,400",
+    priceValue: 56400,
+    change: "\u25bc 0.48%",
+    volumeRank: 7,
+  },
+  {
+    id: 9,
+    logo: "L",
+    name: copy.lgEnergy,
+    price: "\u20a9378,500",
+    priceValue: 378500,
+    change: "\u25bc 0.74%",
+    volumeRank: 9,
+  },
+  {
+    id: 10,
+    logo: "P",
+    name: copy.posco,
+    price: "\u20a9318,000",
+    priceValue: 318000,
+    change: "\u25bc 1.21%",
+    volumeRank: 10,
+  },
+  {
+    id: 11,
+    logo: "C",
+    name: copy.celltrion,
+    price: "\u20a9176,300",
+    priceValue: 176300,
+    change: "\u25bc 0.36%",
+    volumeRank: 11,
+  },
+  {
+    id: 12,
+    logo: "H",
+    name: copy.hyundai,
+    price: "\u20a9241,000",
+    priceValue: 241000,
+    change: "\u25bc 1.02%",
+    volumeRank: 12,
+  },
+  {
+    id: 13,
+    logo: "K",
+    name: copy.kbFinance,
+    price: "\u20a984,200",
+    priceValue: 84200,
+    change: "\u25bc 0.67%",
+    volumeRank: 13,
+  },
+  {
+    id: 14,
+    logo: "S",
+    name: copy.shinhan,
+    price: "\u20a957,900",
+    priceValue: 57900,
+    change: "\u25bc 0.58%",
+    volumeRank: 14,
+  },
+  {
+    id: 15,
+    logo: "H",
+    name: copy.hanwha,
+    price: "\u20a963,100",
+    priceValue: 63100,
+    change: "\u25bc 1.33%",
+    volumeRank: 15,
+  },
+  {
+    id: 16,
+    logo: "K",
+    name: copy.krafton,
+    price: "\u20a9295,500",
+    priceValue: 295500,
+    change: "\u25bc 0.41%",
+    volumeRank: 16,
+  },
 ];
 
 export default function Home() {
@@ -150,10 +275,14 @@ export default function Home() {
   const visibleMarketIndexes = marketIndexes.slice(marketPage * 2, marketPage * 2 + 2);
   const sortedStocks = useMemo(() => {
     if (sortType === "price") {
-      return [...stocks].sort((firstStock, secondStock) => secondStock.priceValue - firstStock.priceValue);
+      return [...stocks].sort(
+        (firstStock, secondStock) => secondStock.priceValue - firstStock.priceValue,
+      );
     }
 
-    return [...stocks].sort((firstStock, secondStock) => firstStock.volumeRank - secondStock.volumeRank);
+    return [...stocks].sort(
+      (firstStock, secondStock) => firstStock.volumeRank - secondStock.volumeRank,
+    );
   }, [sortType]);
 
   useEffect(() => {
@@ -216,7 +345,10 @@ export default function Home() {
     <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
       <div className="mx-auto flex min-h-screen w-full max-w-[390px] justify-center bg-white">
         <section className="relative flex min-h-screen w-full flex-col overflow-y-auto bg-white px-8 pb-24 pt-6 [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
-          <Header isNoticeOpen={isNoticeOpen} onToggleNotice={() => setIsNoticeOpen((isOpen) => !isOpen)} />
+          <Header
+            isNoticeOpen={isNoticeOpen}
+            onToggleNotice={() => setIsNoticeOpen((isOpen) => !isOpen)}
+          />
           {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
           <MarketIndexSection
             marketPage={marketPage}
@@ -358,9 +490,7 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
           <span className="text-[10px] font-semibold leading-none text-zinc-950">
             {marketIndex.name}
           </span>
-          <span className={`text-[7px] leading-none ${changeToneClass}`}>
-            {marketIndex.change}
-          </span>
+          <span className={`text-[7px] leading-none ${changeToneClass}`}>{marketIndex.change}</span>
         </div>
         <svg
           className={`h-12 w-full ${chartToneClass}`}
@@ -427,14 +557,18 @@ function MainStockSection({
           <span>{copy.sortLabel}</span>
           <button
             type="button"
-            className={sortType === "volume" ? "text-zinc-950 underline underline-offset-2" : "text-zinc-500"}
+            className={
+              sortType === "volume" ? "text-zinc-950 underline underline-offset-2" : "text-zinc-500"
+            }
             onClick={() => onSortChange("volume")}
           >
             {copy.volumeSort}
           </button>
           <button
             type="button"
-            className={sortType === "price" ? "text-zinc-950 underline underline-offset-2" : "text-zinc-500"}
+            className={
+              sortType === "price" ? "text-zinc-950 underline underline-offset-2" : "text-zinc-500"
+            }
             onClick={() => onSortChange("price")}
           >
             {copy.priceSort}

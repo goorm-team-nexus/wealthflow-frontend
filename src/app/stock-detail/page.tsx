@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CircleDollarSign,
-  Heart,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, CircleDollarSign, Heart, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -30,9 +25,7 @@ type StockMetric = {
 
 type ChartPeriod = "1일" | "1주" | "1달" | "3달" | "1년";
 
-
 const chartPeriods: ChartPeriod[] = ["1일", "1주", "1달", "3달", "1년"];
-
 
 const chartBarsByPeriod: Record<ChartPeriod, ChartBar[]> = {
   "1일": [
@@ -341,4 +334,3 @@ function StockInfoCard() {
     </Card>
   );
 }
-

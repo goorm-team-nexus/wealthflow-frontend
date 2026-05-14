@@ -9,10 +9,10 @@ export function TabBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("menu");
 
-type TabBarProps = {
-  selectedTab: string;
-  onSelectTab: (tab: string) => void;
-};
+  type TabBarProps = {
+    selectedTab: string;
+    onSelectTab: (tab: string) => void;
+  };
 
   return (
     <>

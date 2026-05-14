@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CircleX,
-} from "lucide-react";
+import { ArrowLeft, CircleX } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,7 +8,6 @@ import { TabBar, tabLabels } from "@/components/shared/TabBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
 
 type KeypadItem = {
   label: string;
@@ -31,7 +27,6 @@ type QuickQuantityItem =
 
 const maxPurchaseQuantity = 99;
 const stockPrice = 219500;
-
 
 const quickQuantityItems: QuickQuantityItem[] = [
   { label: "1주", increment: 1, type: "add" },
@@ -209,4 +204,3 @@ export default function StockPurchasePage() {
 function formatCurrency(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
 }
-
