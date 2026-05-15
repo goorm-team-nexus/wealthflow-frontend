@@ -14,7 +14,12 @@ export const tabLabels = {
   ranking: "ranking",
 } as const;
 
-export function TabBar() {
+export interface TabBarProps {
+  selectedTab?: string;
+  onSelectTab?: (tab: string) => void;
+}
+
+export function TabBar({ selectedTab, onSelectTab }: TabBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
