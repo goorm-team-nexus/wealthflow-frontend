@@ -36,7 +36,15 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
     { icon: Bot, label: "문의하기", href: "#" },
   ];
 
-  const MenuItem = ({ icon: Icon, label, href }: { icon: any; label: string; href: string }) => (
+  const MenuItem = ({
+    icon: Icon,
+    label,
+    href,
+  }: {
+    icon: React.ElementType;
+    label: string;
+    href: string;
+  }) => (
     <Link
       href={href}
       onClick={onClose}

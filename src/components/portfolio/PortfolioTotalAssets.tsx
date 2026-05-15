@@ -1,8 +1,7 @@
 import { ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import Link from "next/link";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 // TODO: 백엔드 연동 시 API 응답 타입으로 교체
 interface TotalAssetsData {
