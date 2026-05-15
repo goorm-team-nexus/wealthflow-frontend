@@ -36,7 +36,7 @@ export default function OverallRanking() {
   };
 
   return (
-    <Card className="w-full max-w-sm mx-auto shadow-sm border border-border bg-card rounded-3xl overflow-hidden transition-all duration-500">
+    <Card className="w-full border border-border bg-card shadow-sm transition-all duration-500">
       <CardContent className="p-0">
         {/* 헤더 섹션 */}
         <div className="p-4 flex justify-between items-center">

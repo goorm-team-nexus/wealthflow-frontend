@@ -37,9 +37,9 @@ export default function Home() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-900">
                   Password
                 </label>
-                <a href="#" className="text-sm text-gray-900 hover:underline">
+                <Link href="/find-pw" className="text-sm text-gray-900 hover:underline">
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <input
                 type="password"

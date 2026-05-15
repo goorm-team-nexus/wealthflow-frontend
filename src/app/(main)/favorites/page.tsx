@@ -4,7 +4,6 @@ import { Bell, Heart, X } from "lucide-react";
 import { useState } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { TabBar } from "@/components/shared/TabBar";
 
 type FavoriteStock = {
   id: number;
@@ -156,7 +155,6 @@ const favoriteStocks: FavoriteStock[] = [
 ];
 
 export default function FavoritesPage() {
-  const [selectedTab, setSelectedTab] = useState(copy.favorite);
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(
     () => new Set(favoriteStocks.slice(0, 6).map((stock) => stock.id)),
   );
@@ -191,39 +189,32 @@ export default function FavoritesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
-      <div className="mx-auto flex min-h-screen w-full max-w-[390px] justify-center bg-white">
-        <section className="relative flex max-h-screen min-h-screen w-full flex-col overflow-hidden bg-white [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
-          <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-8 pb-24 pt-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <FavoritesHeader
-              hasUnreadNotice={hasUnreadNotice}
-              isNoticeOpen={isNoticeOpen}
-              onNoticeToggle={handleNoticeToggle}
-            />
-            {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
-            <section className="flex flex-col gap-4">
-              <h2 className="text-lg font-semibold">{copy.sectionTitle}</h2>
-              <FavoriteSummary summary={favoriteSummary} />
-              {visibleFavoriteStocks.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  {visibleFavoriteStocks.map((stock) => (
-                    <FavoriteStockRow
-                      key={stock.id}
-                      isFavorite={favoriteIds.has(stock.id)}
-                      stock={stock}
-                      onFavoriteToggle={handleFavoriteToggle}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <FavoriteEmptyState />
-              )}
-            </section>
+    <div className="flex w-full flex-col gap-6 p-4">
+      <FavoritesHeader
+        hasUnreadNotice={hasUnreadNotice}
+        isNoticeOpen={isNoticeOpen}
+        onNoticeToggle={handleNoticeToggle}
+      />
+      {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-semibold">{copy.sectionTitle}</h2>
+        <FavoriteSummary summary={favoriteSummary} />
+        {visibleFavoriteStocks.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {visibleFavoriteStocks.map((stock) => (
+              <FavoriteStockRow
+                key={stock.id}
+                isFavorite={favoriteIds.has(stock.id)}
+                stock={stock}
+                onFavoriteToggle={handleFavoriteToggle}
+              />
+            ))}
           </div>
-          <TabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
-        </section>
-      </div>
-    </main>
+        ) : (
+          <FavoriteEmptyState />
+        )}
+      </section>
+    </div>
   );
 }
 

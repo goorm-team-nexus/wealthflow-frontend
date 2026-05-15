@@ -24,34 +24,32 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
   // We remove the mounted state check to follow lint rules and because it's not strictly needed for this layout-based popup.
 
   const menuItems = [
-    { icon: LineChart, label: "시장/거래", href: "#" },
-    { icon: SlidersHorizontal, label: "종목 팔기/사기", href: "#" },
-    { icon: Heart, label: "관심종목", href: "#" },
-    { icon: Activity, label: "거래내역", href: "#" },
-    { icon: Smile, label: "환전", href: "#" },
-    { icon: PieChart, label: "포트폴리오", href: "#" },
-    { icon: Trophy, label: "랭킹", href: "#" },
-    { icon: User, label: "마이페이지", href: "#" },
-    { icon: Settings, label: "내 정보 수정", href: "#" },
-    { icon: Bot, label: "문의하기", href: "#" },
+    { icon: LineChart, label: "시장/거래", href: "/stocks" },
+    { icon: SlidersHorizontal, label: "종목 팔기/사기", href: "/stocks" },
+    { icon: Heart, label: "관심종목", href: "/favorites" },
+    { icon: Activity, label: "거래내역", href: "/portfolio" },
+    { icon: Smile, label: "환전", href: "/portfolio" },
+    { icon: PieChart, label: "포트폴리오", href: "/portfolio" },
+    { icon: Trophy, label: "랭킹", href: "/ranking" },
+    { icon: User, label: "마이페이지", href: "/mypage" },
+    { icon: Settings, label: "내 정보 수정", href: "/EditInfo" },
+    { icon: Bot, label: "문의하기", href: "/mypage" },
   ];
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-[100] bg-black/50 transition-opacity duration-100 ${
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        className="fixed inset-0 z-[100] bg-black/50 transition-opacity duration-100"
         onClick={onClose}
       />
 
       {/* Popup Container (Side Drawer Style) */}
-      <div
-        className={`fixed bottom-20 left-4 z-[101] w-[calc(100%-32px)] max-w-[240px] h-fit max-h-[calc(100dvh-100px)] bg-background rounded-3xl shadow-2xl transition-transform duration-100 linear transform flex flex-col overflow-hidden border border-border/50 ${
-          isOpen ? "translate-x-0" : "-translate-x-[110%]"
-        }`}
-      >
+      <div className="fixed bottom-20 left-4 z-[101] flex h-fit max-h-[calc(100dvh-100px)] w-[calc(100%-32px)] max-w-[240px] flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg transition-transform duration-100 linear sm:left-[calc(50%-234px)]">
         {/* Header with Logo */}
         <div className="p-4 pb-0 shrink-0">
           <div className="flex items-center gap-3 mb-4">

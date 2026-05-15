@@ -4,7 +4,6 @@ import { ArrowLeft, CircleDollarSign, Heart, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { TabBar, tabLabels } from "@/components/shared/TabBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -115,34 +114,28 @@ const stockMetrics: StockMetric[] = [
 export default function StockDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("1일");
-  const [selectedTab, setSelectedTab] = useState<string>(tabLabels.menu);
 
   return (
-    <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
-      <div className="mx-auto flex min-h-screen w-[390px] max-w-full bg-white">
-        <section className="relative flex min-h-screen w-full flex-col gap-4 overflow-y-auto bg-white px-8 pb-24 pt-6 [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
-          <StockDetailHeader
-            isFavorite={isFavorite}
-            onFavoriteToggle={() => setIsFavorite((currentIsFavorite) => !currentIsFavorite)}
-          />
-          <PriceSummary />
-          <PriceChart
-            chartBars={chartBarsByPeriod[selectedPeriod]}
-            selectedPeriod={selectedPeriod}
-            onPeriodChange={setSelectedPeriod}
-          />
-          <AiSummary />
-          <StockInfoCard />
-          <Button
-            asChild
-            className="h-11 w-full bg-red-400 text-base font-semibold text-white hover:bg-red-500 [a]:hover:bg-red-500"
-          >
-            <Link href="/stock-detail/samsung-electronics/purchase">구매하기</Link>
-          </Button>
-          <TabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
-        </section>
-      </div>
-    </main>
+    <div className="flex w-full flex-col gap-4 p-4">
+      <StockDetailHeader
+        isFavorite={isFavorite}
+        onFavoriteToggle={() => setIsFavorite((currentIsFavorite) => !currentIsFavorite)}
+      />
+      <PriceSummary />
+      <PriceChart
+        chartBars={chartBarsByPeriod[selectedPeriod]}
+        selectedPeriod={selectedPeriod}
+        onPeriodChange={setSelectedPeriod}
+      />
+      <AiSummary />
+      <StockInfoCard />
+      <Button
+        asChild
+        className="h-11 w-full bg-red-400 text-base font-semibold text-white hover:bg-red-500 [a]:hover:bg-red-500"
+      >
+        <Link href="/stock-detail/samsung-electronics/purchase">구매하기</Link>
+      </Button>
+    </div>
   );
 }
 

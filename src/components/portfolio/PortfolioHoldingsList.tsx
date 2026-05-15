@@ -148,7 +148,7 @@ export default function PortfolioHoldingsList() {
             return (
               <li key={item.name} className={!isLast ? "border-b border-border" : ""}>
                 <Link
-                  href="#"
+                  href="/stock-detail/samsung-electronics"
                   className="flex items-center justify-between py-3 -mx-2 px-2 rounded-lg hover:bg-accent/40 transition-all duration-300 group cursor-pointer"
                 >
                   {/* 왼쪽: 로고 + 종목 정보 */}

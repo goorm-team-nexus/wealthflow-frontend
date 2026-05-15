@@ -28,7 +28,7 @@ export default function PortfolioTotalAssets() {
   const isPositive = totalProfit >= 0;
 
   return (
-    <Link href="#" className="block">
+    <Link href="/portfolio" className="block">
       <Card className="bg-card ring-0 shadow-md py-0 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
         <CardContent className="flex items-center justify-between p-4">
           <div className="flex flex-col gap-3">

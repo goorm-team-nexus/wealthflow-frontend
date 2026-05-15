@@ -4,9 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const pathMap: Record<string, string> = {
+  "/stocks": "시장/거래",
+  "/favorites": "관심 종목",
   "/portfolio": "Portfolio",
   "/ranking": "Ranking",
   "/mypage": "My Page",
+  "/profile": "프로필",
+  "/EditInfo": "내 정보 수정",
 };
 
 export default function GlobalNavigationBar() {
@@ -14,15 +18,13 @@ export default function GlobalNavigationBar() {
   const title = pathMap[pathname] || "WealthFlow";
 
   return (
-    <header className="w-full border-b bg-background rounded-t-[1.5rem]">
+    <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="flex h-[56px] items-center justify-between px-4">
-        {/* Left: Logo Placeholder + Title */}
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-sm bg-muted" aria-hidden="true" />
           <span className="text-xl font-bold tracking-tight">{title}</span>
         </div>
 
-        {/* Right: My Page Link (Profile Circle Placeholder) */}
         <div className="flex items-center">
           <Link
             href="/mypage"

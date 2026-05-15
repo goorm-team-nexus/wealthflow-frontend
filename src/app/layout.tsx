@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import GlobalNavigationBar from "@/components/shared/GlobalNavigationBar";
-import { TabBar } from "@/components/shared/TabBar";
 
 const geistSans = localFont({
   src: "./fonts/Geist-Variable.woff2",
@@ -37,21 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="h-full antialiased overflow-hidden">
+    <html lang="ko" className="antialiased">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} h-full flex flex-col font-noto-sans-kr bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} m-0 min-h-dvh bg-background font-noto-sans-kr text-foreground`}
       >
-        {/* Fixed Mobile-first container */}
-        <div className="w-full max-w-[500px] mx-auto bg-background h-full flex flex-col relative border-x border-border shadow-sm overflow-hidden md:rounded-[1.5rem]">
-          {/* Header Fixed */}
-          <GlobalNavigationBar />
-
-          {/* Scrollable Content */}
-          <main className="flex-1 overflow-y-auto">{children}</main>
-
-          {/* TabBar Fixed */}
-          <TabBar />
-        </div>
+        {children}
       </body>
     </html>
   );

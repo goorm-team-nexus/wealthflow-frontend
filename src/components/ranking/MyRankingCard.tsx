@@ -10,7 +10,7 @@ export default function MyRankingCard() {
   const returnRate = "+24.52%";
 
   return (
-    <Card className="w-full max-w-sm mx-auto shadow-sm border border-border bg-card">
+    <Card className="w-full border border-border bg-card shadow-sm">
       <CardContent className="p-4 flex flex-col items-center">
         {/* 헤더: 아이콘 + 나의 랭킹 */}
         <div className="flex items-center gap-2 mb-2">

@@ -13,7 +13,7 @@ export default function WeeklyRanking() {
   };
 
   return (
-    <Card className="w-full max-w-sm mx-auto shadow-sm border border-border bg-card rounded-3xl">
+    <Card className="w-full border border-border bg-card shadow-sm">
       <CardContent className="p-4 flex flex-col items-center">
         {/* 헤더 */}
         <div className="flex items-center gap-2 mb-4">

@@ -3,7 +3,6 @@
 import { Bell, ChevronLeft, ChevronRight, Heart, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { TabBar } from "@/components/shared/TabBar";
 import { Card, CardContent } from "@/components/ui/card";
 
 type MarketIndex = {
@@ -262,7 +261,6 @@ const stocks: Stock[] = [
 
 export default function Home() {
   const [marketPage, setMarketPage] = useState(0);
-  const [selectedTab, setSelectedTab] = useState(copy.menu);
   const [sortType, setSortType] = useState<SortType>("volume");
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
@@ -342,38 +340,33 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
-      <div className="mx-auto flex min-h-screen w-full max-w-[390px] justify-center bg-white">
-        <section className="relative flex min-h-screen w-full flex-col overflow-y-auto bg-white px-8 pb-24 pt-6 [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
-          <Header
-            isNoticeOpen={isNoticeOpen}
-            onToggleNotice={() => setIsNoticeOpen((isOpen) => !isOpen)}
-          />
-          {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
-          <MarketIndexSection
-            marketPage={marketPage}
-            marketPages={totalMarketPages}
-            marketIndexes={visibleMarketIndexes}
-            isSliding={isMarketSliding}
-            onNext={handleNextMarketPage}
-            onPrevious={handlePreviousMarketPage}
-            onSelectPage={handleSelectMarketPage}
-            slideDirection={slideDirection}
-          />
-          <MainStockSection
-            favoriteIds={favoriteIds}
-            isMoreStocksOpen={isMoreStocksOpen}
-            sortType={sortType}
-            stocks={sortedStocks}
-            onFavoriteStock={handleFavoriteStock}
-            onMoreStocksClose={() => setIsMoreStocksOpen(false)}
-            onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
-            onSortChange={setSortType}
-          />
-          <TabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
-        </section>
-      </div>
-    </main>
+    <div className="flex w-full flex-col gap-4 p-4">
+      <Header
+        isNoticeOpen={isNoticeOpen}
+        onToggleNotice={() => setIsNoticeOpen((isOpen) => !isOpen)}
+      />
+      {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
+      <MarketIndexSection
+        marketPage={marketPage}
+        marketPages={totalMarketPages}
+        marketIndexes={visibleMarketIndexes}
+        isSliding={isMarketSliding}
+        onNext={handleNextMarketPage}
+        onPrevious={handlePreviousMarketPage}
+        onSelectPage={handleSelectMarketPage}
+        slideDirection={slideDirection}
+      />
+      <MainStockSection
+        favoriteIds={favoriteIds}
+        isMoreStocksOpen={isMoreStocksOpen}
+        sortType={sortType}
+        stocks={sortedStocks}
+        onFavoriteStock={handleFavoriteStock}
+        onMoreStocksClose={() => setIsMoreStocksOpen(false)}
+        onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
+        onSortChange={setSortType}
+      />
+    </div>
   );
 }
 
