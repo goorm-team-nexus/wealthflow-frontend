@@ -1,7 +1,8 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import Link from "next/link";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // TODO: 백엔드 연동 시 API 응답 타입으로 교체
 interface TotalAssetsData {
@@ -20,7 +21,6 @@ const DUMMY_TOTAL_ASSETS: TotalAssetsData = {
 export default function PortfolioTotalAssets() {
   const { totalAssets, totalProfit, totalProfitRate } = DUMMY_TOTAL_ASSETS;
 
-  // 천 단위 콤마 포맷팅
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("ko-KR").format(value);
   };
@@ -28,37 +28,35 @@ export default function PortfolioTotalAssets() {
   const isPositive = totalProfit >= 0;
 
   return (
-    <Link href="#" className="block">
-      <Card className="bg-card ring-0 shadow-md py-0 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
-        <CardContent className="flex items-center justify-between p-4">
-          <div className="flex flex-col gap-3">
-            {/* 상단: 타이틀 */}
+    <Link href="#" className="block group">
+      <Card className="bg-card ring-1 ring-border/50 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] rounded-2xl">
+        <CardContent className="p-5 space-y-4">
+          <div className="flex items-center justify-between">
             <span className="text-lg font-semibold text-foreground">총 모의 자산</span>
-
-            {/* 중단: 총액 */}
-            <div className="flex items-center gap-2">
-              <span className="text-3xl font-bold">₩ {formatCurrency(totalAssets)}</span>
-            </div>
-
-            {/* 하단: 수익 정보 */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                총 수익/ 총 수익률(%)
-              </span>
-              <div
-                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                  isPositive ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
-                }`}
-              >
-                {isPositive ? "+" : "-"}₩{formatCurrency(Math.abs(totalProfit))}(
-                {isPositive ? "+" : "-"}
-                {Math.abs(totalProfitRate)}%)
-              </div>
-            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
 
-          {/* 오른쪽: 이동 아이콘 */}
-          <ChevronRight className="h-6 w-6 text-muted-foreground" />
+          <div className="flex items-center gap-2">
+            <span className="text-3xl font-bold tracking-tight">
+              ₩{formatCurrency(totalAssets)}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t border-border/40">
+            <span className="text-xs text-muted-foreground font-medium">총 수익 / 수익률</span>
+            <div
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                isPositive ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
+              }`}
+            >
+              {isPositive ? (
+                <TrendingUp className="h-3.5 w-3.5" />
+              ) : (
+                <TrendingDown className="h-3.5 w-3.5" />
+              )}
+              {isPositive ? "+" : "-"}₩{formatCurrency(Math.abs(totalProfit))} ({totalProfitRate}%)
+            </div>
+          </div>
         </CardContent>
       </Card>
     </Link>

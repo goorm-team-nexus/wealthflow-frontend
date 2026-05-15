@@ -2,6 +2,14 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface MessageBoxProps {
   isOpen: boolean;
@@ -26,24 +34,25 @@ export function MessageBox({
   onConfirm,
   onCancel,
 }: MessageBoxProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
-        onClick={onClose}
-      />
-
-      {/* Dialog Content */}
-      <div className="relative w-full max-w-[340px] transform overflow-hidden rounded-2xl bg-white p-6 shadow-2xl transition-all animate-in zoom-in-95 duration-200">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-[340px] rounded-2xl p-6 gap-0 border-none shadow-2xl">
         <div className="flex flex-col items-center text-center">
-          {title && <h3 className="mb-2 text-lg font-bold text-gray-900">{title}</h3>}
-          <p className="text-[15px] leading-relaxed text-gray-600 whitespace-pre-wrap">{message}</p>
+          {title && (
+            <DialogHeader className="mb-2">
+              <DialogTitle className="text-lg font-bold text-gray-900">{title}</DialogTitle>
+            </DialogHeader>
+          )}
+          <DialogDescription className="text-[15px] leading-relaxed text-gray-600 whitespace-pre-wrap">
+            {message}
+          </DialogDescription>
         </div>
 
-        <div className={`mt-8 flex gap-2 ${type === "confirm" ? "flex-row" : "flex-col"}`}>
+        <DialogFooter
+          className={`mt-8 flex gap-2 sm:justify-center ${
+            type === "confirm" ? "flex-row" : "flex-col"
+          }`}
+        >
           {type === "confirm" && (
             <Button
               variant="outline"
@@ -65,8 +74,8 @@ export function MessageBox({
           >
             {confirmText}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

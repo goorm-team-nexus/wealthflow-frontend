@@ -1,7 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import crownIcon from "@/app/crown.gif";
-import medalIcon from "@/app/military-medal.gif";
 
 export default function MyRankingCard() {
   // 가상의 더미 데이터
@@ -10,22 +8,34 @@ export default function MyRankingCard() {
   const returnRate = "+24.52%";
 
   return (
-    <Card className="w-full max-w-sm mx-auto shadow-sm border border-border bg-card">
-      <CardContent className="p-4 flex flex-col items-center">
+    <Card className="w-full max-w-full mx-auto shadow-sm border border-border bg-card rounded-3xl overflow-hidden">
+      <CardContent className="p-5 flex flex-col items-center">
         {/* 헤더: 아이콘 + 나의 랭킹 */}
-        <div className="flex items-center gap-2 mb-2">
-          <Image src={crownIcon} alt="Crown Icon" width={24} height={24} unoptimized />
-          <h2 className="text-lg font-semibold text-foreground">나의 랭킹</h2>
-        </div>
-
-        {/* 중앙 메달 아이콘 */}
-        <div className="mb-3">
-          <Image src={medalIcon} alt="Medal Icon" width={114} height={114} unoptimized />
+        <div className="flex items-center gap-2 mb-6">
+          <Image
+            src="/assets/images/ranking/crown.gif"
+            alt="Crown Icon"
+            width={24}
+            height={24}
+            unoptimized
+          />
+          <h2 className="text-lg font-bold text-foreground tracking-tight">나의 랭킹</h2>
         </div>
 
         {/* 나의 현재 순위 뱃지 */}
-        <div className="bg-red-500 text-white text-xs px-4 py-1.5 rounded-full font-medium mb-2">
-          나의 현재 순위
+        <div className="bg-red-500 text-white text-[10px] px-4 py-1 rounded-full font-black uppercase tracking-widest mb-4 shadow-sm">
+          My Status
+        </div>
+
+        {/* 중앙 메달 아이콘 */}
+        <div className="mb-6">
+          <Image
+            src="/assets/images/ranking/military-medal.gif"
+            alt="Medal Icon"
+            width={114}
+            height={114}
+            unoptimized
+          />
         </div>
 
         {/* 순위 텍스트 */}

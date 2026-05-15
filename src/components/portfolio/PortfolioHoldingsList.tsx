@@ -4,7 +4,17 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 import naverLogo from "@/assets/images/logos/stocks/stock-naver.svg";
 import tossLogo from "@/assets/images/logos/stocks/stock-toss.svg";
@@ -126,84 +136,100 @@ export default function PortfolioHoldingsList() {
   };
 
   return (
-    <Card className="bg-card ring-0 shadow-md">
-      <CardContent className="p-4">
-        {/* 헤더 */}
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">보유 종목 리스트</h3>
+    <Card className="bg-card ring-1 ring-border/50 shadow-sm rounded-2xl overflow-hidden">
+      <CardContent className="p-0">
+        <div className="p-5 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-foreground">보유 종목 리스트</h3>
           <div className="flex flex-col items-end">
-            <span className="text-xs text-muted-foreground">보유 종목 금액/수익률(%)</span>
+            <span className="text-[11px] text-muted-foreground font-medium">
+              보유 종목 금액/수익률(%)
+            </span>
             <span className="text-[10px] text-blue-500 font-bold">
-              {visibleCount}개 / {totalCount}개 표시 중
+              {visibleCount} / {totalCount} 종목 표시 중
             </span>
           </div>
         </div>
 
-        {/* 종목 리스트 */}
-        <ul>
-          {visibleItems.map((item, index) => {
-            const isPositive = item.profitRate >= 0;
-            const isLast = index === visibleItems.length - 1;
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-b border-border/40">
+              <TableHead className="h-10 px-5 text-xs font-bold text-muted-foreground">
+                종목 정보
+              </TableHead>
+              <TableHead className="h-10 px-5 text-xs font-bold text-muted-foreground text-right">
+                평가금액/수익률
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {visibleItems.map((item) => {
+              const isPositive = item.profitRate >= 0;
 
-            return (
-              <li key={item.name} className={!isLast ? "border-b border-border" : ""}>
-                <Link
-                  href="#"
-                  className="flex items-center justify-between py-3 -mx-2 px-2 rounded-lg hover:bg-accent/40 transition-all duration-300 group cursor-pointer"
+              return (
+                <TableRow
+                  key={item.name}
+                  className="border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors group cursor-pointer"
                 >
-                  {/* 왼쪽: 로고 + 종목 정보 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                      <Image
-                        src={item.logoSrc}
-                        alt={`${item.name} 로고`}
-                        width={40}
-                        height={40}
-                        className={item.logoClassName ?? "w-8 h-8 object-contain"}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-0.5 group-hover:translate-x-1 transition-transform duration-300">
-                      <span className="text-sm font-medium text-foreground">{item.name}</span>
-                      <span className="text-xs text-muted-foreground">{item.shares}주</span>
-                    </div>
-                  </div>
+                  <TableCell className="py-4 px-5" colSpan={2}>
+                    <Link href="#" className="flex items-center justify-between w-full">
+                      {/* 왼쪽: 로고/이니셜 + 종목 정보 */}
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-10 h-10 rounded-full border border-border/50 bg-white shadow-sm shrink-0">
+                          <AvatarImage
+                            src={typeof item.logoSrc === "string" ? item.logoSrc : item.logoSrc.src}
+                            alt={item.name}
+                            className={item.logoClassName ?? "p-1.5 object-contain"}
+                          />
+                          <AvatarFallback className="bg-muted text-muted-foreground font-bold text-xs">
+                            {item.name.substring(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-semibold text-foreground group-hover:text-blue-600 transition-colors">
+                            {item.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {item.shares}주 보유
+                          </span>
+                        </div>
+                      </div>
 
-                  {/* 오른쪽: 평가금액 + 수익률 */}
-                  <div className="flex flex-col items-end gap-0.5">
-                    <span className="text-sm font-bold text-foreground">
-                      ₩{formatCurrency(item.value)}
-                    </span>
-                    <span
-                      className={`text-xs font-medium transition-all duration-300 ${
-                        isPositive
-                          ? "text-red-500 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.3)]"
-                          : "text-blue-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]"
-                      }`}
-                    >
-                      {isPositive ? "+" : ""}
-                      {item.profitRate.toFixed(1)}%
-                    </span>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                      {/* 오른쪽: 평가금액 + 수익률 */}
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-sm font-bold text-foreground">
+                          ₩{formatCurrency(item.value)}
+                        </span>
+                        <span
+                          className={`text-xs font-bold ${
+                            isPositive ? "text-red-500" : "text-blue-500"
+                          }`}
+                        >
+                          {isPositive ? "+" : ""}
+                          {item.profitRate.toFixed(1)}%
+                        </span>
+                      </div>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
 
         {/* 더보기 / 접기 버튼 */}
         {totalCount > DEFAULT_VISIBLE_COUNT && (
-          <div className="flex border-t border-border mt-2">
+          <div className="flex border-t border-border/40">
             {!isAllVisible ? (
               <button
                 type="button"
                 onClick={handleLoadMore}
-                className="flex-1 pt-3 pb-1 text-sm text-muted-foreground font-bold hover:bg-accent/20 hover:text-foreground active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                className="flex-1 py-4 text-sm text-muted-foreground font-semibold hover:bg-muted/50 hover:text-foreground transition-all cursor-pointer"
               >
-                {remainingCount}개 더보기
+                +{remainingCount}개 종목 더보기
               </button>
             ) : (
-              <div className="flex-1 pt-3 pb-1 text-sm text-center text-muted-foreground font-medium">
-                모든 종목을 확인했습니다
+              <div className="flex-1 py-4 text-sm text-center text-muted-foreground font-medium">
+                모든 종목을 불러왔습니다
               </div>
             )}
 
@@ -211,7 +237,7 @@ export default function PortfolioHoldingsList() {
               <button
                 type="button"
                 onClick={handleCollapse}
-                className="w-16 pt-3 pb-1 text-xs text-red-400 font-bold hover:bg-red-50 hover:text-red-600 active:scale-[0.95] transition-all duration-200 border-l border-border cursor-pointer"
+                className="w-20 py-4 text-xs text-red-400 font-bold hover:bg-red-50 hover:text-red-600 transition-all border-l border-border/40 cursor-pointer"
               >
                 접기
               </button>

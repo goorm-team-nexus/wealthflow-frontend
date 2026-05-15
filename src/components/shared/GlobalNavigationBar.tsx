@@ -1,35 +1,63 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { Bell, ChevronLeft } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 const pathMap: Record<string, string> = {
   "/portfolio": "Portfolio",
   "/ranking": "Ranking",
   "/mypage": "My Page",
+  "/purchase": "Purchase",
+  "/stock-detail": "Stock Detail",
+  "/EditInfo": "내 정보 수정",
 };
+
+const MAIN_PATHS = ["/portfolio", "/ranking", "/mypage"];
 
 export default function GlobalNavigationBar() {
   const pathname = usePathname();
+  const router = useRouter();
+
   const title = pathMap[pathname] || "WealthFlow";
+  const isMainPage = MAIN_PATHS.includes(pathname);
 
   return (
-    <header className="w-full border-b bg-background rounded-t-[1.5rem]">
+    <header className="sticky top-0 z-50 w-full border-b bg-background transition-all duration-300">
       <div className="flex h-[56px] items-center justify-between px-4">
-        {/* Left: Logo Placeholder + Title */}
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-sm bg-muted" aria-hidden="true" />
-          <span className="text-xl font-bold tracking-tight">{title}</span>
+        {/* Left: Back Button or Logo + Title */}
+        <div className="flex items-center gap-2">
+          {!isMainPage ? (
+            <button
+              onClick={() => router.back()}
+              className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-accent transition-colors -ml-2"
+              aria-label="Go back"
+            >
+              <ChevronLeft className="h-6 w-6 text-gray-700" />
+            </button>
+          ) : (
+            <div className="h-7 w-7 rounded-lg bg-gray-900 flex items-center justify-center mr-0.5">
+              <div className="h-3.5 w-3.5 rounded-sm bg-white" />
+            </div>
+          )}
+          <span className="text-lg font-bold tracking-tighter text-gray-900">{title}</span>
         </div>
 
-        {/* Right: My Page Link (Profile Circle Placeholder) */}
+        {/* Right: Actions (Profile) */}
         <div className="flex items-center">
           <Link
             href="/mypage"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
+            className="transition-transform hover:scale-105 active:scale-95"
             aria-label="My Page"
           >
-            <div className="h-full w-full rounded-full border-2 border-background bg-muted-foreground/20" />
+            <Avatar className="h-9 w-9 border border-gray-100 shadow-sm">
+              <AvatarImage src="" alt="User profile" />
+              <AvatarFallback className="bg-gray-100 text-[10px] font-bold text-gray-500">
+                U
+              </AvatarFallback>
+            </Avatar>
           </Link>
         </div>
       </div>

@@ -37,19 +37,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="h-full antialiased overflow-hidden">
+    <html lang="ko" className="antialiased">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} h-full flex flex-col font-noto-sans-kr bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} min-h-screen flex flex-col font-noto-sans-kr bg-gray-50`}
       >
         {/* Fixed Mobile-first container */}
-        <div className="w-full max-w-[500px] mx-auto bg-background h-full flex flex-col relative border-x border-border shadow-sm overflow-hidden md:rounded-[1.5rem]">
+        <div className="w-full max-w-[500px] mx-auto bg-background min-h-screen flex flex-col relative border-x border-border shadow-sm md:rounded-b-[1.5rem]">
           {/* Header Fixed */}
           <GlobalNavigationBar />
 
-          {/* Scrollable Content */}
-          <main className="flex-1 overflow-y-auto">{children}</main>
+          {/* Content Area */}
+          <main className="flex-1 pb-20">{children}</main>
 
-          {/* TabBar Fixed */}
+          {/* TabBar Fixed to the bottom of the 500px container */}
           <TabBar />
         </div>
       </body>

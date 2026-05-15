@@ -1,8 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import crownIcon from "@/app/crown.gif";
-import cupIcon from "@/app/cup.gif";
-import medalIcon from "@/app/military-medal.gif";
 
 export default function WeeklyRanking() {
   // 더미 데이터 프로필 (임시)
@@ -13,12 +11,19 @@ export default function WeeklyRanking() {
   };
 
   return (
-    <Card className="w-full max-w-sm mx-auto shadow-sm border border-border bg-card rounded-3xl">
+    <Card className="w-full max-w-full mx-auto shadow-sm border border-border bg-card rounded-3xl">
       <CardContent className="p-4 flex flex-col items-center">
         {/* 헤더 */}
         <div className="flex items-center gap-2 mb-4">
-          <Image src={crownIcon} alt="Crown Icon" width={32} height={32} unoptimized priority />
-          <h2 className="text-lg font-semibold text-foreground tracking-tight">주간 TOP 3</h2>
+          <Image
+            src="/assets/images/ranking/crown.gif"
+            alt="Crown Icon"
+            width={32}
+            height={32}
+            unoptimized
+            priority
+          />
+          <h2 className="text-lg font-semibold text-foreground tracking-tight">전체 TOP 3</h2>
         </div>
 
         {/* 랭킹 뷰 */}
@@ -28,13 +33,14 @@ export default function WeeklyRanking() {
             <span className="bg-muted-foreground text-white text-xs px-3 py-1 rounded-full mb-2 whitespace-nowrap">
               {users.rank2.name}
             </span>
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm mb-2 relative">
-              <Image src={users.rank2.img} alt="User 2" fill className="object-cover" unoptimized />
-            </div>
+            <Avatar className="w-16 h-16 border-2 border-white shadow-sm mb-2">
+              <AvatarImage src={users.rank2.img} alt="User 2" className="object-cover" />
+              <AvatarFallback>{users.rank2.name[0]}</AvatarFallback>
+            </Avatar>
             <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-32">
               <div className="h-14 flex items-center justify-center">
                 <Image
-                  src={medalIcon}
+                  src="/assets/images/ranking/military-medal.gif"
                   alt="2nd place"
                   width={48}
                   height={48}
@@ -53,15 +59,23 @@ export default function WeeklyRanking() {
 
           {/* 1위 (중앙) */}
           <div className="flex flex-col items-center flex-1 z-10">
-            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md mb-2 relative">
-              <Image src={users.rank1.img} alt="User 1" fill className="object-cover" unoptimized />
-            </div>
+            <Avatar className="w-20 h-20 border-2 border-white shadow-md mb-2">
+              <AvatarImage src={users.rank1.img} alt="User 1" className="object-cover" />
+              <AvatarFallback>{users.rank1.name[0]}</AvatarFallback>
+            </Avatar>
             <span className="bg-muted-foreground text-white text-xs px-3 py-1 rounded-full mb-2 whitespace-nowrap">
               {users.rank1.name}
             </span>
             <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-4 shadow-md h-40">
               <div className="h-20 flex items-center justify-center">
-                <Image src={cupIcon} alt="1st place" width={80} height={80} unoptimized priority />
+                <Image
+                  src="/assets/images/ranking/cup.gif"
+                  alt="1st place"
+                  width={80}
+                  height={80}
+                  unoptimized
+                  priority
+                />
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-3xl font-bold">1</span>
@@ -77,13 +91,14 @@ export default function WeeklyRanking() {
             <span className="bg-muted-foreground text-white text-xs px-3 py-1 rounded-full mb-2 whitespace-nowrap">
               {users.rank3.name}
             </span>
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm mb-2 relative">
-              <Image src={users.rank3.img} alt="User 3" fill className="object-cover" unoptimized />
-            </div>
+            <Avatar className="w-16 h-16 border-2 border-white shadow-sm mb-2">
+              <AvatarImage src={users.rank3.img} alt="User 3" className="object-cover" />
+              <AvatarFallback>{users.rank3.name[0]}</AvatarFallback>
+            </Avatar>
             <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-32">
               <div className="h-14 flex items-center justify-center">
                 <Image
-                  src={medalIcon}
+                  src="/assets/images/ranking/military-medal.gif"
                   alt="3rd place"
                   width={48}
                   height={48}

@@ -11,12 +11,14 @@ export const metadata = {
 
 export default function PortfolioPage() {
   return (
-    <main className="min-h-screen p-4 flex flex-col gap-4">
-      <PortfolioMyRanking />
-      <PortfolioTotalAssets />
-      <PortfolioHoldingsRatio />
-      <PortfolioHoldingsList />
-      <PortfolioAiAnalysis />
+    <main className="min-h-screen bg-white pb-24">
+      <div className="w-full max-w-[500px] mx-auto flex flex-col gap-4 p-4">
+        <PortfolioMyRanking />
+        <PortfolioTotalAssets />
+        <PortfolioHoldingsRatio />
+        <PortfolioHoldingsList />
+        <PortfolioAiAnalysis />
+      </div>
     </main>
   );
 }

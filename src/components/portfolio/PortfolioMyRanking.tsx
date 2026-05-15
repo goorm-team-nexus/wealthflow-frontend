@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Card, CardContent } from "@/components/ui/card";
-import cupGif from "@/app/cup.gif";
 
 // TODO: 백엔드 연동 시 API 응답 타입으로 교체
 interface MyRankingData {
@@ -25,10 +24,9 @@ export default function PortfolioMyRanking() {
         <CardContent className="flex items-center justify-between p-4">
           {/* 왼쪽: 트로피 아이콘 + 텍스트 */}
           <div className="flex items-center gap-4">
-            {/* 원형 배경 안에 cup.gif 배치 */}
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white ring-1 ring-border shadow-md">
               <Image
-                src={cupGif}
+                src="/assets/images/ranking/cup.gif"
                 alt="trophy"
                 width={32}
                 height={32}
@@ -37,15 +35,20 @@ export default function PortfolioMyRanking() {
               />
             </div>
 
-            {/* 텍스트: 나의 랭킹 + 부제목 */}
-            <div className="flex flex-col gap-2">
-              <span className="text-lg font-semibold">나의 랭킹</span>
-              <span className="text-sm text-muted-foreground">{message}</span>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-blue-500 uppercase tracking-tight">
+                {message}
+              </span>
+              <span className="text-[11px] text-muted-foreground font-medium">
+                현재 나의 랭킹 상태
+              </span>
             </div>
           </div>
 
           {/* 오른쪽: 랭킹 숫자 */}
-          <span className="text-4xl font-bold">{rank}위</span>
+          <div className="text-right">
+            <span className="text-3xl font-bold tracking-tighter">{rank}위</span>
+          </div>
         </CardContent>
       </Card>
     </Link>
