@@ -12,24 +12,24 @@ export default function MyPage() {
       <Link href="/profile">
         <Card className="border border-border bg-card p-6 shadow-sm transition-colors hover:border-foreground">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 bg-[#171717] rounded-full flex items-center justify-center shrink-0">
-              <CircleUserRound className="w-10 h-10 text-white" />
+            <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <CircleUserRound className="size-10" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-[18px] text-gray-900">@투자자 김성실</span>
-              <span className="text-[15px] text-gray-600 font-medium">이메일일@kakao.com</span>
-              <span className="text-[13px] text-gray-400 mt-0.5">December 2021(가입일)</span>
+              <span className="text-lg font-semibold">@투자자 김성실</span>
+              <span className="text-sm text-muted-foreground">이메일일@kakao.com</span>
+              <span className="text-xs text-muted-foreground">December 2021(가입일)</span>
             </div>
           </div>
         </Card>
       </Link>
 
       {/* Assets Section */}
-      <div className="text-center space-y-3">
-        <span className="text-[18px] font-bold text-gray-900">총액</span>
+      <div className="space-y-3 text-center">
+        <span className="text-lg font-semibold">총액</span>
         <div className="flex flex-col items-center gap-4">
-          <h2 className="text-[36px] font-black tracking-tight text-gray-900">₩12,235,230.00</h2>
-          <div className="inline-flex items-center bg-[#ef4444] px-5 py-2 rounded-full text-white font-bold text-[14px] shadow-sm">
+          <h2 className="text-2xl font-bold">₩12,235,230.00</h2>
+          <div className="inline-flex items-center rounded-full bg-red-500 px-5 py-2 text-sm font-semibold text-white">
             +12,555,550 (+12.3%)
           </div>
         </div>
@@ -37,39 +37,24 @@ export default function MyPage() {
 
       {/* Menu Section */}
       <div className="space-y-4">
-        <Button
-          variant="outline"
-          className="w-full h-[52px] rounded-xl border-gray-200 text-gray-900 text-[16px] font-bold gap-3 hover:bg-gray-50 transition-all shadow-sm"
-        >
-          <Trophy className="w-5 h-5" />내 랭킹
+        <Button variant="outline" size="lg" className="w-full justify-start gap-3">
+          <Trophy className="size-5" />내 랭킹
         </Button>
         <Link href="/profile" className="w-full">
-          <Button
-            variant="outline"
-            className="w-full h-[52px] rounded-xl border-gray-200 text-gray-900 text-[16px] font-bold gap-3 hover:bg-gray-50 transition-all shadow-sm"
-          >
-            <User className="w-5 h-5" />내 정보 조회 및 수정
+          <Button variant="outline" size="lg" className="w-full justify-start gap-3">
+            <User className="size-5" />내 정보 조회 및 수정
           </Button>
         </Link>
-        <Button
-          variant="outline"
-          className="w-full h-[52px] rounded-xl border-gray-200 text-gray-900 text-[16px] font-bold gap-3 hover:bg-gray-50 transition-all shadow-sm"
-        >
-          <History className="w-5 h-5" />
+        <Button variant="outline" size="lg" className="w-full justify-start gap-3">
+          <History className="size-5" />
           거래 내역
         </Button>
-        <Button
-          variant="outline"
-          className="w-full h-[52px] rounded-xl border-gray-200 text-gray-900 text-[16px] font-bold gap-3 hover:bg-gray-50 transition-all shadow-sm"
-        >
-          <Banknote className="w-5 h-5" />
+        <Button variant="outline" size="lg" className="w-full justify-start gap-3">
+          <Banknote className="size-5" />
           환전 내역
         </Button>
-        <Button
-          variant="outline"
-          className="w-full h-[52px] rounded-xl border-[#ef4444] text-[#ef4444] text-[16px] font-bold gap-3 hover:bg-red-50 hover:text-red-600 transition-all shadow-sm"
-        >
-          <History className="w-5 h-5" />
+        <Button variant="destructive" size="lg" className="w-full justify-start gap-3">
+          <History className="size-5" />
           로그아웃
         </Button>
       </div>

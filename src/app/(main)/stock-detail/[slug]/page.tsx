@@ -129,10 +129,7 @@ export default function StockDetailPage() {
       />
       <AiSummary />
       <StockInfoCard />
-      <Button
-        asChild
-        className="h-11 w-full bg-red-400 text-base font-semibold text-white hover:bg-red-500 [a]:hover:bg-red-500"
-      >
+      <Button asChild className="w-full bg-red-500 text-white hover:bg-red-600">
         <Link href="/stock-detail/samsung-electronics/purchase">구매하기</Link>
       </Button>
     </div>
@@ -147,30 +144,27 @@ function StockDetailHeader({
   onFavoriteToggle: () => void;
 }) {
   return (
-    <header className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
-      <button
-        type="button"
-        className="flex size-8 items-center justify-center"
-        aria-label="뒤로가기"
-      >
+    <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
+      <Button type="button" variant="ghost" size="icon" aria-label="뒤로가기">
         <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
-      </button>
+      </Button>
       <h1 className="truncate text-center text-sm font-semibold">삼성전자 (005930)</h1>
-      <button
+      <Button
         type="button"
-        className="flex size-8 items-center justify-center"
+        variant="ghost"
+        size="icon"
         aria-label="관심 종목"
         aria-pressed={isFavorite}
         onClick={onFavoriteToggle}
       >
         <Heart
           className={`size-5 stroke-[2.2] ${
-            isFavorite ? "fill-red-500 text-red-500" : "text-zinc-950"
+            isFavorite ? "fill-red-500 text-red-500" : "text-foreground"
           }`}
           aria-hidden="true"
         />
-      </button>
-    </header>
+      </Button>
+    </div>
   );
 }
 
@@ -180,7 +174,7 @@ function PriceSummary() {
       <h2 className="text-3xl font-bold tracking-normal">219,500원</h2>
       <div className="flex items-center gap-2">
         <span className="text-xs font-semibold text-red-500">+1,200원 (+0.24%)</span>
-        <span className="text-[10px] font-medium text-zinc-950">오늘기준</span>
+        <span className="text-xs text-muted-foreground">오늘기준</span>
       </div>
     </section>
   );
@@ -198,27 +192,27 @@ function PriceChart({
   return (
     <Card className="rounded-md py-4">
       <CardContent className="flex flex-col gap-4 px-4">
-        <div className="flex w-fit rounded-md bg-zinc-100 p-1">
+        <div className="flex w-fit rounded-md bg-muted p-1">
           {chartPeriods.map((period) => (
-            <button
+            <Button
               key={period}
               type="button"
-              className={`h-7 min-w-11 rounded-sm px-3 text-xs font-semibold transition-colors ${
-                period === selectedPeriod ? "bg-white text-zinc-950 shadow-sm" : "text-zinc-600"
-              }`}
+              variant={period === selectedPeriod ? "secondary" : "ghost"}
+              size="sm"
+              className="min-w-11"
               aria-pressed={period === selectedPeriod}
               onClick={() => onPeriodChange(period)}
             >
               {period}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="grid h-64 grid-cols-[minmax(0,1fr)_32px] gap-3">
-          <div className="relative border-b border-zinc-200">
+          <div className="relative border-b border-border">
             {[0, 1, 2, 3, 4].map((line) => (
               <span
                 key={line}
-                className="absolute left-3 right-0 border-t border-zinc-100"
+                className="absolute left-3 right-0 border-t border-border/60"
                 style={{ top: `${line * 25}%` }}
               />
             ))}
@@ -236,7 +230,7 @@ function PriceChart({
                     x2={bar.x}
                     y1={bar.wickTop}
                     y2={bar.wickBottom}
-                    className="stroke-zinc-950"
+                    className="stroke-foreground"
                     strokeLinecap="round"
                     strokeWidth="1.2"
                     vectorEffect="non-scaling-stroke"
@@ -252,7 +246,7 @@ function PriceChart({
                 </g>
               ))}
             </svg>
-            <div className="absolute inset-x-4 bottom-3 flex justify-between text-[9px] text-zinc-500">
+            <div className="absolute inset-x-4 bottom-3 flex justify-between text-xs text-muted-foreground">
               <span>9:00</span>
               <span>11:00</span>
               <span>13:00</span>
@@ -260,7 +254,7 @@ function PriceChart({
               <span>15:30</span>
             </div>
           </div>
-          <div className="relative text-[8px] font-semibold text-zinc-950">
+          <div className="relative text-xs font-semibold text-foreground">
             <span className="absolute right-0 top-5">220,000</span>
             <span className="absolute right-0 top-[42%]">210,000</span>
             <span className="absolute right-0 top-[62%]">190,000</span>
@@ -282,7 +276,9 @@ function AiSummary() {
           </span>
           <h2 className="text-sm font-bold">AI 요약</h2>
         </div>
-        <p className="pl-7 text-xs font-medium text-zinc-700">AI 요약 내용 길게 어쩌구 저쩌구</p>
+        <p className="pl-7 text-xs font-medium text-muted-foreground">
+          AI 요약 내용 길게 어쩌구 저쩌구
+        </p>
       </CardContent>
     </Card>
   );
@@ -296,19 +292,19 @@ function StockInfoCard() {
           <CircleDollarSign className="mt-0.5 size-5" aria-hidden="true" />
           <div className="flex flex-col">
             <h2 className="text-sm font-semibold">삼성전자</h2>
-            <span className="text-[10px] font-semibold text-zinc-600">005930 · 핵심 종목 정보</span>
+            <span className="text-xs text-muted-foreground">005930 · 핵심 종목 정보</span>
           </div>
         </div>
         <div className="flex flex-col">
           {stockMetrics.map((metric) => (
             <div
               key={metric.label}
-              className="flex h-12 items-center justify-between border-b border-zinc-100 last:border-b-0"
+              className="flex h-12 items-center justify-between border-b border-border last:border-b-0"
             >
-              <span className="text-xs font-medium text-zinc-600">{metric.label}</span>
+              <span className="text-xs text-muted-foreground">{metric.label}</span>
               <strong
                 className={`text-sm font-bold ${
-                  metric.tone === "positive" ? "text-red-500" : "text-zinc-950"
+                  metric.tone === "positive" ? "text-red-500" : "text-foreground"
                 }`}
               >
                 {metric.value}
@@ -317,10 +313,10 @@ function StockInfoCard() {
           ))}
         </div>
         <div className="flex h-8 items-center justify-between">
-          <span className="text-xs font-medium text-zinc-600">52주 범위</span>
+          <span className="text-xs text-muted-foreground">52주 범위</span>
           <div className="flex items-end gap-0.5">
-            <span className="text-sm font-medium text-zinc-500">57,300원~</span>
-            <strong className="text-sm font-bold text-zinc-950">223,000원</strong>
+            <span className="text-sm text-muted-foreground">57,300원~</span>
+            <strong className="text-sm font-bold text-foreground">223,000원</strong>
           </div>
         </div>
       </CardContent>

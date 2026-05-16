@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import crownIcon from "@/app/crown.gif";
-import cupIcon from "@/app/cup.gif";
-import medalIcon from "@/app/military-medal.gif";
+import crownIcon from "@/assets/images/ranking/crown.gif";
+import cupIcon from "@/assets/images/ranking/cup.gif";
+import medalIcon from "@/assets/images/ranking/military-medal.gif";
 
 export default function WeeklyRanking() {
   // 더미 데이터 프로필 (임시)

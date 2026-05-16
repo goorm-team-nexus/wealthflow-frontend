@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 // 가상의 전체 랭킹 더미 데이터 (컴포넌트 외부에 두어 렌더링 시마다 재생성되는 것을 방지하고 퓨리티 에러 해결)
@@ -42,10 +43,10 @@ export default function OverallRanking() {
         <div className="p-4 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-foreground tracking-tight">전체 랭킹</h2>
           <div className="flex flex-col items-end">
-            <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Update: 26.05.06 14:00
             </span>
-            <span className="text-[10px] text-blue-500 font-bold">TOP {visibleCount} 표시 중</span>
+            <span className="text-xs font-bold text-blue-500">TOP {visibleCount} 표시 중</span>
           </div>
         </div>
 
@@ -94,12 +95,14 @@ export default function OverallRanking() {
         {/* 버튼 섹션 */}
         <div className="flex border-t border-border/60">
           {visibleCount < 30 ? (
-            <button
+            <Button
+              type="button"
+              variant="ghost"
               onClick={handleLoadMore}
-              className="flex-1 py-4 text-xs text-muted-foreground font-bold hover:bg-accent/20 hover:text-foreground active:scale-[0.98] transition-all duration-200 uppercase tracking-widest bg-muted/5 cursor-pointer"
+              className="flex-1 text-xs font-semibold text-muted-foreground"
             >
               10개 더보기
-            </button>
+            </Button>
           ) : (
             <div className="flex-1 py-4 text-xs text-center text-muted-foreground font-medium bg-muted/5 uppercase tracking-widest">
               모든 랭킹을 확인했습니다
@@ -107,12 +110,14 @@ export default function OverallRanking() {
           )}
 
           {visibleCount > 4 && (
-            <button
+            <Button
+              type="button"
+              variant="ghost"
               onClick={handleCollapse}
-              className="w-20 py-4 text-[10px] text-red-400 font-bold hover:bg-red-50 hover:text-red-600 active:scale-[0.95] transition-all duration-200 border-l border-border/60 uppercase cursor-pointer bg-muted/5"
+              className="w-20 border-l border-border/60 text-xs font-semibold text-destructive"
             >
               접기
-            </button>
+            </Button>
           )}
         </div>
       </CardContent>

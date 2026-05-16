@@ -1,8 +1,9 @@
 "use client";
 
-import { Bell, Heart, X } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 type FavoriteStock = {
@@ -22,13 +23,9 @@ const copy = {
   rising: "상승 종목",
   falling: "하락 종목",
   unit: "종목",
-  alarm: "알림",
-  close: "닫기",
   favorite: "관심 종목",
   emptyTitle: "관심 종목이 없습니다",
   emptyDescription: "시장/거래에서 관심 있는 종목을 추가해보세요.",
-  noticeTitle: "알림",
-  noticeBody: "관심 종목의 가격 변동 알림이 도착했습니다.",
 };
 
 const favoriteStocks: FavoriteStock[] = [
@@ -158,8 +155,6 @@ export default function FavoritesPage() {
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(
     () => new Set(favoriteStocks.slice(0, 6).map((stock) => stock.id)),
   );
-  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
-  const [hasUnreadNotice, setHasUnreadNotice] = useState(true);
   const visibleFavoriteStocks = favoriteStocks.filter((stock) => favoriteIds.has(stock.id));
 
   const favoriteSummary = visibleFavoriteStocks.reduce(
@@ -183,19 +178,8 @@ export default function FavoritesPage() {
     });
   };
 
-  const handleNoticeToggle = () => {
-    setIsNoticeOpen((currentIsNoticeOpen) => !currentIsNoticeOpen);
-    setHasUnreadNotice(false);
-  };
-
   return (
     <div className="flex w-full flex-col gap-6 p-4">
-      <FavoritesHeader
-        hasUnreadNotice={hasUnreadNotice}
-        isNoticeOpen={isNoticeOpen}
-        onNoticeToggle={handleNoticeToggle}
-      />
-      {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{copy.sectionTitle}</h2>
         <FavoriteSummary summary={favoriteSummary} />
@@ -220,64 +204,15 @@ export default function FavoritesPage() {
 
 function FavoriteEmptyState() {
   return (
-    <Card className="rounded-lg border-dashed border-zinc-200 bg-white py-6 shadow-sm shadow-zinc-200/70">
+    <Card className="border-dashed py-6 shadow-sm">
       <CardContent className="flex flex-col items-center gap-3 px-4 text-center">
-        <span className="flex size-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-500">
+        <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <Heart className="size-5" aria-hidden="true" />
         </span>
         <div className="flex flex-col gap-1">
-          <strong className="text-sm font-semibold text-zinc-950">{copy.emptyTitle}</strong>
-          <p className="text-xs leading-5 text-zinc-500">{copy.emptyDescription}</p>
+          <strong className="text-sm font-semibold">{copy.emptyTitle}</strong>
+          <p className="text-xs leading-5 text-muted-foreground">{copy.emptyDescription}</p>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function FavoritesHeader({
-  hasUnreadNotice,
-  isNoticeOpen,
-  onNoticeToggle,
-}: {
-  hasUnreadNotice: boolean;
-  isNoticeOpen: boolean;
-  onNoticeToggle: () => void;
-}) {
-  return (
-    <header className="flex h-8 items-center justify-between">
-      <h1 className="text-xl font-bold tracking-normal">{copy.title}</h1>
-      <button
-        type="button"
-        className="relative flex size-8 items-center justify-center"
-        aria-label={copy.alarm}
-        aria-pressed={isNoticeOpen}
-        onClick={onNoticeToggle}
-      >
-        <Bell className="size-6 stroke-[2.4]" aria-hidden="true" />
-        {hasUnreadNotice ? (
-          <span className="absolute right-1 top-0 size-2 rounded-full bg-red-500" />
-        ) : null}
-      </button>
-    </header>
-  );
-}
-
-function NoticePanel({ onClose }: { onClose: () => void }) {
-  return (
-    <Card className="absolute right-8 top-14 z-10 w-56 rounded-lg bg-white py-3 shadow-lg shadow-zinc-300/70 ring-1 ring-zinc-200">
-      <CardContent className="flex flex-col gap-2 px-3">
-        <div className="flex items-center justify-between">
-          <strong className="text-sm font-semibold">{copy.noticeTitle}</strong>
-          <button
-            type="button"
-            className="flex size-5 items-center justify-center"
-            aria-label={copy.close}
-            onClick={onClose}
-          >
-            <X className="size-4" aria-hidden="true" />
-          </button>
-        </div>
-        <p className="text-xs leading-5 text-zinc-600">{copy.noticeBody}</p>
       </CardContent>
     </Card>
   );
@@ -293,8 +228,8 @@ function FavoriteSummary({
   };
 }) {
   return (
-    <Card className="rounded-lg border-zinc-100 bg-white py-4 shadow-md shadow-zinc-200/80">
-      <CardContent className="grid grid-cols-3 divide-x divide-zinc-200 px-0">
+    <Card className="py-4 shadow-sm">
+      <CardContent className="grid grid-cols-3 divide-x divide-border px-0">
         <SummaryMetric label={copy.total} value={`${summary.total}개`} unit={copy.unit} />
         <SummaryMetric label={copy.rising} value={`${summary.rising}개`} tone="red" />
         <SummaryMetric label={copy.falling} value={`${summary.falling}개`} tone="blue" />
@@ -315,16 +250,16 @@ function SummaryMetric({
   unit?: string;
 }) {
   const valueToneClass =
-    tone === "blue" ? "text-blue-600" : tone === "red" ? "text-red-500" : "text-zinc-950";
+    tone === "blue" ? "text-blue-600" : tone === "red" ? "text-red-500" : "text-foreground";
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-xs font-medium text-zinc-600">{label}</span>
+      <span className="text-xs text-muted-foreground">{label}</span>
       <div className="flex h-8 items-end justify-center gap-1">
         <strong className={`text-2xl font-bold leading-none tracking-normal ${valueToneClass}`}>
           {value}
         </strong>
-        {unit ? <span className="pb-0.5 text-xs font-medium text-zinc-700">{unit}</span> : null}
+        {unit ? <span className="pb-0.5 text-xs text-muted-foreground">{unit}</span> : null}
       </div>
     </div>
   );
@@ -344,33 +279,34 @@ function FavoriteStockRow({
   const logoClass = isBlue ? "bg-blue-50 text-blue-600" : "bg-red-50 text-red-500";
 
   return (
-    <Card className="h-12 rounded-lg border-zinc-100 bg-white py-0 shadow-sm shadow-zinc-200/70">
+    <Card className="h-12 py-0 shadow-sm">
       <CardContent className="grid h-full grid-cols-[32px_minmax(0,1fr)_84px_60px_20px] items-center gap-2 px-3">
         <span
           className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${logoClass}`}
         >
           {stock.logo}
         </span>
-        <span className="truncate text-xs font-normal text-zinc-950">{stock.name}</span>
+        <span className="truncate text-xs font-normal text-foreground">{stock.name}</span>
         <div className="flex flex-col gap-1">
-          <strong className="text-xs font-semibold leading-none tracking-tight text-zinc-950">
+          <strong className="text-xs font-semibold leading-none tracking-tight text-foreground">
             {stock.price}
           </strong>
-          <span className={`text-[8px] font-normal leading-none ${toneClass}`}>{stock.change}</span>
+          <span className={`text-xs font-normal leading-none ${toneClass}`}>{stock.change}</span>
         </div>
         <MiniChart points={stock.points} tone={stock.tone} />
-        <button
+        <Button
           type="button"
-          className="flex size-5 items-center justify-center"
+          variant="ghost"
+          size="icon-xs"
           aria-label={copy.favorite}
           aria-pressed={isFavorite}
           onClick={() => onFavoriteToggle(stock.id)}
         >
           <Heart
-            className={`size-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-zinc-950"}`}
+            className={`size-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground"}`}
             aria-hidden="true"
           />
-        </button>
+        </Button>
       </CardContent>
     </Card>
   );

@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
+
 interface FullMenuPopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -62,13 +64,16 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
 
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground ml-1">Menu</span>
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
               onClick={onClose}
-              className="p-2 -mr-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+              className="-mr-2 text-muted-foreground"
               aria-label="닫기"
             >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -89,7 +94,7 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
                 <User className="w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[15px] font-bold leading-tight">사용자</span>
+                <span className="text-sm font-semibold leading-tight">사용자</span>
                 <span className="text-xs text-muted-foreground group-hover:text-foreground">
                   로그아웃
                 </span>
@@ -120,7 +125,7 @@ function MenuItem({
       className="flex items-center gap-3 px-3.5 py-2 rounded-xl text-foreground hover:bg-muted hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner transition-all duration-150 group"
     >
       <Icon className="w-5 h-5 text-foreground/80 group-hover:text-foreground transition-colors shrink-0" />
-      <span className="text-[15px] font-medium flex-1">{label}</span>
+      <span className="flex-1 text-sm font-medium">{label}</span>
       <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
     </Link>
   );

@@ -106,18 +106,18 @@ export default function StockPurchasePage() {
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
-      <header className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
+      <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
         <Button asChild variant="ghost" size="icon" className="size-8">
           <Link href="/stock-detail/samsung-electronics" aria-label="종목 상세로 돌아가기">
             <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
           </Link>
         </Button>
         <h1 className="truncate text-center text-sm font-semibold">삼성전자 (005930)</h1>
-      </header>
+      </div>
 
-      <Card className="rounded-md bg-zinc-50 py-4 shadow-sm">
+      <Card className="bg-muted/50 py-4 shadow-sm">
         <CardContent className="flex h-24 flex-col justify-center gap-3 px-4">
-          <span className="text-xs font-semibold text-zinc-950">구매할 가격</span>
+          <span className="text-xs text-muted-foreground">구매할 가격</span>
           <strong className="text-3xl font-bold tracking-normal">
             {formatCurrency(purchasePrice)}
           </strong>
@@ -125,10 +125,10 @@ export default function StockPurchasePage() {
       </Card>
 
       <div ref={purchaseControlsRef} className="flex flex-col gap-6">
-        <Card className="rounded-md py-4 shadow-sm">
+        <Card className="py-4 shadow-sm">
           <CardContent className="flex flex-col gap-4 px-4">
             <label className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-zinc-950">몇 주 구매할까요?</span>
+              <span className="text-xs text-muted-foreground">몇 주 구매할까요?</span>
               <div className="relative" onClick={handleQuantityFieldClick}>
                 <Input
                   className="h-9 pr-9 text-base font-medium"
@@ -137,7 +137,7 @@ export default function StockPurchasePage() {
                   value={quantity}
                   aria-label="구매 수량"
                 />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-400">
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                   주
                 </span>
               </div>
@@ -150,7 +150,7 @@ export default function StockPurchasePage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-6 rounded-md text-[10px] font-semibold"
+                  className="text-xs font-semibold"
                   onClick={() => handleQuickQuantityClick(quickQuantity)}
                 >
                   {quickQuantity.label}
@@ -186,9 +186,7 @@ export default function StockPurchasePage() {
         ) : null}
       </div>
 
-      <Button className="h-12 w-full rounded-md bg-red-400 text-base font-semibold text-white hover:bg-red-500">
-        구매하기
-      </Button>
+      <Button className="w-full bg-red-500 text-white hover:bg-red-600">구매하기</Button>
     </div>
   );
 }

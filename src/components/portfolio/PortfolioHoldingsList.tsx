@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import naverLogo from "@/assets/images/logos/stocks/stock-naver.svg";
@@ -133,7 +134,7 @@ export default function PortfolioHoldingsList() {
           <h3 className="text-lg font-semibold">보유 종목 리스트</h3>
           <div className="flex flex-col items-end">
             <span className="text-xs text-muted-foreground">보유 종목 금액/수익률(%)</span>
-            <span className="text-[10px] text-blue-500 font-bold">
+            <span className="text-xs font-bold text-blue-500">
               {visibleCount}개 / {totalCount}개 표시 중
             </span>
           </div>
@@ -192,15 +193,16 @@ export default function PortfolioHoldingsList() {
 
         {/* 더보기 / 접기 버튼 */}
         {totalCount > DEFAULT_VISIBLE_COUNT && (
-          <div className="flex border-t border-border mt-2">
+          <div className="mt-2 flex border-t border-border">
             {!isAllVisible ? (
-              <button
+              <Button
                 type="button"
                 onClick={handleLoadMore}
-                className="flex-1 pt-3 pb-1 text-sm text-muted-foreground font-bold hover:bg-accent/20 hover:text-foreground active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                variant="ghost"
+                className="flex-1 text-sm font-semibold text-muted-foreground"
               >
                 {remainingCount}개 더보기
-              </button>
+              </Button>
             ) : (
               <div className="flex-1 pt-3 pb-1 text-sm text-center text-muted-foreground font-medium">
                 모든 종목을 확인했습니다
@@ -208,13 +210,14 @@ export default function PortfolioHoldingsList() {
             )}
 
             {visibleCount > DEFAULT_VISIBLE_COUNT && (
-              <button
+              <Button
                 type="button"
                 onClick={handleCollapse}
-                className="w-16 pt-3 pb-1 text-xs text-red-400 font-bold hover:bg-red-50 hover:text-red-600 active:scale-[0.95] transition-all duration-200 border-l border-border cursor-pointer"
+                variant="ghost"
+                className="w-16 border-l border-border text-xs font-semibold text-destructive"
               >
                 접기
-              </button>
+              </Button>
             )}
           </div>
         )}

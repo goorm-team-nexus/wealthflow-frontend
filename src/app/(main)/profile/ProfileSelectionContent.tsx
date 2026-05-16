@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Upload, Check } from "lucide-react";
 import Image from "next/image";
 
+import { Button } from "@/components/ui/button";
+
 const AVATARS = [
   { id: "purple", src: "/profiles/avatar_purple.png" },
   { id: "green", src: "/profiles/avatar_green.png" },
@@ -19,9 +21,9 @@ export default function ProfileSelectionContent() {
   return (
     <div className="flex w-full flex-col items-center gap-8 p-4 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Upload Button */}
-      <button className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105 active:scale-95">
-        <Upload className="w-10 h-10 text-white" />
-      </button>
+      <Button type="button" size="icon-lg" className="size-20 rounded-full">
+        <Upload className="size-10" />
+      </Button>
 
       <h2 className="text-2xl font-bold text-foreground">프로필 선택</h2>
 
@@ -36,7 +38,7 @@ export default function ProfileSelectionContent() {
             <div
               className={`aspect-square rounded-full overflow-hidden border-2 transition-all duration-300 ${
                 selectedAvatar === avatar.id
-                  ? "border-[#171717] scale-110 shadow-lg ring-4 ring-[#171717]/10"
+                  ? "scale-110 border-primary shadow-sm ring-4 ring-primary/10"
                   : "border-transparent opacity-70 hover:opacity-100 hover:scale-105"
               }`}
             >
@@ -49,8 +51,8 @@ export default function ProfileSelectionContent() {
               />
             </div>
             {selectedAvatar === avatar.id && (
-              <div className="absolute -top-1 -right-1 bg-[#171717] rounded-full p-1.5 shadow-md animate-in zoom-in duration-300">
-                <Check className="w-4 h-4 text-white stroke-[4px]" />
+              <div className="absolute -right-1 -top-1 rounded-full bg-primary p-1.5 text-primary-foreground shadow-sm animate-in zoom-in duration-300">
+                <Check className="size-4 stroke-[4px]" />
               </div>
             )}
           </div>
@@ -58,9 +60,9 @@ export default function ProfileSelectionContent() {
       </div>
 
       {/* Delete Profile Button */}
-      <button className="text-[15px] font-semibold text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-wider">
+      <Button type="button" variant="ghost">
         프로필 삭제
-      </button>
+      </Button>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import crownIcon from "@/app/crown.gif";
-import medalIcon from "@/app/military-medal.gif";
+import crownIcon from "@/assets/images/ranking/crown.gif";
+import medalIcon from "@/assets/images/ranking/military-medal.gif";
 
 export default function MyRankingCard() {
   // 가상의 더미 데이터
@@ -32,22 +32,18 @@ export default function MyRankingCard() {
         <div className="text-5xl font-bold mb-3 text-foreground">{ranking}위</div>
 
         {/* 구분선 */}
-        <hr className="w-full border-gray-300 mb-3" />
+        <hr className="mb-3 w-full border-border" />
 
         {/* 하단 통계 (총 자산 & 수익률) */}
         <div className="flex justify-between w-full">
           <div className="flex flex-col items-center gap-2">
-            <span className="bg-gray-500 text-white text-xs px-5 py-1 rounded-full font-medium">
-              총 자산
-            </span>
+            <span className="rounded-full bg-muted px-5 py-1 text-xs font-medium">총 자산</span>
             <span className="text-2xl font-bold text-foreground tracking-tight">
               ₩{totalAssets.toLocaleString()}
             </span>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <span className="bg-gray-500 text-white text-xs px-5 py-1 rounded-full font-medium">
-              수익률
-            </span>
+            <span className="rounded-full bg-muted px-5 py-1 text-xs font-medium">수익률</span>
             <span className="text-2xl font-bold text-red-500 tracking-tight">{returnRate}</span>
           </div>
         </div>

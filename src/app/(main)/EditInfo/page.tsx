@@ -1,70 +1,53 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+
 export default function EditInfo() {
   return (
     <div className="w-full p-4">
-      {/* Edit Info Card */}
-      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="mb-8 text-xl font-bold text-gray-900">내 정보 수정</h2>
+      <Card>
+        <CardContent className="flex flex-col gap-6 p-4">
+          <h2 className="text-lg font-semibold">내 정보 수정</h2>
 
-        <form className="space-y-6">
-          {/* Name Field */}
-          <div className="space-y-2.5">
-            <label htmlFor="name" className="block text-[15px] font-bold text-gray-900">
-              이름
-            </label>
-            <input
-              type="text"
-              id="name"
-              className="block w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 outline-none transition-colors focus:border-gray-900"
-            />
-          </div>
+          <form className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="name" className="text-sm font-medium">
+                이름
+              </label>
+              <Input type="text" id="name" />
+            </div>
 
-          {/* Password Change Field */}
-          <div className="space-y-2.5">
-            <label htmlFor="password" className="block text-[15px] font-bold text-gray-900">
-              비밀번호 변경
-            </label>
-            <input
-              type="password"
-              id="password"
-              placeholder="********"
-              className="block w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900"
-            />
-            <p className="mt-1.5 text-xs text-red-500">
-              비밀번호는 영문, 숫자, 특수문자 조합으로 9자리를 입력하세요
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                비밀번호 변경
+              </label>
+              <Input type="password" id="password" placeholder="********" />
+              <p className="text-xs text-destructive">
+                비밀번호는 영문, 숫자, 특수문자 조합으로 9자리를 입력하세요
+              </p>
+            </div>
 
-          {/* Password Re-enter Field */}
-          <div className="space-y-2.5">
-            <label htmlFor="passwordConfirm" className="block text-[15px] font-bold text-gray-900">
-              비밀번호 재입력
-            </label>
-            <input
-              type="password"
-              id="passwordConfirm"
-              placeholder="********"
-              className="block w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900"
-            />
-            <p className="mt-1.5 text-xs text-red-500">비밀번호가 다릅니다</p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="passwordConfirm" className="text-sm font-medium">
+                비밀번호 재입력
+              </label>
+              <Input type="password" id="passwordConfirm" placeholder="********" />
+              <p className="text-xs text-destructive">비밀번호가 다릅니다</p>
+            </div>
 
-          {/* Email Field (Static) */}
-          <div className="space-y-2.5">
-            <label className="block text-[15px] font-bold text-gray-900">이메일</label>
-            <div className="px-4 py-2 text-lg text-gray-900">xxxx@gmail.com</div>
-          </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium">이메일</span>
+              <div className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+                xxxx@gmail.com
+              </div>
+            </div>
 
-          {/* Submit Button */}
-          <div className="pt-4">
-            <button
-              type="button"
-              className="w-full rounded-xl bg-[#171717] py-4 text-[16px] font-bold text-white transition-colors hover:bg-black"
-            >
+            <Button type="button" className="w-full">
               변경
-            </button>
-          </div>
-        </form>
-      </div>
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -4,6 +4,9 @@ import { Heart, LineChart, Menu, PieChart, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+
 import { FullMenuPopup } from "./FullMenuPopup";
 
 export const tabLabels = {
@@ -41,8 +44,9 @@ export function TabBar() {
           return (
             <React.Fragment key={tab.id}>
               {tab.id === "menu" ? (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => {
                     setIsMenuOpen(true);
                   }}
@@ -50,8 +54,8 @@ export function TabBar() {
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-[10px] leading-none">{tab.label}</span>
-                </button>
+                  <span className="text-xs leading-none">{tab.label}</span>
+                </Button>
               ) : (
                 <Link
                   href={tab.href ?? "/"}
@@ -59,7 +63,7 @@ export function TabBar() {
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-[10px] leading-none">{tab.label}</span>
+                  <span className="text-xs leading-none">{tab.label}</span>
                 </Link>
               )}
               {index < tabs.length - 1 && <div className="w-px h-5 bg-border shrink-0" />}
