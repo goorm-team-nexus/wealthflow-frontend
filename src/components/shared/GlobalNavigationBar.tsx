@@ -11,9 +11,9 @@ const pathMap: Record<string, string> = {
   "/favorites": "관심 종목",
   "/portfolio": "포트폴리오",
   "/ranking": "랭킹",
-  "/mypage": "마이페이지",
+  "/my-page": "마이페이지",
   "/profile": "프로필",
-  "/EditInfo": "내 정보 수정",
+  "/edit-info": "내 정보 수정",
 };
 
 function getPageTitle(pathname: string) {
@@ -47,7 +47,7 @@ export default function GlobalNavigationBar() {
         </div>
 
         <Button asChild variant="ghost" size="icon" aria-label="마이페이지">
-          <Link href="/mypage">
+          <Link href="/my-page">
             <CircleUserRound className="size-5" aria-hidden="true" />
           </Link>
         </Button>

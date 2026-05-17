@@ -31,9 +31,9 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
     { icon: Smile, label: "환전", href: "/portfolio" },
     { icon: PieChart, label: "포트폴리오", href: "/portfolio" },
     { icon: Trophy, label: "랭킹", href: "/ranking" },
-    { icon: User, label: "마이페이지", href: "/mypage" },
-    { icon: Settings, label: "내 정보 수정", href: "/EditInfo" },
-    { icon: Bot, label: "문의하기", href: "/mypage" },
+    { icon: User, label: "마이페이지", href: "/my-page" },
+    { icon: Settings, label: "내 정보 수정", href: "/edit-info" },
+    { icon: Bot, label: "문의하기", href: "/my-page" },
   ];
 
   if (!isOpen) {
