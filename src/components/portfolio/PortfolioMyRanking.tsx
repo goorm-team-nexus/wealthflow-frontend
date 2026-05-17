@@ -45,7 +45,7 @@ export default function PortfolioMyRanking() {
           </div>
 
           {/* 오른쪽: 랭킹 숫자 */}
-          <span className="text-4xl font-bold">{rank}위</span>
+          <span className="text-3xl font-bold">{rank}위</span>
         </CardContent>
       </Card>
     </Link>

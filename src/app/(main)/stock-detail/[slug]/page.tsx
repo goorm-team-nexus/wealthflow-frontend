@@ -173,7 +173,7 @@ function PriceSummary() {
     <section className="flex flex-col gap-1 px-2 pt-6">
       <h2 className="text-3xl font-bold tracking-normal">219,500원</h2>
       <div className="flex items-center gap-2">
-        <span className="text-xs font-semibold text-red-500">+1,200원 (+0.24%)</span>
+        <span className="text-xs font-medium text-red-500">+1,200원 (+0.24%)</span>
         <span className="text-xs text-muted-foreground">오늘기준</span>
       </div>
     </section>
@@ -274,7 +274,7 @@ function AiSummary() {
           <span className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-white">
             <Sparkles className="size-3.5" aria-hidden="true" />
           </span>
-          <h2 className="text-sm font-bold">AI 요약</h2>
+          <h2 className="text-sm font-semibold">AI 요약</h2>
         </div>
         <p className="pl-7 text-xs font-medium text-muted-foreground">
           AI 요약 내용 길게 어쩌구 저쩌구
@@ -303,7 +303,7 @@ function StockInfoCard() {
             >
               <span className="text-xs text-muted-foreground">{metric.label}</span>
               <strong
-                className={`text-sm font-bold ${
+                className={`text-sm font-semibold ${
                   metric.tone === "positive" ? "text-red-500" : "text-foreground"
                 }`}
               >
@@ -316,7 +316,7 @@ function StockInfoCard() {
           <span className="text-xs text-muted-foreground">52주 범위</span>
           <div className="flex items-end gap-0.5">
             <span className="text-sm text-muted-foreground">57,300원~</span>
-            <strong className="text-sm font-bold text-foreground">223,000원</strong>
+            <strong className="text-sm font-semibold text-foreground">223,000원</strong>
           </div>
         </div>
       </CardContent>

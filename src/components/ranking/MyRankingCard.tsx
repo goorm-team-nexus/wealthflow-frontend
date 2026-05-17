@@ -29,7 +29,7 @@ export default function MyRankingCard() {
         </div>
 
         {/* 순위 텍스트 */}
-        <div className="text-5xl font-bold mb-3 text-foreground">{ranking}위</div>
+        <div className="text-3xl font-bold mb-3 text-foreground">{ranking}위</div>
 
         {/* 구분선 */}
         <hr className="mb-3 w-full border-border" />

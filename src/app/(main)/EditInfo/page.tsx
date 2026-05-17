@@ -36,10 +36,10 @@ export default function EditInfo() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium">이메일</span>
-              <div className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-                xxxx@gmail.com
-              </div>
+              <label htmlFor="email" className="text-sm font-medium">
+                이메일
+              </label>
+              <Input id="email" value="xxxx@gmail.com" readOnly disabled />
             </div>
 
             <Button type="button" className="w-full">

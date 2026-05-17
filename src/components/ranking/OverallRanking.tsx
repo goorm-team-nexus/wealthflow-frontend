@@ -46,7 +46,7 @@ export default function OverallRanking() {
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Update: 26.05.06 14:00
             </span>
-            <span className="text-xs font-bold text-blue-500">TOP {visibleCount} 표시 중</span>
+            <span className="text-xs font-medium text-blue-500">TOP {visibleCount} 표시 중</span>
           </div>
         </div>
 
@@ -54,18 +54,10 @@ export default function OverallRanking() {
         <div className="w-full">
           {/* 테이블 헤더 */}
           <div className="bg-muted/40 grid grid-cols-[40px_1fr_100px_50px] py-3 px-4 border-y border-border/60">
-            <span className="text-xs font-bold text-muted-foreground text-center uppercase">
-              순위
-            </span>
-            <span className="text-xs font-bold text-muted-foreground text-left uppercase pl-4">
-              닉네임
-            </span>
-            <span className="text-xs font-bold text-muted-foreground text-center uppercase">
-              수익률
-            </span>
-            <span className="text-xs font-bold text-muted-foreground text-center uppercase">
-              종목
-            </span>
+            <span className="text-xs text-muted-foreground text-center uppercase">순위</span>
+            <span className="text-xs text-muted-foreground text-left uppercase pl-4">닉네임</span>
+            <span className="text-xs text-muted-foreground text-center uppercase">수익률</span>
+            <span className="text-xs text-muted-foreground text-center uppercase">종목</span>
           </div>
 
           {/* 리스트 아이템 */}
@@ -81,7 +73,7 @@ export default function OverallRanking() {
                 <span className="text-sm font-semibold text-foreground/90 truncate text-left pl-4 group-hover:translate-x-1 transition-transform duration-300">
                   {item.name}
                 </span>
-                <span className="text-sm font-bold text-red-500 text-center tabular-nums group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.3)] transition-all duration-300">
+                <span className="text-sm font-semibold text-red-500 text-center tabular-nums group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.3)] transition-all duration-300">
                   {item.rate}
                 </span>
                 <span className="text-sm text-center text-muted-foreground font-medium group-hover:text-foreground transition-colors duration-300">
@@ -99,7 +91,7 @@ export default function OverallRanking() {
               type="button"
               variant="ghost"
               onClick={handleLoadMore}
-              className="flex-1 text-xs font-semibold text-muted-foreground"
+              className="flex-1 text-xs font-medium text-muted-foreground"
             >
               10개 더보기
             </Button>
@@ -114,7 +106,7 @@ export default function OverallRanking() {
               type="button"
               variant="ghost"
               onClick={handleCollapse}
-              className="w-20 border-l border-border/60 text-xs font-semibold text-destructive"
+              className="w-20 border-l border-border/60 text-xs font-medium text-destructive"
             >
               접기
             </Button>

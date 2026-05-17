@@ -59,7 +59,7 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
               {/* Logo Placeholder */}
               <div className="w-5 h-5 bg-background rounded-sm" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight">WealthFlow</h1>
+            <h1 className="text-lg font-semibold">WealthFlow</h1>
           </div>
 
           <div className="flex items-center justify-between">

@@ -134,7 +134,7 @@ export default function PortfolioHoldingsList() {
           <h3 className="text-lg font-semibold">보유 종목 리스트</h3>
           <div className="flex flex-col items-end">
             <span className="text-xs text-muted-foreground">보유 종목 금액/수익률(%)</span>
-            <span className="text-xs font-bold text-blue-500">
+            <span className="text-xs font-medium text-blue-500">
               {visibleCount}개 / {totalCount}개 표시 중
             </span>
           </div>
@@ -171,7 +171,7 @@ export default function PortfolioHoldingsList() {
 
                   {/* 오른쪽: 평가금액 + 수익률 */}
                   <div className="flex flex-col items-end gap-0.5">
-                    <span className="text-sm font-bold text-foreground">
+                    <span className="text-sm font-semibold text-foreground">
                       ₩{formatCurrency(item.value)}
                     </span>
                     <span
@@ -214,7 +214,7 @@ export default function PortfolioHoldingsList() {
                 type="button"
                 onClick={handleCollapse}
                 variant="ghost"
-                className="w-16 border-l border-border text-xs font-semibold text-destructive"
+                className="w-16 border-l border-border text-xs font-medium text-destructive"
               >
                 접기
               </Button>

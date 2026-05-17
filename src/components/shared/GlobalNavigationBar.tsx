@@ -38,7 +38,7 @@ export default function GlobalNavigationBar() {
         <div className="flex items-center gap-3">
           <Link
             href="/portfolio"
-            className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground"
+            className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground"
             aria-label="WealthFlow 홈"
           >
             W

@@ -184,16 +184,18 @@ export default function FavoritesPage() {
         <h2 className="text-lg font-semibold">{copy.sectionTitle}</h2>
         <FavoriteSummary summary={favoriteSummary} />
         {visibleFavoriteStocks.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {visibleFavoriteStocks.map((stock) => (
-              <FavoriteStockRow
-                key={stock.id}
-                isFavorite={favoriteIds.has(stock.id)}
-                stock={stock}
-                onFavoriteToggle={handleFavoriteToggle}
-              />
-            ))}
-          </div>
+          <Card className="shadow-sm">
+            <CardContent className="p-0">
+              {visibleFavoriteStocks.map((stock) => (
+                <FavoriteStockRow
+                  key={stock.id}
+                  isFavorite={favoriteIds.has(stock.id)}
+                  stock={stock}
+                  onFavoriteToggle={handleFavoriteToggle}
+                />
+              ))}
+            </CardContent>
+          </Card>
         ) : (
           <FavoriteEmptyState />
         )}
@@ -274,64 +276,33 @@ function FavoriteStockRow({
   stock: FavoriteStock;
   onFavoriteToggle: (stockId: number) => void;
 }) {
-  const isBlue = stock.tone === "blue";
-  const toneClass = isBlue ? "text-blue-600" : "text-red-500";
-  const logoClass = isBlue ? "bg-blue-50 text-blue-600" : "bg-red-50 text-red-500";
+  const toneClass = stock.tone === "blue" ? "text-blue-600" : "text-red-500";
 
   return (
-    <Card className="h-12 py-0 shadow-sm">
-      <CardContent className="grid h-full grid-cols-[32px_minmax(0,1fr)_84px_60px_20px] items-center gap-2 px-3">
-        <span
-          className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${logoClass}`}
-        >
-          {stock.logo}
-        </span>
-        <span className="truncate text-xs font-normal text-foreground">{stock.name}</span>
-        <div className="flex flex-col gap-1">
-          <strong className="text-xs font-semibold leading-none tracking-tight text-foreground">
-            {stock.price}
-          </strong>
-          <span className={`text-xs font-normal leading-none ${toneClass}`}>{stock.change}</span>
-        </div>
-        <MiniChart points={stock.points} tone={stock.tone} />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          aria-label={copy.favorite}
-          aria-pressed={isFavorite}
-          onClick={() => onFavoriteToggle(stock.id)}
-        >
-          <Heart
-            className={`size-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground"}`}
-            aria-hidden="true"
-          />
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function MiniChart({ points, tone }: { points: string; tone: "blue" | "red" }) {
-  const toneClass = tone === "blue" ? "text-blue-600" : "text-red-500";
-
-  return (
-    <svg
-      className={`h-8 w-full ${toneClass}`}
-      viewBox="0 0 124 48"
-      role="img"
-      aria-label="주가 미니 차트"
-      preserveAspectRatio="none"
-    >
-      <path d={`M ${points} L 122 48 L 2 48 Z`} className="fill-current opacity-10" />
-      <polyline
-        points={points}
-        className="fill-none stroke-current"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+    <div className="grid py-3 grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 px-4 border-b border-border/40 last:border-0 hover:bg-accent/40 transition-colors duration-200">
+      <span
+        className={`flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-xs font-normal ${toneClass}`}
+      >
+        {stock.logo}
+      </span>
+      <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
+      <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
+        {stock.price}
+      </strong>
+      <span className={`text-sm font-normal ${toneClass}`}>{stock.change}</span>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        aria-label={copy.favorite}
+        aria-pressed={isFavorite}
+        onClick={() => onFavoriteToggle(stock.id)}
+      >
+        <Heart
+          className={`size-5 stroke-[2] ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground"}`}
+          aria-hidden="true"
+        />
+      </Button>
+    </div>
   );
 }

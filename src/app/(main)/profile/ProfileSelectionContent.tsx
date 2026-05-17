@@ -60,7 +60,7 @@ export default function ProfileSelectionContent() {
       </div>
 
       {/* Delete Profile Button */}
-      <Button type="button" variant="ghost">
+      <Button type="button" variant="ghost" className="text-destructive">
         프로필 삭제
       </Button>
     </div>

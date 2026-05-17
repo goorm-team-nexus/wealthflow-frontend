@@ -11,7 +11,7 @@ export default function MyPage() {
       {/* Profile Card */}
       <Link href="/profile">
         <Card className="border border-border bg-card p-6 shadow-sm transition-colors hover:border-foreground">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <CircleUserRound className="size-10" />
             </div>
@@ -29,7 +29,7 @@ export default function MyPage() {
         <span className="text-lg font-semibold">총액</span>
         <div className="flex flex-col items-center gap-4">
           <h2 className="text-2xl font-bold">₩12,235,230.00</h2>
-          <div className="inline-flex items-center rounded-full bg-red-500 px-5 py-2 text-sm font-semibold text-white">
+          <div className="inline-flex items-center rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-primary-foreground">
             +12,555,550 (+12.3%)
           </div>
         </div>

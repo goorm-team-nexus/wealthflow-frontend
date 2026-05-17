@@ -44,7 +44,7 @@ export default function WeeklyRanking() {
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-2xl font-bold">2</span>
-                <span className="text-red-500 text-xs font-bold leading-none mt-1">
+                <span className="text-red-500 text-xs font-medium leading-none mt-1">
                   {users.rank2.rate}
                 </span>
               </div>
@@ -65,7 +65,7 @@ export default function WeeklyRanking() {
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-3xl font-bold">1</span>
-                <span className="text-red-500 text-sm font-bold leading-none mt-1">
+                <span className="text-red-500 text-sm font-semibold leading-none mt-1">
                   {users.rank1.rate}
                 </span>
               </div>
@@ -93,7 +93,7 @@ export default function WeeklyRanking() {
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-2xl font-bold">3</span>
-                <span className="text-red-500 text-xs font-bold leading-none mt-1">
+                <span className="text-red-500 text-xs font-medium leading-none mt-1">
                   {users.rank3.rate}
                 </span>
               </div>

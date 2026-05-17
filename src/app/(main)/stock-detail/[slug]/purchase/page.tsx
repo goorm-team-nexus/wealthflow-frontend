@@ -150,7 +150,7 @@ export default function StockPurchasePage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="text-xs font-semibold"
+                  className="text-xs font-medium"
                   onClick={() => handleQuickQuantityClick(quickQuantity)}
                 >
                   {quickQuantity.label}

@@ -444,7 +444,7 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
     >
       <CardContent className="flex h-full flex-col gap-1 px-3">
         <div className="flex items-start justify-between gap-2">
-          <span className="text-xs font-semibold leading-none text-foreground">
+          <span className="text-xs font-medium leading-none text-foreground">
             {marketIndex.name}
           </span>
           <span className={`text-xs leading-none ${changeToneClass}`}>{marketIndex.change}</span>
@@ -507,47 +507,51 @@ function MainStockSection({
   }, [isMoreStocksOpen]);
 
   return (
-    <section className="flex flex-col gap-4 pt-8">
-      <div className="flex h-6 items-end justify-between">
-        <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
-        <div className="flex items-center gap-2 text-xs font-semibold">
-          <span>{copy.sortLabel}</span>
-          <Button
-            type="button"
-            variant="link"
-            size="xs"
-            className={sortType === "volume" ? "text-foreground" : "text-muted-foreground"}
-            onClick={() => onSortChange("volume")}
-          >
-            {copy.volumeSort}
-          </Button>
-          <Button
-            type="button"
-            variant="link"
-            size="xs"
-            className={sortType === "price" ? "text-foreground" : "text-muted-foreground"}
-            onClick={() => onSortChange("price")}
-          >
-            {copy.priceSort}
-          </Button>
+    <Card className="shadow-md">
+      <CardContent className="p-0">
+        <div className="flex h-6 items-center justify-between px-4 pt-4 pb-3">
+          <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
+          <div className="flex items-center gap-2 text-xs font-medium">
+            <span>{copy.sortLabel}</span>
+            <Button
+              type="button"
+              variant="link"
+              size="xs"
+              className={sortType === "volume" ? "text-foreground" : "text-muted-foreground"}
+              onClick={() => onSortChange("volume")}
+            >
+              {copy.volumeSort}
+            </Button>
+            <Button
+              type="button"
+              variant="link"
+              size="xs"
+              className={sortType === "price" ? "text-foreground" : "text-muted-foreground"}
+              onClick={() => onSortChange("price")}
+            >
+              {copy.priceSort}
+            </Button>
+          </div>
         </div>
-      </div>
-      <div ref={stockListRef} className="flex flex-col gap-2">
-        {visibleStocks.map((stock) => (
-          <StockRow
-            key={stock.id}
-            isFavorite={favoriteIds.has(stock.id)}
-            stock={stock}
-            onFavoriteStock={onFavoriteStock}
-          />
-        ))}
-        {!isMoreStocksOpen ? (
-          <MoreStocksButton label={copy.moreStocks} onClick={onMoreStocksOpen} />
-        ) : (
-          <MoreStocksButton label={copy.foldStocks} onClick={onMoreStocksClose} />
-        )}
-      </div>
-    </section>
+        <div ref={stockListRef}>
+          {visibleStocks.map((stock) => (
+            <StockRow
+              key={stock.id}
+              isFavorite={favoriteIds.has(stock.id)}
+              stock={stock}
+              onFavoriteStock={onFavoriteStock}
+            />
+          ))}
+        </div>
+        <div className="border-t border-border">
+          {!isMoreStocksOpen ? (
+            <MoreStocksButton label={copy.moreStocks} onClick={onMoreStocksOpen} />
+          ) : (
+            <MoreStocksButton label={copy.foldStocks} onClick={onMoreStocksClose} />
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -555,8 +559,8 @@ function MoreStocksButton({ label, onClick }: { label: string; onClick: () => vo
   return (
     <Button
       type="button"
-      variant="outline"
-      className="mx-auto w-[86%] shrink-0 text-xs font-semibold"
+      variant="ghost"
+      className="w-full text-xs font-medium text-muted-foreground"
       onClick={onClick}
     >
       {label}
@@ -574,15 +578,15 @@ function StockRow({
   onFavoriteStock: (stockId: number) => void;
 }) {
   return (
-    <div className="grid h-9 w-full shrink-0 grid-cols-[20px_minmax(0,1fr)_76px_42px_20px] items-center gap-3 rounded-lg border border-border bg-card px-4 shadow-sm">
+    <div className="grid py-3 grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 px-4 border-b border-border/40 last:border-0 hover:bg-accent/40 transition-colors duration-200">
       <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-xs font-normal text-blue-600">
         {stock.logo}
       </span>
-      <span className="truncate text-xs font-normal text-foreground">{stock.name}</span>
-      <strong className="text-right text-xs font-semibold tracking-tight text-foreground">
+      <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
+      <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
         {stock.price}
       </strong>
-      <span className="text-xs font-normal text-blue-600">{stock.change}</span>
+      <span className="text-sm font-normal text-blue-600">{stock.change}</span>
       <Button
         type="button"
         variant="ghost"
