@@ -65,7 +65,7 @@ export default function OverallRanking() {
             {finalData.map((item) => (
               <div
                 key={item.rank}
-                className="grid grid-cols-[40px_1fr_100px_50px] py-2 px-4 items-center border-b border-border/40 last:border-0 hover:bg-accent/40 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-1 relative overflow-hidden cursor-default"
+                className="grid grid-cols-[40px_1fr_100px_50px] py-3 px-4 items-center border-b border-border/40 last:border-0 hover:bg-accent/40 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-1 relative overflow-hidden cursor-default"
               >
                 <span className="text-base font-bold text-center text-foreground group-hover:scale-110 group-hover:text-red-500 transition-all duration-300 tabular-nums">
                   {item.rank}

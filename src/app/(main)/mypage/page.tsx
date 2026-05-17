@@ -30,7 +30,7 @@ export default function MyPage() {
       </Link>
 
       {/* Assets Section */}
-      <div className="space-y-3 text-center">
+      <div className="flex flex-col gap-3 text-center">
         <span className="text-lg font-semibold">총액</span>
         <div className="flex flex-col items-center gap-4">
           <h2 className="text-2xl font-bold">₩12,235,230.00</h2>
@@ -41,7 +41,7 @@ export default function MyPage() {
       </div>
 
       {/* Menu Section */}
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <Button variant="outline" size="lg" className="w-full justify-start gap-3">
           <Trophy className="size-5" />내 랭킹
         </Button>
