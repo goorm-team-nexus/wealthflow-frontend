@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Upload, Check } from "lucide-react";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const AVATARS = [
   { id: "purple", src: "/profiles/avatar_purple.png" },
@@ -20,14 +20,12 @@ export default function ProfileSelectionContent() {
 
   return (
     <div className="flex w-full flex-col items-center gap-8 p-4 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Upload Button */}
       <Button type="button" size="icon-lg" className="size-20 rounded-full">
         <Upload className="size-10" />
       </Button>
 
       <h2 className="text-2xl font-bold text-foreground">프로필 선택</h2>
 
-      {/* Avatar Grid */}
       <div className="grid w-full grid-cols-3 gap-6">
         {AVATARS.map((avatar) => (
           <div
@@ -35,21 +33,16 @@ export default function ProfileSelectionContent() {
             className="relative cursor-pointer group flex flex-col items-center"
             onClick={() => setSelectedAvatar(avatar.id)}
           >
-            <div
-              className={`aspect-square rounded-full overflow-hidden border-2 transition-all duration-300 ${
+            <Avatar
+              className={`aspect-square w-full h-auto border-2 transition-all duration-300 ${
                 selectedAvatar === avatar.id
                   ? "scale-110 border-primary shadow-sm ring-4 ring-primary/10"
                   : "border-transparent opacity-70 hover:opacity-100 hover:scale-105"
               }`}
             >
-              <Image
-                src={avatar.src}
-                alt={`Avatar ${avatar.id}`}
-                width={120}
-                height={120}
-                className="object-cover w-full h-full"
-              />
-            </div>
+              <AvatarImage src={avatar.src} alt={`Avatar ${avatar.id}`} />
+              <AvatarFallback>{avatar.id[0]}</AvatarFallback>
+            </Avatar>
             {selectedAvatar === avatar.id && (
               <div className="absolute -right-1 -top-1 rounded-full bg-primary p-1.5 text-primary-foreground shadow-sm animate-in zoom-in duration-300">
                 <Check className="size-4 stroke-[4px]" />
@@ -59,7 +52,6 @@ export default function ProfileSelectionContent() {
         ))}
       </div>
 
-      {/* Delete Profile Button */}
       <Button type="button" variant="ghost" className="text-destructive">
         프로필 삭제
       </Button>

@@ -1,9 +1,12 @@
 "use client";
 
-import { Trophy, User, History, Banknote, CircleUserRound } from "lucide-react";
+import { Trophy, User, History, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
+import { CircleUserRound } from "lucide-react";
 
 export default function MyPage() {
   return (
@@ -12,9 +15,11 @@ export default function MyPage() {
       <Link href="/profile">
         <Card className="border border-border bg-card p-6 shadow-sm transition-colors hover:border-foreground">
           <div className="flex items-center gap-4">
-            <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <CircleUserRound className="size-10" />
-            </div>
+            <Avatar className="size-16 shrink-0">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                <CircleUserRound className="size-10" />
+              </AvatarFallback>
+            </Avatar>
             <div className="flex flex-col">
               <span className="text-lg font-semibold">@투자자 김성실</span>
               <span className="text-sm text-muted-foreground">이메일일@kakao.com</span>
@@ -29,9 +34,9 @@ export default function MyPage() {
         <span className="text-lg font-semibold">총액</span>
         <div className="flex flex-col items-center gap-4">
           <h2 className="text-2xl font-bold">₩12,235,230.00</h2>
-          <div className="inline-flex items-center rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-primary-foreground">
+          <Badge className="h-auto bg-red-500 px-4 py-2 text-sm font-semibold">
             +12,555,550 (+12.3%)
-          </div>
+          </Badge>
         </div>
       </div>
 

@@ -23,8 +23,6 @@ interface FullMenuPopupProps {
 }
 
 export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
-  // We remove the mounted state check to follow lint rules and because it's not strictly needed for this layout-based popup.
-
   const menuItems = [
     { icon: LineChart, label: "시장/거래", href: "/stocks" },
     { icon: SlidersHorizontal, label: "종목 팔기/사기", href: "/stocks" },
