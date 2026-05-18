@@ -11,6 +11,7 @@
 - `domain/asset-separation.md` - 실자산/모의투자 데이터 분리 원칙
 - `api/README.md` - API 문서 라우터
 - `api/api-contract.md` - API contract
+- `api/openapi.json` - OpenAPI pinned snapshot
 - `api/frontend-api-integration.md` - frontend API integration 규칙
 - `security/security-guidelines.md` - 보안 주의사항
 - `conventions/README.md` - conventions 문서 라우터
