@@ -1,14 +1,17 @@
 "use client";
 
-import { Trophy, User, History, Banknote } from "lucide-react";
+import Link from "next/link";
+import { Banknote, CircleUserRound, History, LogOut, Trophy, User } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import Link from "next/link";
-import { CircleUserRound } from "lucide-react";
+import { useLogout } from "@/hooks/useLogout";
 
 export default function MyPage() {
+  const { handleLogout, isLoggingOut, logoutError } = useLogout();
+
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       {/* Profile Card */}
@@ -58,10 +61,18 @@ export default function MyPage() {
           <Banknote className="size-5" />
           환전 내역
         </Button>
-        <Button variant="destructive" size="lg" className="w-full justify-start gap-3">
-          <History className="size-5" />
-          로그아웃
+        <Button
+          type="button"
+          variant="destructive"
+          size="lg"
+          className="w-full justify-start gap-3"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+        >
+          <LogOut className="size-5" />
+          {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
         </Button>
+        {logoutError && <p className="text-sm text-destructive">{logoutError}</p>}
       </div>
     </div>
   );
