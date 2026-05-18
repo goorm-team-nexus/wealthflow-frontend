@@ -129,9 +129,14 @@ export default function StockDetailPage() {
       />
       <AiSummary />
       <StockInfoCard />
-      <Button asChild className="w-full bg-red-500 text-white hover:bg-red-600">
-        <Link href="/stock-detail/samsung-electronics/purchase">구매하기</Link>
-      </Button>
+      <div className="flex w-full gap-3">
+        <Button asChild size="lg" className="flex-1 !bg-red-500 text-white hover:!bg-red-600">
+          <Link href="/stock-detail/samsung-electronics/purchase">구매하기</Link>
+        </Button>
+        <Button asChild size="lg" className="flex-1 !bg-blue-500 text-white hover:!bg-blue-600">
+          <Link href="/stock-detail/samsung-electronics/sell">판매하기</Link>
+        </Button>
+      </div>
     </div>
   );
 }
@@ -199,7 +204,9 @@ function PriceChart({
               type="button"
               variant={period === selectedPeriod ? "secondary" : "ghost"}
               size="sm"
-              className="min-w-11"
+              className={`min-w-11 ${
+                period === selectedPeriod ? "!bg-white text-foreground shadow-sm hover:!bg-white" : ""
+              }`}
               aria-pressed={period === selectedPeriod}
               onClick={() => onPeriodChange(period)}
             >
