@@ -1,15 +1,8 @@
 "use client";
 
 import { ArrowLeft, CircleDollarSign, Heart, Sparkles } from "lucide-react";
-import {
-  CandlestickSeries,
-  createChart,
-  type CandlestickData,
-  type Time,
-  type UTCTimestamp,
-} from "lightweight-charts";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -225,151 +218,63 @@ function PriceChart({
             </Button>
           ))}
         </div>
-        <TradingViewCandlestickChart chartBars={chartBars} />
+        <div className="grid h-64 grid-cols-[minmax(0,1fr)_32px] gap-3">
+          <div className="relative border-b border-border">
+            {[0, 1, 2, 3, 4].map((line) => (
+              <span
+                key={line}
+                className="absolute left-3 right-0 border-t border-border/60"
+                style={{ top: `${line * 25}%` }}
+              />
+            ))}
+            <svg
+              className="absolute inset-x-4 bottom-8 top-6 h-[calc(100%-56px)] w-[calc(100%-32px)]"
+              viewBox="0 0 208 160"
+              role="img"
+              aria-label="삼성전자 캔들 차트"
+              preserveAspectRatio="none"
+            >
+              {chartBars.map((bar) => (
+                <g key={`${bar.x}-${bar.tone}`}>
+                  <line
+                    x1={bar.x}
+                    x2={bar.x}
+                    y1={bar.wickTop}
+                    y2={bar.wickBottom}
+                    className="stroke-foreground"
+                    strokeLinecap="round"
+                    strokeWidth="1.2"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <rect
+                    x={bar.x - 3}
+                    y={bar.bodyTop}
+                    width="6"
+                    height={bar.bodyHeight}
+                    className={bar.tone === "red" ? "fill-red-500" : "fill-blue-500"}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </g>
+              ))}
+            </svg>
+            <div className="absolute inset-x-4 bottom-3 flex justify-between text-xs text-muted-foreground">
+              <span>9:00</span>
+              <span>11:00</span>
+              <span>13:00</span>
+              <span>15:00</span>
+              <span>15:30</span>
+            </div>
+          </div>
+          <div className="relative text-xs font-semibold text-foreground">
+            <span className="absolute right-0 top-5">220,000</span>
+            <span className="absolute right-0 top-[42%]">210,000</span>
+            <span className="absolute right-0 top-[62%]">190,000</span>
+            <span className="absolute right-0 top-[82%]">170,000</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
-}
-
-function TradingViewCandlestickChart({ chartBars }: { chartBars: ChartBar[] }) {
-  const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  const chartData = useMemo(() => toCandlestickData(chartBars), [chartBars]);
-
-  useEffect(() => {
-    if (!chartContainerRef.current) {
-      return;
-    }
-
-    const chart = createChart(chartContainerRef.current, {
-      autoSize: true,
-      height: 256,
-      layout: {
-        attributionLogo: false,
-        background: { color: "transparent" },
-        textColor: "#111827",
-      },
-      grid: {
-        vertLines: { visible: false },
-        horzLines: { color: "#e5e7eb" },
-      },
-      rightPriceScale: {
-        borderVisible: false,
-      },
-      timeScale: {
-        borderColor: "#e5e7eb",
-        fixLeftEdge: true,
-        fixRightEdge: true,
-        rightOffset: 1,
-        tickMarkFormatter: formatKoreanMarketTime,
-        timeVisible: true,
-        secondsVisible: false,
-      },
-      localization: {
-        locale: "ko-KR",
-        timeFormatter: formatKoreanMarketTime,
-      },
-      crosshair: {
-        horzLine: {
-          labelBackgroundColor: "#111827",
-        },
-        vertLine: {
-          labelBackgroundColor: "#111827",
-        },
-      },
-    });
-
-    const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#ef4444",
-      borderUpColor: "#ef4444",
-      wickUpColor: "#ef4444",
-      downColor: "#3b82f6",
-      borderDownColor: "#3b82f6",
-      wickDownColor: "#3b82f6",
-    });
-
-    series.setData(chartData);
-    chart.timeScale().fitContent();
-    chart.timeScale().setVisibleLogicalRange({
-      from: -0.5,
-      to: chartData.length - 0.5,
-    });
-
-    return () => {
-      chart.remove();
-    };
-  }, [chartData]);
-
-  return (
-    <div
-      ref={chartContainerRef}
-      className="h-64 w-full"
-      role="img"
-      aria-label="삼성전자 캔들 차트"
-    />
-  );
-}
-
-function toCandlestickData(chartBars: ChartBar[]): CandlestickData<UTCTimestamp>[] {
-  const marketOpenTime = Math.floor(Date.UTC(2026, 4, 18, 0, 0, 0) / 1000);
-  const marketCloseTime = Math.floor(Date.UTC(2026, 4, 18, 6, 30, 0) / 1000);
-  const thirtyMinutes = 30 * 60;
-
-  return chartBars.map((bar, index) => {
-    const bodyTopPrice = toChartPrice(bar.bodyTop);
-    const bodyBottomPrice = toChartPrice(bar.bodyTop + bar.bodyHeight);
-    const isRising = bar.tone === "red";
-
-    return {
-      time: getKoreanMarketTimestamp({
-        closeTime: marketCloseTime,
-        index,
-        interval: thirtyMinutes,
-        openTime: marketOpenTime,
-        totalCount: chartBars.length,
-      }),
-      open: isRising ? bodyBottomPrice : bodyTopPrice,
-      high: toChartPrice(bar.wickTop),
-      low: toChartPrice(bar.wickBottom),
-      close: isRising ? bodyTopPrice : bodyBottomPrice,
-    };
-  });
-}
-
-function getKoreanMarketTimestamp({
-  closeTime,
-  index,
-  interval,
-  openTime,
-  totalCount,
-}: {
-  closeTime: number;
-  index: number;
-  interval: number;
-  openTime: number;
-  totalCount: number;
-}) {
-  if (index === totalCount - 1) {
-    return closeTime as UTCTimestamp;
-  }
-
-  return (openTime + index * interval) as UTCTimestamp;
-}
-
-function formatKoreanMarketTime(time: Time) {
-  if (typeof time !== "number") {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat("ko-KR", {
-    hour: "2-digit",
-    hour12: false,
-    minute: "2-digit",
-    timeZone: "Asia/Seoul",
-  }).format(new Date(time * 1000));
-}
-
-function toChartPrice(y: number) {
-  return Math.round(232000 - y * 420);
 }
 
 function AiSummary() {
