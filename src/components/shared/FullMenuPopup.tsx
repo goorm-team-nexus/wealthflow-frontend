@@ -1,3 +1,5 @@
+"use client";
+
 import {
   X,
   LineChart,
@@ -16,6 +18,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { useLogout } from "@/hooks/useLogout";
 
 interface FullMenuPopupProps {
   isOpen: boolean;
@@ -23,6 +26,8 @@ interface FullMenuPopupProps {
 }
 
 export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
+  const { handleLogout, isLoggingOut, logoutError } = useLogout();
+
   const menuItems = [
     { icon: LineChart, label: "시장/거래", href: "/stocks" },
     {
@@ -96,7 +101,12 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
         <div>
           <Separator className="bg-border/50" />
           <div className="p-4">
-            <div className="flex items-center justify-between p-2 -m-2 rounded-xl hover:bg-muted hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner transition-all duration-150 cursor-pointer group">
+            <button
+              type="button"
+              className="group -m-2 flex w-[calc(100%+16px)] cursor-pointer items-center justify-between rounded-xl p-2 text-left transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:shadow-md active:translate-y-0 active:shadow-inner disabled:pointer-events-none disabled:opacity-60"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+            >
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10 rounded-xl bg-muted group-hover:bg-background transition-colors">
                   <AvatarImage src="" alt="User" />
@@ -107,14 +117,15 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold leading-tight">사용자</span>
                   <span className="text-xs text-muted-foreground group-hover:text-foreground">
-                    로그아웃
+                    {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
                   </span>
                 </div>
               </div>
               <div className="p-2 text-muted-foreground group-hover:text-foreground">
                 <LogOut className="w-5 h-5" />
               </div>
-            </div>
+            </button>
+            {logoutError && <p className="mt-3 text-xs text-destructive">{logoutError}</p>}
           </div>
         </div>
       </div>
