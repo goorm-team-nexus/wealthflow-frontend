@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WealthFlow Frontend
+
+## Overview
+
+Mock Investment & Portfolio Management Platform MVP의 frontend repo입니다.
+
+사용자가 시장/종목을 탐색하고, 모의 매수/매도와 포트폴리오 관리를 경험할 수 있는 서비스를 제공합니다.
+
+## Tech Stack
+
+- Next.js App Router
+- TypeScript
+- React
+- Tailwind CSS
+- shadcn/ui
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저에서 `http://localhost:3000`으로 접속합니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` - 로컬 개발 서버 실행
+- `npm run build` - 프로덕션 빌드
+- `npm run lint` - ESLint 검사
+- `npm run type-check` - TypeScript 타입 검사
+- `npm run verify` - lint, format check, type check, build 실행
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+자세한 문서는 [`docs/README.md`](docs/README.md)를 참고합니다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+프로젝트 개요가 필요한 경우 [`docs/project/project-overview.md`](docs/project/project-overview.md)를 참고합니다.
