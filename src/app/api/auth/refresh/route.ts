@@ -1,6 +1,22 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+const DEFAULT_DEV_API_BASE_URL = "https://d3uib3r331utfe.cloudfront.net/api/v1";
+
+const getApiBaseUrl = () => {
+  const baseUrl =
+    process.env.API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    (process.env.NODE_ENV === "development" ? DEFAULT_DEV_API_BASE_URL : undefined);
+
+  if (!baseUrl) {
+    throw new Error("API base URL is not configured.");
+  }
+
+  return baseUrl.replace(/\/$/, "");
+};
+
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -10,8 +26,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "No refresh token" }, { status: 401 });
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_URL || "https://d3uib3r331utfe.cloudfront.net/api/v1";
+    const baseUrl = getApiBaseUrl();
     const isRelative = baseUrl.startsWith("/");
     const fetchUrl = isRelative
       ? new URL(`${baseUrl}/auth/refresh`, request.url).toString()

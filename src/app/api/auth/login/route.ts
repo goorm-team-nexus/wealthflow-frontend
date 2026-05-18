@@ -1,14 +1,29 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+const DEFAULT_DEV_API_BASE_URL = "https://d3uib3r331utfe.cloudfront.net/api/v1";
+
+const getApiBaseUrl = () => {
+  const baseUrl =
+    process.env.API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    (process.env.NODE_ENV === "development" ? DEFAULT_DEV_API_BASE_URL : undefined);
+
+  if (!baseUrl) {
+    throw new Error("API base URL is not configured.");
+  }
+
+  return baseUrl.replace(/\/$/, "");
+};
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_URL || "https://d3uib3r331utfe.cloudfront.net/api/v1";
+    const baseUrl = getApiBaseUrl();
     // Construct absolute URL for server-side fetch.
-    // If NEXT_PUBLIC_API_URL is relative (e.g. /api/v1), we need to ensure it's absolute,
+    // If the API base URL is relative (e.g. /api/v1), we need to ensure it's absolute,
     // or assume the backend is hosted elsewhere. Typically NEXT_PUBLIC_API_URL is absolute.
     // If not, this might fail in server environment. We'll attempt to construct it based on request URL if it starts with /
     const isRelative = baseUrl.startsWith("/");

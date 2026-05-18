@@ -36,15 +36,28 @@ interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
 }
 
+const DEFAULT_DEV_API_BASE_URL = "https://d3uib3r331utfe.cloudfront.net/api/v1";
+
+const getPublicApiBaseUrl = () => {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    (process.env.NODE_ENV === "development" ? DEFAULT_DEV_API_BASE_URL : undefined);
+
+  if (!baseUrl) {
+    throw new ApiError(500, "API base URL is not configured.");
+  }
+
+  return baseUrl.replace(/\/$/, "");
+};
+
 export async function apiClient<T>(
   endpoint: string,
   options: FetchOptions = {},
   isExternal = false,
 ): Promise<T> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://d3uib3r331utfe.cloudfront.net/api/v1";
-
   // URL 조합 (isExternal이 true면 내부 Next.js API 등 프록시 경로 사용)
-  const url = isExternal ? endpoint : `${baseUrl}${endpoint}`;
+  const url = isExternal ? endpoint : `${getPublicApiBaseUrl()}${endpoint}`;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -65,7 +78,7 @@ export async function apiClient<T>(
     if (!isRefreshing) {
       isRefreshing = true;
       try {
-        const refreshResponse = await fetch("/api/auth/refresh", { method: "POST" });
+        const refreshResponse = await fetch("/auth-proxy/refresh", { method: "POST" });
         const refreshData = await refreshResponse.json();
 
         if (refreshData.success && refreshData.data?.accessToken) {

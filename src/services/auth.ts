@@ -40,10 +40,10 @@ export interface ApiResponseLogoutResponse {
  * 로그인 API (Next.js Route Handler Proxy 호출)
  */
 export async function login(data: LoginRequest): Promise<ApiResponseTokenResponse> {
-  // isExternal = true to use the exact endpoint without NEXT_PUBLIC_API_URL prefix,
+  // isExternal = true to use the exact endpoint without API base URL prefix,
   // because we are calling our own Next.js API Route.
   return apiClient<ApiResponseTokenResponse>(
-    "/api/auth/login",
+    "/auth-proxy/login",
     {
       method: "POST",
       body: JSON.stringify(data),
@@ -57,7 +57,7 @@ export async function login(data: LoginRequest): Promise<ApiResponseTokenRespons
  */
 export async function refresh(): Promise<ApiResponseTokenResponse> {
   return apiClient<ApiResponseTokenResponse>(
-    "/api/auth/refresh",
+    "/auth-proxy/refresh",
     {
       method: "POST",
     },
@@ -70,7 +70,7 @@ export async function refresh(): Promise<ApiResponseTokenResponse> {
  */
 export async function logout(): Promise<ApiResponseLogoutResponse> {
   return apiClient<ApiResponseLogoutResponse>(
-    "/api/auth/logout",
+    "/auth-proxy/logout",
     {
       method: "POST",
     },
