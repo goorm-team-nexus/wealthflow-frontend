@@ -90,7 +90,7 @@ export default function PortfolioHoldingsRatio() {
                       {item.name}
                     </span>
                   </div>
-                  <span className="text-sm font-bold w-10 text-right">{item.ratio}%</span>
+                  <span className="text-sm font-semibold w-10 text-right">{item.ratio}%</span>
                 </li>
               ))}
             </ul>

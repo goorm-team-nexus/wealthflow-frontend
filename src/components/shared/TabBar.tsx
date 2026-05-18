@@ -2,7 +2,11 @@
 
 import { Heart, LineChart, Menu, PieChart, Trophy } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+
 import { FullMenuPopup } from "./FullMenuPopup";
 
 export const tabLabels = {
@@ -13,78 +17,60 @@ export const tabLabels = {
   ranking: "ranking",
 } as const;
 
-interface TabBarProps {
-  selectedTab?: string;
-  onSelectTab?: (tab: string) => void;
-}
-
-export function TabBar({ selectedTab: propSelectedTab, onSelectTab }: TabBarProps = {}) {
+export function TabBar() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [internalActiveTab, setInternalActiveTab] = useState("menu");
-
-  const activeTab = propSelectedTab ?? internalActiveTab;
-  const setActiveTab = (tab: string) => {
-    if (onSelectTab) {
-      onSelectTab(tab);
-    } else {
-      setInternalActiveTab(tab);
-    }
-  };
 
   const tabs = [
-    { id: "menu", label: "메뉴", icon: Menu },
-    { id: "market", label: "시장/거래", icon: LineChart },
-    { id: "watchlist", label: "관심 종목", icon: Heart },
-    { id: "portfolio", label: "포트폴리오", icon: PieChart },
-    { id: "ranking", label: "랭킹", icon: Trophy },
+    { id: "menu", label: "메뉴", icon: Menu, href: null },
+    { id: "market", label: "시장/거래", icon: LineChart, href: "/stocks" },
+    { id: "watchlist", label: "관심 종목", icon: Heart, href: "/favorites" },
+    { id: "portfolio", label: "포트폴리오", icon: PieChart, href: "/portfolio" },
+    { id: "ranking", label: "랭킹", icon: Trophy, href: "/ranking" },
   ];
 
   return (
     <>
-      <div className="w-full bg-white border-t border-border flex justify-around items-center h-[56px] px-2 gap-1 shadow-[0_-2px_8px_rgba(0,0,0,0.05)] rounded-b-[1.5rem]">
+      <nav className="fixed bottom-0 left-1/2 z-50 flex h-16 w-full max-w-[500px] -translate-x-1/2 items-center justify-around gap-1 border-x border-t border-border bg-background px-2">
         {tabs.map((tab, index) => {
           const Icon = tab.icon;
-          const isActive = tab.id === activeTab || (tab.id === "menu" && isMenuOpen);
+          const isActive = tab.href ? pathname.startsWith(tab.href) : isMenuOpen;
+          const itemClassName = `flex h-12 w-16 flex-col items-center justify-center rounded-lg transition-colors ${
+            isActive
+              ? "bg-muted text-foreground font-semibold"
+              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+          }`;
 
           return (
             <React.Fragment key={tab.id}>
               {tab.id === "menu" ? (
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => {
                     setIsMenuOpen(true);
-                    setActiveTab("menu");
                   }}
-                  className={`flex flex-col items-center pt-2 w-16 h-[50px] rounded-lg cursor-pointer transition-[transform,box-shadow] duration-100 ${
-                    isActive
-                      ? "bg-muted text-foreground font-semibold shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner"
-                  }`}
+                  className={itemClassName}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-[10px] leading-none">{tab.label}</span>
-                </button>
+                  <span className="text-xs leading-none">{tab.label}</span>
+                </Button>
               ) : (
                 <Link
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setActiveTab(tab.id);
-                  }}
-                  className={`flex flex-col items-center pt-2 w-16 h-[50px] rounded-lg cursor-pointer transition-[transform,box-shadow] duration-100 ${
-                    isActive
-                      ? "bg-muted text-foreground font-semibold shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner"
-                  }`}
+                  href={tab.href ?? "/"}
+                  className={itemClassName}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-[10px] leading-none">{tab.label}</span>
+                  <span className="text-xs leading-none">{tab.label}</span>
                 </Link>
               )}
               {index < tabs.length - 1 && <div className="w-px h-5 bg-border shrink-0" />}
             </React.Fragment>
           );
         })}
-      </div>
+      </nav>
 
       <FullMenuPopup isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </>

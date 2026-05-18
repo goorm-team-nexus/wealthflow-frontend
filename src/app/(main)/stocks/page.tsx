@@ -1,9 +1,9 @@
 "use client";
 
-import { Bell, ChevronLeft, ChevronRight, Heart, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { TabBar } from "@/components/shared/TabBar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 type MarketIndex = {
@@ -58,11 +58,6 @@ const copy = {
   portfolio: "\ud3ec\ud2b8\ud3f4\ub9ac\uc624",
   ranking: "\ub7ad\ud0b9",
   chart: "\ucc28\ud2b8",
-  alarm: "\uc54c\ub9bc",
-  close: "\ub2eb\uae30",
-  noticeTitle: "\uc54c\ub9bc",
-  noticeBody:
-    "\uc0c8\ub85c\uc6b4 AI \ub274\uc2a4 \uc694\uc57d\uc774 \ub3c4\ucc29\ud588\uc2b5\ub2c8\ub2e4.",
   favoriteStock: "\uad00\uc2ec \uc885\ubaa9",
 };
 
@@ -262,10 +257,8 @@ const stocks: Stock[] = [
 
 export default function Home() {
   const [marketPage, setMarketPage] = useState(0);
-  const [selectedTab, setSelectedTab] = useState(copy.menu);
   const [sortType, setSortType] = useState<SortType>("volume");
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
-  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
   const [isMarketSliding, setIsMarketSliding] = useState(false);
   const [slideDirection, setSlideDirection] = useState<SlideDirection>("next");
@@ -342,78 +335,28 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-100 font-sans text-zinc-950">
-      <div className="mx-auto flex min-h-screen w-full max-w-[390px] justify-center bg-white">
-        <section className="relative flex min-h-screen w-full flex-col overflow-y-auto bg-white px-8 pb-24 pt-6 [font-family:var(--font-noto-sans-kr),var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif]">
-          <Header
-            isNoticeOpen={isNoticeOpen}
-            onToggleNotice={() => setIsNoticeOpen((isOpen) => !isOpen)}
-          />
-          {isNoticeOpen ? <NoticePanel onClose={() => setIsNoticeOpen(false)} /> : null}
-          <MarketIndexSection
-            marketPage={marketPage}
-            marketPages={totalMarketPages}
-            marketIndexes={visibleMarketIndexes}
-            isSliding={isMarketSliding}
-            onNext={handleNextMarketPage}
-            onPrevious={handlePreviousMarketPage}
-            onSelectPage={handleSelectMarketPage}
-            slideDirection={slideDirection}
-          />
-          <MainStockSection
-            favoriteIds={favoriteIds}
-            isMoreStocksOpen={isMoreStocksOpen}
-            sortType={sortType}
-            stocks={sortedStocks}
-            onFavoriteStock={handleFavoriteStock}
-            onMoreStocksClose={() => setIsMoreStocksOpen(false)}
-            onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
-            onSortChange={setSortType}
-          />
-          <TabBar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
-        </section>
-      </div>
-    </main>
-  );
-}
-
-function Header({
-  isNoticeOpen,
-  onToggleNotice,
-}: {
-  isNoticeOpen: boolean;
-  onToggleNotice: () => void;
-}) {
-  return (
-    <header className="flex h-8 items-center justify-between">
-      <h1 className="text-xl font-bold tracking-normal">Wealth Flow</h1>
-      <button
-        type="button"
-        className="relative flex size-8 items-center justify-center"
-        aria-label={copy.alarm}
-        aria-pressed={isNoticeOpen}
-        onClick={onToggleNotice}
-      >
-        <Bell className="size-6 stroke-[2.4]" aria-hidden="true" />
-        <span className="absolute right-1 top-0 size-2 rounded-full bg-red-500" />
-      </button>
-    </header>
-  );
-}
-
-function NoticePanel({ onClose }: { onClose: () => void }) {
-  return (
-    <Card className="absolute right-8 top-14 z-10 w-56 rounded-lg bg-white py-3 shadow-lg shadow-zinc-300/70 ring-1 ring-zinc-200">
-      <CardContent className="flex flex-col gap-2 px-3">
-        <div className="flex items-center justify-between">
-          <strong className="text-sm font-semibold">{copy.noticeTitle}</strong>
-          <button type="button" aria-label={copy.close} onClick={onClose}>
-            <X className="size-4" aria-hidden="true" />
-          </button>
-        </div>
-        <p className="text-xs leading-5 text-zinc-600">{copy.noticeBody}</p>
-      </CardContent>
-    </Card>
+    <div className="flex w-full flex-col gap-6 p-4">
+      <MarketIndexSection
+        marketPage={marketPage}
+        marketPages={totalMarketPages}
+        marketIndexes={visibleMarketIndexes}
+        isSliding={isMarketSliding}
+        onNext={handleNextMarketPage}
+        onPrevious={handlePreviousMarketPage}
+        onSelectPage={handleSelectMarketPage}
+        slideDirection={slideDirection}
+      />
+      <MainStockSection
+        favoriteIds={favoriteIds}
+        isMoreStocksOpen={isMoreStocksOpen}
+        sortType={sortType}
+        stocks={sortedStocks}
+        onFavoriteStock={handleFavoriteStock}
+        onMoreStocksClose={() => setIsMoreStocksOpen(false)}
+        onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
+        onSortChange={setSortType}
+      />
+    </div>
   );
 }
 
@@ -445,9 +388,15 @@ function MarketIndexSection({
   return (
     <section className="flex flex-col gap-4 pt-6">
       <div className="grid grid-cols-[24px_minmax(0,1fr)_24px] items-center gap-2">
-        <button type="button" aria-label="Previous market cards" onClick={onPrevious}>
-          <ChevronLeft className="size-6 shrink-0 text-zinc-300" aria-hidden="true" />
-        </button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Previous market cards"
+          onClick={onPrevious}
+        >
+          <ChevronLeft className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        </Button>
         <div
           className={`grid flex-1 grid-cols-2 gap-4 transition-all duration-300 ease-out ${slideClass}`}
         >
@@ -455,16 +404,24 @@ function MarketIndexSection({
             <MarketIndexCard key={marketIndex.name} marketIndex={marketIndex} />
           ))}
         </div>
-        <button type="button" aria-label="Next market cards" onClick={onNext}>
-          <ChevronRight className="size-6 shrink-0 text-zinc-300" aria-hidden="true" />
-        </button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Next market cards"
+          onClick={onNext}
+        >
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        </Button>
       </div>
       <div className="flex h-3 items-center justify-center gap-3">
         {Array.from({ length: marketPages }, (_, page) => (
-          <button
+          <Button
             key={page}
             type="button"
-            className={`size-2 rounded-full ${marketPage === page ? "bg-blue-600" : "bg-zinc-200"}`}
+            variant="ghost"
+            size="icon-xs"
+            className={`size-3 rounded-full p-0 ${marketPage === page ? "bg-blue-600" : "bg-muted"}`}
             aria-label={`Market page ${page + 1}`}
             aria-pressed={marketPage === page}
             onClick={() => onSelectPage(page)}
@@ -487,10 +444,10 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
     >
       <CardContent className="flex h-full flex-col gap-1 px-3">
         <div className="flex items-start justify-between gap-2">
-          <span className="text-[10px] font-semibold leading-none text-zinc-950">
+          <span className="text-xs font-medium leading-none text-foreground">
             {marketIndex.name}
           </span>
-          <span className={`text-[7px] leading-none ${changeToneClass}`}>{marketIndex.change}</span>
+          <span className={`text-xs leading-none ${changeToneClass}`}>{marketIndex.change}</span>
         </div>
         <svg
           className={`h-12 w-full ${chartToneClass}`}
@@ -513,7 +470,7 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
             strokeWidth="1.4"
           />
         </svg>
-        <strong className="text-base leading-none font-bold tracking-tight text-zinc-950">
+        <strong className="text-base leading-none font-bold tracking-tight text-foreground">
           {marketIndex.price}
         </strong>
       </CardContent>
@@ -550,68 +507,64 @@ function MainStockSection({
   }, [isMoreStocksOpen]);
 
   return (
-    <section className="flex flex-col gap-4 pt-8">
-      <div className="flex h-6 items-end justify-between">
-        <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
-        <div className="flex items-center gap-2 text-[8px] font-semibold text-zinc-950">
-          <span>{copy.sortLabel}</span>
-          <button
-            type="button"
-            className={
-              sortType === "volume" ? "text-zinc-950 underline underline-offset-2" : "text-zinc-500"
-            }
-            onClick={() => onSortChange("volume")}
-          >
-            {copy.volumeSort}
-          </button>
-          <button
-            type="button"
-            className={
-              sortType === "price" ? "text-zinc-950 underline underline-offset-2" : "text-zinc-500"
-            }
-            onClick={() => onSortChange("price")}
-          >
-            {copy.priceSort}
-          </button>
+    <Card className="shadow-md">
+      <CardContent className="p-0">
+        <div className="flex h-6 items-center justify-between px-4 pt-4 pb-3">
+          <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
+          <div className="flex items-center gap-2 text-xs font-medium">
+            <span>{copy.sortLabel}</span>
+            <Button
+              type="button"
+              variant="link"
+              size="xs"
+              className={sortType === "volume" ? "text-foreground" : "text-muted-foreground"}
+              onClick={() => onSortChange("volume")}
+            >
+              {copy.volumeSort}
+            </Button>
+            <Button
+              type="button"
+              variant="link"
+              size="xs"
+              className={sortType === "price" ? "text-foreground" : "text-muted-foreground"}
+              onClick={() => onSortChange("price")}
+            >
+              {copy.priceSort}
+            </Button>
+          </div>
         </div>
-      </div>
-      <div
-        ref={stockListRef}
-        className={`flex flex-col gap-2 ${
-          isMoreStocksOpen
-            ? "max-h-[452px] overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            : ""
-        }`}
-      >
-        {visibleStocks.map((stock) => (
-          <StockRow
-            key={stock.id}
-            isFavorite={favoriteIds.has(stock.id)}
-            stock={stock}
-            onFavoriteStock={onFavoriteStock}
-          />
-        ))}
-        {!isMoreStocksOpen ? (
-          <MoreStocksButton label={copy.moreStocks} onClick={onMoreStocksOpen} />
-        ) : (
-          <MoreStocksButton label={copy.foldStocks} onClick={onMoreStocksClose} />
-        )}
-      </div>
-    </section>
+        <div ref={stockListRef}>
+          {visibleStocks.map((stock) => (
+            <StockRow
+              key={stock.id}
+              isFavorite={favoriteIds.has(stock.id)}
+              stock={stock}
+              onFavoriteStock={onFavoriteStock}
+            />
+          ))}
+        </div>
+        <div className="border-t border-border">
+          {!isMoreStocksOpen ? (
+            <MoreStocksButton label={copy.moreStocks} onClick={onMoreStocksOpen} />
+          ) : (
+            <MoreStocksButton label={copy.foldStocks} onClick={onMoreStocksClose} />
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
 function MoreStocksButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button
+    <Button
       type="button"
-      className="mx-auto grid h-9 w-[86%] shrink-0 grid-cols-[20px_minmax(0,1fr)_20px] items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-500 shadow-sm shadow-zinc-200/70 transition-colors hover:text-zinc-950"
+      variant="ghost"
+      className="w-full text-xs font-medium text-muted-foreground"
       onClick={onClick}
     >
-      <span aria-hidden="true" />
-      <span className="text-center">{label}</span>
-      <span aria-hidden="true" />
-    </button>
+      {label}
+    </Button>
   );
 }
 
@@ -625,26 +578,28 @@ function StockRow({
   onFavoriteStock: (stockId: number) => void;
 }) {
   return (
-    <div className="grid h-9 w-full shrink-0 grid-cols-[20px_minmax(0,1fr)_76px_42px_20px] items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 shadow-sm shadow-zinc-200/70">
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-[11px] font-normal text-blue-600">
+    <div className="grid py-3 grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 px-4 border-b border-border/40 last:border-0 hover:bg-accent/40 transition-colors duration-200">
+      <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-xs font-normal text-blue-600">
         {stock.logo}
       </span>
-      <span className="truncate text-xs font-normal text-zinc-950">{stock.name}</span>
-      <strong className="text-right text-xs font-semibold tracking-tight text-zinc-950">
+      <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
+      <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
         {stock.price}
       </strong>
-      <span className="text-[8px] font-normal text-blue-600">{stock.change}</span>
-      <button
+      <span className="text-sm font-normal text-blue-600">{stock.change}</span>
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-xs"
         aria-label={copy.favoriteStock}
         aria-pressed={isFavorite}
         onClick={() => onFavoriteStock(stock.id)}
       >
         <Heart
-          className={`size-5 stroke-[2] ${isFavorite ? "fill-red-500 text-red-500" : "text-zinc-950"}`}
+          className={`size-5 stroke-[2] ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground"}`}
           aria-hidden="true"
         />
-      </button>
+      </Button>
     </div>
   );
 }

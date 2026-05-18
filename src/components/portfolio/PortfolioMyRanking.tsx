@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Card, CardContent } from "@/components/ui/card";
-import cupGif from "@/app/cup.gif";
+import cupGif from "@/assets/images/ranking/cup.gif";
 
 // TODO: 백엔드 연동 시 API 응답 타입으로 교체
 interface MyRankingData {
@@ -45,7 +45,7 @@ export default function PortfolioMyRanking() {
           </div>
 
           {/* 오른쪽: 랭킹 숫자 */}
-          <span className="text-4xl font-bold">{rank}위</span>
+          <span className="text-3xl font-bold">{rank}위</span>
         </CardContent>
       </Card>
     </Link>
