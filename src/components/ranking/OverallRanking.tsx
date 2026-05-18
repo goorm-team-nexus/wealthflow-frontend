@@ -37,7 +37,7 @@ export default function OverallRanking() {
   };
 
   return (
-    <Card className="w-full border border-border bg-card shadow-sm transition-all duration-500">
+    <Card className="w-full border border-border bg-card shadow-none transition-all duration-500">
       <CardContent className="p-0">
         {/* 헤더 섹션 */}
         <div className="p-4 flex justify-between items-center">
@@ -53,34 +53,45 @@ export default function OverallRanking() {
         {/* 테이블 구조 */}
         <div className="w-full">
           {/* 테이블 헤더 */}
-          <div className="bg-muted/40 grid grid-cols-[40px_1fr_100px_50px] py-3 px-4 border-y border-border/60">
-            <span className="text-xs text-muted-foreground text-center uppercase">순위</span>
-            <span className="text-xs text-muted-foreground text-left uppercase pl-4">닉네임</span>
-            <span className="text-xs text-muted-foreground text-center uppercase">수익률</span>
-            <span className="text-xs text-muted-foreground text-center uppercase">종목</span>
+          <div className="bg-muted/40 grid grid-cols-[40px_1fr_60px_100px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
+            <span className="text-center">순위</span>
+            <span className="text-left pl-4">닉네임</span>
+            <span className="text-right pr-6">종목</span>
+            <span className="text-right">수익률</span>
           </div>
 
           {/* 리스트 아이템 */}
           <div className="flex flex-col">
-            {finalData.map((item) => (
-              <div
-                key={item.rank}
-                className="grid grid-cols-[40px_1fr_100px_50px] py-3 px-4 items-center border-b border-border/40 last:border-0 hover:bg-accent/40 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-1 relative overflow-hidden cursor-default"
-              >
-                <span className="text-base font-bold text-center text-foreground group-hover:scale-110 group-hover:text-red-500 transition-all duration-300 tabular-nums">
-                  {item.rank}
-                </span>
-                <span className="text-sm font-semibold text-foreground/90 truncate text-left pl-4 group-hover:translate-x-1 transition-transform duration-300">
-                  {item.name}
-                </span>
-                <span className="text-sm font-semibold text-red-500 text-center tabular-nums group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.3)] transition-all duration-300">
-                  {item.rate}
-                </span>
-                <span className="text-sm text-center text-muted-foreground font-medium group-hover:text-foreground transition-colors duration-300">
-                  {item.stocks}
-                </span>
-              </div>
-            ))}
+            {finalData.map((item) => {
+              const isPositive = !item.rate.startsWith("-");
+              const cleanRate = item.rate.replace(/[+-]/g, "");
+
+              return (
+                <div
+                  key={item.rank}
+                  className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0 hover:bg-accent/40 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-1 relative overflow-hidden cursor-default"
+                >
+                  <span className="text-base font-bold text-center text-foreground group-hover:scale-110 group-hover:text-red-500 transition-all duration-300 tabular-nums">
+                    {item.rank}
+                  </span>
+                  <span className="text-sm font-medium text-foreground truncate text-left pl-4 group-hover:translate-x-1 transition-transform duration-300">
+                    {item.name}
+                  </span>
+                  <span className="text-sm text-right pr-6 text-muted-foreground/80 font-normal group-hover:text-foreground transition-colors duration-300 tabular-nums">
+                    {item.stocks}
+                  </span>
+                  <span
+                    className={`text-sm font-normal text-right tabular-nums transition-all duration-300 ${
+                      isPositive
+                        ? "text-red-500 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.2)]"
+                        : "text-blue-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]"
+                    }`}
+                  >
+                    {isPositive ? "▲" : "▼"} {cleanRate}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

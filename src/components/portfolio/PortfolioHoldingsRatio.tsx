@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
 type HoldingRatio = {
@@ -8,23 +9,26 @@ type HoldingRatio = {
   color: string;
 };
 
+// 업계 표준: 대표 종목의 실제 공식 기업 브랜드 컬러를 적용하여 극도의 신뢰성과 전문성 확보
 const HOLDINGS_DATA: HoldingRatio[] = [
-  { name: "네이버", ratio: 40, color: "#1e293b" }, // slate-800
-  { name: "토스", ratio: 30, color: "#3b82f6" }, // blue-500
-  { name: "카카오뱅크", ratio: 17, color: "#60a5fa" }, // blue-400
-  { name: "신한은행", ratio: 6, color: "#93c5fd" }, // blue-300
-  { name: "CJ", ratio: 5, color: "#bfdbfe" }, // blue-200
-  { name: "기타", ratio: 3, color: "#e2e8f0" }, // slate-200
+  { name: "네이버", ratio: 40, color: "#03C75A" }, // 네이버 공식 Green
+  { name: "토스", ratio: 30, color: "#0064FF" }, // 토스 공식 Blue
+  { name: "카카오뱅크", ratio: 17, color: "#FACC15" }, // 카카오 Warm Yellow (시각 균형을 위해 차분한 Amber 계열)
+  { name: "신한은행", ratio: 6, color: "#0046FF" }, // 신한 공식 Deep Blue
+  { name: "CJ", ratio: 5, color: "#E52528" }, // CJ 공식 Red
+  { name: "기타", ratio: 3, color: "#94A3B8" }, // 차분한 Muted Slate
 ];
 
 const TOP_5_TOTAL = 98;
 
 export default function PortfolioHoldingsRatio() {
-  // SVG Donut Chart Constants
-  const size = 160;
-  const strokeWidth = 24;
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  // SVG Donut Chart Constants (호버 시 선 두께 증가로 인한 SVG 외곽선 잘림을 원천 차단하기 위해 radius 미세 축소)
+  const size = 130;
+  const strokeWidth = 16;
   const center = size / 2;
-  const radius = (size - strokeWidth) / 2;
+  const radius = (size - strokeWidth - 8) / 2; // 8px의 안전 마진을 두어 선 확장 시 절대 잘리지 않음
   const circumference = 2 * Math.PI * radius;
 
   const chartData = HOLDINGS_DATA.reduce(
@@ -37,20 +41,26 @@ export default function PortfolioHoldingsRatio() {
   );
 
   return (
-    <Card className="bg-card ring-0 shadow-md">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">보유 종목 비율</h3>
-          <span className="text-xs text-muted-foreground">주요 종목 5개, 기타(%)</span>
+    <Card className="w-full border border-border/80 bg-white shadow-sm rounded-2xl overflow-hidden">
+      <CardContent className="p-5 flex flex-col">
+        {/* 1. 상단 타이틀 영역 (다른 카드 디자인과 100% 동일한 패딩 및 폰트 핏) */}
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-foreground tracking-tight">보유 종목 비율</h3>
+          <span className="text-xs text-muted-foreground/80 font-medium select-none bg-muted/60 px-2 py-0.5 rounded-md">
+            주요 종목 5개, 기타(%)
+          </span>
         </div>
 
-        <div className="flex items-center justify-center gap-8">
-          {/* Left: Donut Chart */}
+        {/* 2. 메인 차트 및 레전드 영역 (중앙 정렬 및 글자-숫자 밀착을 위한 가로폭 한정) */}
+        <div className="flex items-center justify-center gap-10 my-2 w-full">
+          {/* Left: Donut Chart (마이크로 호버 인터랙션 적용) */}
           <div className="relative flex items-center justify-center shrink-0">
             <svg width={size} height={size} className="transform -rotate-90">
               {chartData.map((item, index) => {
                 const strokeDasharray = `${(item.ratio / 100) * circumference} ${circumference}`;
                 const strokeDashoffset = -((item.offset / 100) * circumference);
+                const isHovered = hoveredIndex === index;
+                const isAnyHovered = hoveredIndex !== null;
 
                 return (
                   <circle
@@ -60,39 +70,90 @@ export default function PortfolioHoldingsRatio() {
                     r={radius}
                     fill="transparent"
                     stroke={item.color}
-                    strokeWidth={strokeWidth}
+                    strokeWidth={isHovered ? strokeWidth + 3 : strokeWidth}
                     strokeDasharray={strokeDasharray}
                     strokeDashoffset={strokeDashoffset}
-                    className="transition-all duration-500 ease-in-out"
+                    className="transition-all duration-300 ease-in-out cursor-pointer origin-center"
+                    style={{
+                      opacity: isAnyHovered && !isHovered ? 0.35 : 1,
+                    }}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                   />
                 );
               })}
             </svg>
 
-            {/* Center Text */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center transform rotate-0">
-              <span className="text-sm text-muted-foreground font-medium">Top 5</span>
-              <span className="text-2xl font-bold">{TOP_5_TOTAL}%</span>
+            {/* Center Text (호버 시 해당 항목명 및 수치 동적 업데이트로 고급감 극대화) */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center transform rotate-0 select-none pointer-events-none">
+              {hoveredIndex !== null ? (
+                <>
+                  <span className="text-[10px] text-muted-foreground/80 font-semibold tracking-tight truncate max-w-[70px]">
+                    {HOLDINGS_DATA[hoveredIndex].name}
+                  </span>
+                  <span className="text-xl font-extrabold text-foreground leading-none mt-0.5 tabular-nums">
+                    {HOLDINGS_DATA[hoveredIndex].ratio}%
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider">
+                    Top 5
+                  </span>
+                  <span className="text-2xl font-extrabold text-foreground leading-none mt-0.5 tabular-nums">
+                    {TOP_5_TOTAL}%
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Right: Legend */}
-          <div className="shrink-0">
-            <ul className="space-y-3">
-              {HOLDINGS_DATA.map((item, index) => (
-                <li key={index} className="flex items-center group cursor-pointer">
-                  <div className="flex items-center gap-3 w-28">
-                    <div
-                      className="w-3 h-3 rounded-full shadow-sm group-hover:scale-125 transition-transform shrink-0"
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <span className="text-sm font-medium text-foreground truncate">
-                      {item.name}
+          {/* Right: Legend (글자칸과 숫자 칸을 밀착하고 원형이 잘리지 않도록 너비를 w-[130px]로 설계 및 truncate 위치 정정) */}
+          <div className="shrink-0 w-[130px]">
+            <ul className="space-y-2.5">
+              {HOLDINGS_DATA.map((item, index) => {
+                const isHovered = hoveredIndex === index;
+                const isAnyHovered = hoveredIndex !== null;
+
+                return (
+                  <li
+                    key={index}
+                    className="flex items-center justify-between group cursor-pointer py-0.5 transition-all duration-200"
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    style={{
+                      opacity: isAnyHovered && !isHovered ? 0.4 : 1,
+                    }}
+                  >
+                    {/* 좌측: 로고 닷 + 브랜드명 (호버 시 원형 확대가 잘리지 않도록 overflow 차단 및 shrink-0 부여) */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div
+                        className="w-2 h-2 rounded-full shadow-sm group-hover:scale-125 transition-transform shrink-0"
+                        style={{
+                          backgroundColor: item.color,
+                          boxShadow: isHovered ? `0 0 8px ${item.color}` : "none",
+                        }}
+                      />
+                      <span
+                        className={`text-xs font-medium transition-colors duration-300 truncate max-w-[75px] ${
+                          isHovered ? "text-foreground font-semibold" : "text-muted-foreground"
+                        }`}
+                      >
+                        {item.name}
+                      </span>
+                    </div>
+
+                    {/* 우측: 비율 (소수점 자릿수 정렬을 위한 tabular-nums) */}
+                    <span
+                      className={`text-xs tracking-tight transition-colors duration-300 tabular-nums shrink-0 ${
+                        isHovered ? "text-foreground font-bold" : "text-foreground font-semibold"
+                      }`}
+                    >
+                      {item.ratio}%
                     </span>
-                  </div>
-                  <span className="text-sm font-semibold w-10 text-right">{item.ratio}%</span>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
