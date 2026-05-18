@@ -1,10 +1,54 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { setAccessToken } from "@/lib/api-client";
+import { login } from "@/services/auth";
 
 export default function Home() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+
+    if (!email || !password) {
+      setErrorMsg("이메일과 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const res = await login({ email, password });
+
+      if (res.success && res.data?.accessToken) {
+        // Save token to memory
+        setAccessToken(res.data.accessToken);
+        // Redirect to stocks
+        router.push("/stocks");
+      } else {
+        setErrorMsg("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErrorMsg(error.message || "로그인 중 오류가 발생했습니다.");
+      } else {
+        setErrorMsg("로그인 중 오류가 발생했습니다.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 sm:bg-muted">
       <div className="w-full max-w-[400px]">
@@ -19,13 +63,19 @@ export default function Home() {
 
             <h2 className="mb-6 text-lg font-semibold text-foreground">로그인</h2>
 
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-medium text-foreground">
                   Email
                 </label>
-                <Input type="email" id="email" placeholder="m@example.com" />
-                <p className="text-xs text-destructive">이메일 형식을 맞춰주세요 m@example.com</p>
+                <Input
+                  type="email"
+                  id="email"
+                  placeholder="m@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
 
               <div className="space-y-2">
@@ -37,14 +87,22 @@ export default function Home() {
                     Forgot password?
                   </Link>
                 </div>
-                <Input type="password" id="password" />
+                <Input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
 
+              {errorMsg && <p className="text-xs text-destructive">{errorMsg}</p>}
+
               <div className="space-y-3 pt-2">
-                <Button type="button" className="w-full">
-                  로그인
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "로그인 중..." : "로그인"}
                 </Button>
-                <Button asChild variant="secondary" className="w-full">
+                <Button asChild variant="secondary" className="w-full" disabled={isLoading}>
                   <Link href="/signup">회원가입</Link>
                 </Button>
               </div>
@@ -62,6 +120,7 @@ export default function Home() {
               <button
                 type="button"
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#FEE500] py-2.5 text-sm font-medium text-black transition-colors hover:bg-[#FDD800]"
+                onClick={() => alert("현재 카카오 로그인은 준비 중입니다.")}
               >
                 <svg
                   width="18"
