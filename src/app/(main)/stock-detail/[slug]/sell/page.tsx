@@ -118,7 +118,9 @@ export default function StockSellPage() {
       <Card className="bg-muted/50 py-4 shadow-sm">
         <CardContent className="flex h-24 flex-col justify-center gap-3 px-4">
           <span className="text-xs text-muted-foreground">판매할 가격</span>
-          <strong className="text-3xl font-bold tracking-normal">{formatCurrency(sellPrice)}</strong>
+          <strong className="text-3xl font-bold tracking-normal">
+            {formatCurrency(sellPrice)}
+          </strong>
         </CardContent>
       </Card>
 

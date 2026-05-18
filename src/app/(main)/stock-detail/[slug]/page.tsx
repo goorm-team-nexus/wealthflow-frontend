@@ -150,8 +150,10 @@ function StockDetailHeader({
 }) {
   return (
     <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
-      <Button type="button" variant="ghost" size="icon" aria-label="뒤로가기">
-        <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
+      <Button asChild variant="ghost" size="icon" aria-label="종목 페이지로 돌아가기">
+        <Link href="/stocks">
+          <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
+        </Link>
       </Button>
       <h1 className="truncate text-center text-sm font-semibold">삼성전자 (005930)</h1>
       <Button
@@ -205,7 +207,9 @@ function PriceChart({
               variant={period === selectedPeriod ? "secondary" : "ghost"}
               size="sm"
               className={`min-w-11 ${
-                period === selectedPeriod ? "!bg-white text-foreground shadow-sm hover:!bg-white" : ""
+                period === selectedPeriod
+                  ? "!bg-white text-foreground shadow-sm hover:!bg-white"
+                  : ""
               }`}
               aria-pressed={period === selectedPeriod}
               onClick={() => onPeriodChange(period)}

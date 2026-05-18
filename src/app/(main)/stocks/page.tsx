@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -579,14 +580,20 @@ function StockRow({
 }) {
   return (
     <div className="grid py-3 grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 px-4 border-b border-border/40 last:border-0 hover:bg-accent/40 transition-colors duration-200">
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-xs font-normal text-blue-600">
-        {stock.logo}
-      </span>
-      <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
-      <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
-        {stock.price}
-      </strong>
-      <span className="text-sm font-normal text-blue-600">{stock.change}</span>
+      <Link
+        href="/stock-detail/samsung-electronics"
+        className="contents"
+        aria-label={`${stock.name} 종목 상세로 이동`}
+      >
+        <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-xs font-normal text-blue-600">
+          {stock.logo}
+        </span>
+        <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
+        <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
+          {stock.price}
+        </strong>
+        <span className="text-sm font-normal text-blue-600">{stock.change}</span>
+      </Link>
       <Button
         type="button"
         variant="ghost"
