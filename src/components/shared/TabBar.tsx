@@ -31,7 +31,7 @@ export function TabBar() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-1/2 z-50 flex h-16 w-full max-w-[500px] -translate-x-1/2 items-center justify-around gap-1 border-x border-t border-border bg-background px-2">
+      <nav className="fixed bottom-0 left-1/2 z-[101] flex h-16 w-full max-w-[500px] -translate-x-1/2 items-center justify-around gap-1 border-x border-t border-border bg-background px-2">
         {tabs.map((tab, index) => {
           const Icon = tab.icon;
           const isActive = tab.href ? pathname.startsWith(tab.href) : isMenuOpen;

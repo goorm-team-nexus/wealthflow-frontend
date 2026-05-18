@@ -1,6 +1,3 @@
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -28,35 +25,55 @@ export default function PortfolioTotalAssets() {
   const isPositive = totalProfit >= 0;
 
   return (
-    <Link href="/portfolio" className="block">
-      <Card className="bg-card ring-0 shadow-md py-0 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
-        <CardContent className="flex items-center justify-between p-4">
-          <div className="flex flex-col gap-3">
-            <span className="text-lg font-semibold text-foreground">총 모의 자산</span>
+    <Card className="w-full border border-border/80 bg-white shadow-sm rounded-2xl overflow-hidden">
+      <CardContent className="p-5 flex flex-col gap-4">
+        {/* 1. 상단: 타이틀 및 기준 설명 글 (회색 글씨 적용) */}
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-foreground tracking-tight">총 모의 자산</span>
+          <span className="text-xs text-muted-foreground font-normal select-none">
+            투자 원금 1억 기준
+          </span>
+        </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-3xl font-bold">₩ {formatCurrency(totalAssets)}</span>
-            </div>
+        {/* 2. 중앙: 대형 자산 액수 */}
+        <div className="flex items-baseline gap-0.5">
+          <span className="text-xl font-bold text-muted-foreground/60 mr-1 select-none">₩</span>
+          <span className="text-3xl font-extrabold text-foreground tracking-tight leading-none">
+            {formatCurrency(totalAssets)}
+          </span>
+        </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                총 수익/ 총 수익률(%)
-              </span>
-              <Badge
-                className={`h-auto ${
-                  isPositive ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
-                }`}
-              >
-                {isPositive ? "+" : "-"}₩{formatCurrency(Math.abs(totalProfit))}(
-                {isPositive ? "+" : "-"}
-                {Math.abs(totalProfitRate)}%)
-              </Badge>
-            </div>
+        {/* 구분용 수평선 */}
+        <div className="border-t border-border/40 my-1" />
+
+        {/* 3. 하단: 총 수익 및 수익률 지표 (공간 정돈 및 기호 겹침 해결) */}
+        <div className="flex items-center justify-between w-full">
+          {/* 총 수익 영역 (기호 간 띄어쓰기를 주어 폰트 충돌 방지) */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs text-muted-foreground font-semibold">총 수익</span>
+            <span
+              className={`text-sm font-extrabold tracking-tight ${isPositive ? "text-red-500" : "text-blue-500"} leading-none`}
+            >
+              {isPositive ? "+ ₩" : "- ₩"} {formatCurrency(Math.abs(totalProfit))}
+            </span>
           </div>
 
-          <ChevronRight className="h-6 w-6 text-muted-foreground" />
-        </CardContent>
-      </Card>
-    </Link>
+          {/* 수익률 영역 (수평 배치 대칭성 확보) */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-xs text-muted-foreground font-semibold">수익률</span>
+            <Badge
+              variant="outline"
+              className={`h-auto font-bold px-2.5 py-0.5 rounded-full flex items-center gap-0.5 border-none select-none text-xs ${
+                isPositive
+                  ? "bg-red-50 text-red-600 hover:bg-red-50"
+                  : "bg-blue-50 text-blue-600 hover:bg-blue-50"
+              }`}
+            >
+              {isPositive ? "▲" : "▼"} {Math.abs(totalProfitRate)}%
+            </Badge>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
