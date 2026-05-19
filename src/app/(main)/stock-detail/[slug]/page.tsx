@@ -9,19 +9,17 @@ import {
   type UTCTimestamp,
 } from "lightweight-charts";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
-type ChartBar = {
-  bodyHeight: number;
-  bodyTop: number;
-  wickBottom: number;
-  wickTop: number;
-  x: number;
-  tone: "red" | "blue";
-};
+import {
+  fetchStockQuoteByTicker,
+  getStockQuoteSeed,
+  type StockQuote,
+  type StockQuoteSeed,
+} from "@/services/marketService";
 
 type StockMetric = {
   label: string;
@@ -29,119 +27,69 @@ type StockMetric = {
   tone?: "positive";
 };
 
-type ChartPeriod = "1일" | "1주" | "1달" | "3달" | "1년";
+type ChartPeriod = "1d" | "1w" | "1m" | "3m" | "1y";
 
-const chartPeriods: ChartPeriod[] = ["1일", "1주", "1달", "3달", "1년"];
-
-const chartBarsByPeriod: Record<ChartPeriod, ChartBar[]> = {
-  "1일": [
-    { x: 14, bodyTop: 104, bodyHeight: 16, wickTop: 98, wickBottom: 126, tone: "red" },
-    { x: 28, bodyTop: 120, bodyHeight: 18, wickTop: 110, wickBottom: 144, tone: "blue" },
-    { x: 42, bodyTop: 94, bodyHeight: 20, wickTop: 86, wickBottom: 122, tone: "red" },
-    { x: 56, bodyTop: 78, bodyHeight: 14, wickTop: 72, wickBottom: 100, tone: "red" },
-    { x: 70, bodyTop: 82, bodyHeight: 12, wickTop: 76, wickBottom: 100, tone: "blue" },
-    { x: 84, bodyTop: 88, bodyHeight: 10, wickTop: 82, wickBottom: 104, tone: "blue" },
-    { x: 98, bodyTop: 78, bodyHeight: 12, wickTop: 70, wickBottom: 98, tone: "red" },
-    { x: 112, bodyTop: 66, bodyHeight: 14, wickTop: 58, wickBottom: 88, tone: "red" },
-    { x: 126, bodyTop: 80, bodyHeight: 12, wickTop: 72, wickBottom: 98, tone: "blue" },
-    { x: 140, bodyTop: 86, bodyHeight: 12, wickTop: 78, wickBottom: 104, tone: "blue" },
-    { x: 154, bodyTop: 76, bodyHeight: 14, wickTop: 68, wickBottom: 98, tone: "red" },
-    { x: 168, bodyTop: 64, bodyHeight: 16, wickTop: 56, wickBottom: 88, tone: "red" },
-    { x: 182, bodyTop: 54, bodyHeight: 14, wickTop: 46, wickBottom: 76, tone: "red" },
-  ],
-  "1주": [
-    { x: 14, bodyTop: 92, bodyHeight: 18, wickTop: 82, wickBottom: 118, tone: "blue" },
-    { x: 28, bodyTop: 100, bodyHeight: 16, wickTop: 90, wickBottom: 126, tone: "red" },
-    { x: 42, bodyTop: 86, bodyHeight: 18, wickTop: 76, wickBottom: 112, tone: "red" },
-    { x: 56, bodyTop: 72, bodyHeight: 20, wickTop: 64, wickBottom: 102, tone: "red" },
-    { x: 70, bodyTop: 82, bodyHeight: 14, wickTop: 74, wickBottom: 106, tone: "blue" },
-    { x: 84, bodyTop: 74, bodyHeight: 16, wickTop: 66, wickBottom: 98, tone: "red" },
-    { x: 98, bodyTop: 62, bodyHeight: 18, wickTop: 54, wickBottom: 90, tone: "red" },
-    { x: 112, bodyTop: 70, bodyHeight: 14, wickTop: 60, wickBottom: 94, tone: "blue" },
-    { x: 126, bodyTop: 64, bodyHeight: 16, wickTop: 56, wickBottom: 88, tone: "red" },
-    { x: 140, bodyTop: 54, bodyHeight: 18, wickTop: 46, wickBottom: 80, tone: "red" },
-    { x: 154, bodyTop: 60, bodyHeight: 14, wickTop: 50, wickBottom: 84, tone: "blue" },
-    { x: 168, bodyTop: 52, bodyHeight: 16, wickTop: 44, wickBottom: 78, tone: "red" },
-    { x: 182, bodyTop: 42, bodyHeight: 18, wickTop: 34, wickBottom: 68, tone: "red" },
-  ],
-  "1달": [
-    { x: 14, bodyTop: 62, bodyHeight: 16, wickTop: 54, wickBottom: 88, tone: "red" },
-    { x: 28, bodyTop: 76, bodyHeight: 16, wickTop: 66, wickBottom: 102, tone: "blue" },
-    { x: 42, bodyTop: 84, bodyHeight: 18, wickTop: 74, wickBottom: 112, tone: "blue" },
-    { x: 56, bodyTop: 70, bodyHeight: 16, wickTop: 62, wickBottom: 96, tone: "red" },
-    { x: 70, bodyTop: 82, bodyHeight: 18, wickTop: 72, wickBottom: 108, tone: "blue" },
-    { x: 84, bodyTop: 94, bodyHeight: 16, wickTop: 84, wickBottom: 120, tone: "blue" },
-    { x: 98, bodyTop: 88, bodyHeight: 14, wickTop: 80, wickBottom: 112, tone: "red" },
-    { x: 112, bodyTop: 78, bodyHeight: 16, wickTop: 70, wickBottom: 104, tone: "red" },
-    { x: 126, bodyTop: 66, bodyHeight: 18, wickTop: 58, wickBottom: 92, tone: "red" },
-    { x: 140, bodyTop: 72, bodyHeight: 14, wickTop: 64, wickBottom: 96, tone: "blue" },
-    { x: 154, bodyTop: 60, bodyHeight: 16, wickTop: 52, wickBottom: 86, tone: "red" },
-    { x: 168, bodyTop: 52, bodyHeight: 18, wickTop: 44, wickBottom: 78, tone: "red" },
-    { x: 182, bodyTop: 46, bodyHeight: 14, wickTop: 38, wickBottom: 70, tone: "red" },
-  ],
-  "3달": [
-    { x: 14, bodyTop: 112, bodyHeight: 16, wickTop: 102, wickBottom: 138, tone: "blue" },
-    { x: 28, bodyTop: 102, bodyHeight: 18, wickTop: 92, wickBottom: 130, tone: "red" },
-    { x: 42, bodyTop: 90, bodyHeight: 16, wickTop: 82, wickBottom: 118, tone: "red" },
-    { x: 56, bodyTop: 98, bodyHeight: 16, wickTop: 88, wickBottom: 124, tone: "blue" },
-    { x: 70, bodyTop: 86, bodyHeight: 18, wickTop: 76, wickBottom: 114, tone: "red" },
-    { x: 84, bodyTop: 76, bodyHeight: 18, wickTop: 66, wickBottom: 104, tone: "red" },
-    { x: 98, bodyTop: 68, bodyHeight: 16, wickTop: 58, wickBottom: 94, tone: "red" },
-    { x: 112, bodyTop: 78, bodyHeight: 16, wickTop: 68, wickBottom: 106, tone: "blue" },
-    { x: 126, bodyTop: 70, bodyHeight: 14, wickTop: 60, wickBottom: 94, tone: "red" },
-    { x: 140, bodyTop: 60, bodyHeight: 16, wickTop: 52, wickBottom: 86, tone: "red" },
-    { x: 154, bodyTop: 54, bodyHeight: 18, wickTop: 46, wickBottom: 80, tone: "red" },
-    { x: 168, bodyTop: 64, bodyHeight: 16, wickTop: 56, wickBottom: 90, tone: "blue" },
-    { x: 182, bodyTop: 50, bodyHeight: 18, wickTop: 42, wickBottom: 76, tone: "red" },
-  ],
-  "1년": [
-    { x: 14, bodyTop: 126, bodyHeight: 16, wickTop: 116, wickBottom: 150, tone: "blue" },
-    { x: 28, bodyTop: 116, bodyHeight: 16, wickTop: 106, wickBottom: 142, tone: "red" },
-    { x: 42, bodyTop: 106, bodyHeight: 18, wickTop: 96, wickBottom: 134, tone: "red" },
-    { x: 56, bodyTop: 96, bodyHeight: 16, wickTop: 88, wickBottom: 124, tone: "red" },
-    { x: 70, bodyTop: 88, bodyHeight: 16, wickTop: 78, wickBottom: 114, tone: "red" },
-    { x: 84, bodyTop: 78, bodyHeight: 18, wickTop: 68, wickBottom: 106, tone: "red" },
-    { x: 98, bodyTop: 68, bodyHeight: 16, wickTop: 60, wickBottom: 96, tone: "red" },
-    { x: 112, bodyTop: 76, bodyHeight: 14, wickTop: 66, wickBottom: 100, tone: "blue" },
-    { x: 126, bodyTop: 64, bodyHeight: 16, wickTop: 56, wickBottom: 92, tone: "red" },
-    { x: 140, bodyTop: 56, bodyHeight: 16, wickTop: 48, wickBottom: 82, tone: "red" },
-    { x: 154, bodyTop: 50, bodyHeight: 14, wickTop: 42, wickBottom: 74, tone: "red" },
-    { x: 168, bodyTop: 42, bodyHeight: 16, wickTop: 34, wickBottom: 68, tone: "red" },
-    { x: 182, bodyTop: 34, bodyHeight: 18, wickTop: 26, wickBottom: 60, tone: "red" },
-  ],
-};
-
-const stockMetrics: StockMetric[] = [
-  { label: "현재가", value: "219,500원" },
-  { label: "전일 대비", value: "+1,500원(+0.68%)", tone: "positive" },
-  { label: "시가 총액", value: "1,445조원" },
-  { label: "PER", value: "32.7배" },
+const chartPeriods: { label: string; value: ChartPeriod }[] = [
+  { label: "1\uc77c", value: "1d" },
+  { label: "1\uc8fc", value: "1w" },
+  { label: "1\ub2ec", value: "1m" },
+  { label: "3\ub2ec", value: "3m" },
+  { label: "1\ub144", value: "1y" },
 ];
 
 export default function StockDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const ticker = params.slug;
   const [isFavorite, setIsFavorite] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("1일");
+  const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("1d");
+  const [stock, setStock] = useState<StockQuote>(() => toPendingStock(getStockQuoteSeed(ticker)));
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadStock = async () => {
+      try {
+        const stockQuote = await fetchStockQuoteByTicker(ticker);
+
+        if (isMounted) {
+          setStock(stockQuote);
+        }
+      } catch {
+        if (isMounted) {
+          setStock(toPendingStock(getStockQuoteSeed(ticker)));
+        }
+      }
+    };
+
+    void loadStock();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [ticker]);
 
   return (
     <div className="flex w-full flex-col gap-4 p-4">
       <StockDetailHeader
         isFavorite={isFavorite}
+        stockName={stock.name}
+        ticker={stock.ticker}
         onFavoriteToggle={() => setIsFavorite((currentIsFavorite) => !currentIsFavorite)}
       />
-      <PriceSummary />
+      <PriceSummary stock={stock} />
       <PriceChart
-        chartBars={chartBarsByPeriod[selectedPeriod]}
         selectedPeriod={selectedPeriod}
+        stock={stock}
         onPeriodChange={setSelectedPeriod}
       />
       <AiSummary />
-      <StockInfoCard />
+      <StockInfoCard stock={stock} />
       <div className="flex w-full gap-3">
         <Button asChild size="lg" className="flex-1 !bg-red-500 text-white hover:!bg-red-600">
-          <Link href="/stock-detail/samsung-electronics/purchase">구매하기</Link>
+          <Link href={`/stock-detail/${stock.ticker}/purchase`}>{"\uad6c\ub9e4\ud558\uae30"}</Link>
         </Button>
         <Button asChild size="lg" className="flex-1 !bg-blue-500 text-white hover:!bg-blue-600">
-          <Link href="/stock-detail/samsung-electronics/sell">판매하기</Link>
+          <Link href={`/stock-detail/${stock.ticker}/sell`}>{"\ud310\ub9e4\ud558\uae30"}</Link>
         </Button>
       </div>
     </div>
@@ -150,24 +98,35 @@ export default function StockDetailPage() {
 
 function StockDetailHeader({
   isFavorite,
+  stockName,
+  ticker,
   onFavoriteToggle,
 }: {
   isFavorite: boolean;
+  stockName: string;
+  ticker: string;
   onFavoriteToggle: () => void;
 }) {
   return (
     <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
-      <Button asChild variant="ghost" size="icon" aria-label="종목 페이지로 돌아가기">
+      <Button
+        asChild
+        variant="ghost"
+        size="icon"
+        aria-label="\uc885\ubaa9 \ud398\uc774\uc9c0\ub85c \ub3cc\uc544\uac00\uae30"
+      >
         <Link href="/stocks">
           <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
         </Link>
       </Button>
-      <h1 className="truncate text-center text-sm font-semibold">삼성전자 (005930)</h1>
+      <h1 className="truncate text-center text-sm font-semibold">
+        {stockName} ({ticker})
+      </h1>
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        aria-label="관심 종목"
+        aria-label="\uad00\uc2ec \uc885\ubaa9"
         aria-pressed={isFavorite}
         onClick={onFavoriteToggle}
       >
@@ -182,25 +141,29 @@ function StockDetailHeader({
   );
 }
 
-function PriceSummary() {
+function PriceSummary({ stock }: { stock: StockQuote }) {
+  const changeToneClass = stock.tone === "red" ? "text-red-500" : "text-blue-600";
+
   return (
     <section className="flex flex-col gap-1 px-2 pt-6">
-      <h2 className="text-3xl font-bold tracking-normal">219,500원</h2>
+      <h2 className="text-3xl font-bold tracking-normal">{stock.price}</h2>
       <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-red-500">+1,200원 (+0.24%)</span>
-        <span className="text-xs text-muted-foreground">오늘기준</span>
+        <span className={`text-xs font-medium ${changeToneClass}`}>
+          {formatSignedWon(stock.changePrice)} ({formatSignedRate(stock.changeRate)})
+        </span>
+        <span className="text-xs text-muted-foreground">{"\uc624\ub298\uae30\uc900"}</span>
       </div>
     </section>
   );
 }
 
 function PriceChart({
-  chartBars,
   selectedPeriod,
+  stock,
   onPeriodChange,
 }: {
-  chartBars: ChartBar[];
   selectedPeriod: ChartPeriod;
+  stock: StockQuote;
   onPeriodChange: (period: ChartPeriod) => void;
 }) {
   return (
@@ -209,31 +172,40 @@ function PriceChart({
         <div className="flex w-fit rounded-md bg-muted p-1">
           {chartPeriods.map((period) => (
             <Button
-              key={period}
+              key={period.value}
               type="button"
-              variant={period === selectedPeriod ? "secondary" : "ghost"}
+              variant={period.value === selectedPeriod ? "secondary" : "ghost"}
               size="sm"
               className={`min-w-11 ${
-                period === selectedPeriod
+                period.value === selectedPeriod
                   ? "!bg-white text-foreground shadow-sm hover:!bg-white"
                   : ""
               }`}
-              aria-pressed={period === selectedPeriod}
-              onClick={() => onPeriodChange(period)}
+              aria-pressed={period.value === selectedPeriod}
+              onClick={() => onPeriodChange(period.value)}
             >
-              {period}
+              {period.label}
             </Button>
           ))}
         </div>
-        <TradingViewCandlestickChart chartBars={chartBars} />
+        <TradingViewCandlestickChart selectedPeriod={selectedPeriod} stock={stock} />
       </CardContent>
     </Card>
   );
 }
 
-function TradingViewCandlestickChart({ chartBars }: { chartBars: ChartBar[] }) {
+function TradingViewCandlestickChart({
+  selectedPeriod,
+  stock,
+}: {
+  selectedPeriod: ChartPeriod;
+  stock: StockQuote;
+}) {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  const chartData = useMemo(() => toCandlestickData(chartBars), [chartBars]);
+  const chartData = useMemo(
+    () => toCandlestickData(selectedPeriod, stock),
+    [selectedPeriod, stock],
+  );
 
   useEffect(() => {
     if (!chartContainerRef.current) {
@@ -304,34 +276,48 @@ function TradingViewCandlestickChart({ chartBars }: { chartBars: ChartBar[] }) {
       ref={chartContainerRef}
       className="h-64 w-full"
       role="img"
-      aria-label="삼성전자 캔들 차트"
+      aria-label={`${stock.name} \uce94\ub4e4 \ucc28\ud2b8`}
     />
   );
 }
 
-function toCandlestickData(chartBars: ChartBar[]): CandlestickData<UTCTimestamp>[] {
+function toCandlestickData(
+  selectedPeriod: ChartPeriod,
+  stock: StockQuote,
+): CandlestickData<UTCTimestamp>[] {
   const marketOpenTime = Math.floor(Date.UTC(2026, 4, 18, 0, 0, 0) / 1000);
   const marketCloseTime = Math.floor(Date.UTC(2026, 4, 18, 6, 30, 0) / 1000);
   const thirtyMinutes = 30 * 60;
+  const candleCount = 13;
+  const currentPrice = Math.max(stock.priceValue, 1);
+  const previousClose = Math.max(currentPrice - stock.changePrice, 1);
+  const volatility = getChartVolatility(selectedPeriod);
+  let previousCandleClose = previousClose;
 
-  return chartBars.map((bar, index) => {
-    const bodyTopPrice = toChartPrice(bar.bodyTop);
-    const bodyBottomPrice = toChartPrice(bar.bodyTop + bar.bodyHeight);
-    const isRising = bar.tone === "red";
-
-    return {
+  return Array.from({ length: candleCount }, (_, index) => {
+    const progress = (index + 1) / candleCount;
+    const wave = Math.sin(progress * Math.PI * 2) * currentPrice * volatility;
+    const trendPrice = previousClose + (currentPrice - previousClose) * progress;
+    const close = index === candleCount - 1 ? currentPrice : Math.max(trendPrice + wave, 1);
+    const open = previousCandleClose;
+    const wickSpread = Math.max(currentPrice * volatility * (0.8 + progress), 1);
+    const candleData = {
       time: getKoreanMarketTimestamp({
         closeTime: marketCloseTime,
         index,
         interval: thirtyMinutes,
         openTime: marketOpenTime,
-        totalCount: chartBars.length,
+        totalCount: candleCount,
       }),
-      open: isRising ? bodyBottomPrice : bodyTopPrice,
-      high: toChartPrice(bar.wickTop),
-      low: toChartPrice(bar.wickBottom),
-      close: isRising ? bodyTopPrice : bodyBottomPrice,
+      open,
+      high: Math.max(open, close) + wickSpread,
+      low: Math.max(Math.min(open, close) - wickSpread, 1),
+      close,
     };
+
+    previousCandleClose = close;
+
+    return candleData;
   });
 }
 
@@ -368,8 +354,60 @@ function formatKoreanMarketTime(time: Time) {
   }).format(new Date(time * 1000));
 }
 
-function toChartPrice(y: number) {
-  return Math.round(232000 - y * 420);
+function getChartVolatility(selectedPeriod: ChartPeriod) {
+  return (
+    {
+      "1d": 0.006,
+      "1w": 0.014,
+      "1m": 0.028,
+      "3m": 0.06,
+      "1y": 0.12,
+    } satisfies Record<ChartPeriod, number>
+  )[selectedPeriod];
+}
+
+function toPendingStock(seed: StockQuoteSeed): StockQuote {
+  return {
+    ...seed,
+    change: "-",
+    changePrice: 0,
+    changeRate: 0,
+    marketCap: null,
+    per: null,
+    price: "-",
+    priceValue: 0,
+    range52w: null,
+    tone: "blue",
+  };
+}
+
+function getStockMetrics(stock: StockQuote): StockMetric[] {
+  return [
+    { label: "\ud604\uc7ac\uac00", value: stock.price },
+    {
+      label: "\uc804\uc77c \ub300\ube44",
+      value: `${formatSignedWon(stock.changePrice)} (${formatSignedRate(stock.changeRate)})`,
+      tone: stock.tone === "red" ? "positive" : undefined,
+    },
+    { label: "\uc2dc\uac00 \ucd1d\uc561", value: formatNullableNumber(stock.marketCap) },
+    { label: "PER", value: stock.per === null ? "-" : `${stock.per.toFixed(1)}\ubc30` },
+  ];
+}
+
+function formatSignedWon(value: number) {
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+
+  return `${sign}\u20a9${Math.abs(Math.round(value)).toLocaleString("ko-KR")}`;
+}
+
+function formatSignedRate(value: number) {
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+
+  return `${sign}${Math.abs(value).toFixed(2)}%`;
+}
+
+function formatNullableNumber(value: number | null) {
+  return value === null ? "-" : value.toLocaleString("ko-KR");
 }
 
 function AiSummary() {
@@ -380,25 +418,29 @@ function AiSummary() {
           <span className="flex size-5 items-center justify-center rounded-full bg-blue-500 text-white">
             <Sparkles className="size-3.5" aria-hidden="true" />
           </span>
-          <h2 className="text-sm font-semibold">AI 요약</h2>
+          <h2 className="text-sm font-semibold">AI {"\uc694\uc57d"}</h2>
         </div>
         <p className="pl-7 text-xs font-medium text-muted-foreground">
-          AI 요약 내용 길게 어쩌구 저쩌구
+          {"AI \uc694\uc57d \ub0b4\uc6a9 \uc900\ube44\uc911"}
         </p>
       </CardContent>
     </Card>
   );
 }
 
-function StockInfoCard() {
+function StockInfoCard({ stock }: { stock: StockQuote }) {
+  const stockMetrics = getStockMetrics(stock);
+
   return (
     <Card className="rounded-md py-4">
       <CardContent className="flex flex-col gap-4 px-4">
         <div className="flex items-start gap-2">
           <CircleDollarSign className="mt-0.5 size-5" aria-hidden="true" />
           <div className="flex flex-col">
-            <h2 className="text-sm font-semibold">삼성전자</h2>
-            <span className="text-xs text-muted-foreground">005930 · 핵심 종목 정보</span>
+            <h2 className="text-sm font-semibold">{stock.name}</h2>
+            <span className="text-xs text-muted-foreground">
+              {stock.ticker} · {"\ud575\uc2ec \uc885\ubaa9 \uc815\ubcf4"}
+            </span>
           </div>
         </div>
         <div className="flex flex-col">
@@ -419,10 +461,10 @@ function StockInfoCard() {
           ))}
         </div>
         <div className="flex h-8 items-center justify-between">
-          <span className="text-xs text-muted-foreground">52주 범위</span>
+          <span className="text-xs text-muted-foreground">52{"\uc8fc \ubc94\uc704"}</span>
           <div className="flex items-end gap-0.5">
-            <span className="text-sm text-muted-foreground">57,300원~</span>
-            <strong className="text-sm font-semibold text-foreground">223,000원</strong>
+            <span className="text-sm text-muted-foreground">{stock.range52w ?? "-"}</span>
+            <strong className="text-sm font-semibold text-foreground">{stock.price}</strong>
           </div>
         </div>
       </CardContent>
