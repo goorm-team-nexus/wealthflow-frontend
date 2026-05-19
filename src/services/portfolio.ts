@@ -108,9 +108,14 @@ const getStockMetadata = (ticker: string): StockMetadata => {
 // 4. API Response -> UI Model Mapper
 // ---------------------------------------------------------
 
+/** 초기 시드머니 (1억) */
+export const INITIAL_SEED_MONEY = 100_000_000;
+
 export const mapToTotalAssetsData = (data: PortfolioResponse): TotalAssetsData => {
+  // 보유 종목이 없으면 시드머니 1억을 기본 총 자산으로 표시
+  const totalAssets = data.totalEvaluation > 0 ? data.totalEvaluation : INITIAL_SEED_MONEY;
   return {
-    totalAssets: data.totalEvaluation,
+    totalAssets,
     totalProfit: data.totalProfitLoss,
     totalProfitRate: data.totalYieldRate,
   };
