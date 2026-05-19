@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import type { HoldingItem } from "@/services/portfolio";
+
+const COLORS = ["#03C75A", "#0064FF", "#FACC15", "#0046FF", "#E52528"];
+const OTHER_COLOR = "#94A3B8";
+
+interface PortfolioHoldingsRatioProps {
+  holdings: HoldingItem[];
+}
 
 type HoldingRatio = {
   name: string;
@@ -9,20 +17,52 @@ type HoldingRatio = {
   color: string;
 };
 
-// 업계 표준: 대표 종목의 실제 공식 기업 브랜드 컬러를 적용하여 극도의 신뢰성과 전문성 확보
-const HOLDINGS_DATA: HoldingRatio[] = [
-  { name: "네이버", ratio: 40, color: "#03C75A" }, // 네이버 공식 Green
-  { name: "토스", ratio: 30, color: "#0064FF" }, // 토스 공식 Blue
-  { name: "카카오뱅크", ratio: 17, color: "#FACC15" }, // 카카오 Warm Yellow (시각 균형을 위해 차분한 Amber 계열)
-  { name: "신한은행", ratio: 6, color: "#0046FF" }, // 신한 공식 Deep Blue
-  { name: "CJ", ratio: 5, color: "#E52528" }, // CJ 공식 Red
-  { name: "기타", ratio: 3, color: "#94A3B8" }, // 차분한 Muted Slate
-];
-
-const TOP_5_TOTAL = 98;
-
-export default function PortfolioHoldingsRatio() {
+export default function PortfolioHoldingsRatio({ holdings }: PortfolioHoldingsRatioProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const ratioData = useMemo(() => {
+    if (!holdings || holdings.length === 0) return { data: [], top5Total: 0 };
+
+    const totalValue = holdings.reduce((sum, item) => sum + item.value, 0);
+    if (totalValue === 0) return { data: [], top5Total: 0 };
+
+    const sorted = [...holdings].sort((a, b) => b.value - a.value);
+    const top5 = sorted.slice(0, 5);
+    const others = sorted.slice(5);
+
+    let top5Total = 0;
+    const data: HoldingRatio[] = top5.map((item, index) => {
+      const ratio = Math.round((item.value / totalValue) * 100);
+      top5Total += ratio;
+      return {
+        name: item.name,
+        ratio,
+        color: COLORS[index % COLORS.length],
+      };
+    });
+
+    if (others.length > 0) {
+      const othersRatio = 100 - top5Total;
+      data.push({
+        name: "기타",
+        ratio: othersRatio,
+        color: OTHER_COLOR,
+      });
+    } else {
+      // 보정: 소수점 반올림 오차로 인해 100%가 안 될 경우 마지막 요소에 합산
+      const diff = 100 - top5Total;
+      if (diff !== 0 && data.length > 0) {
+        data[data.length - 1].ratio += diff;
+        top5Total += diff;
+      }
+    }
+
+    return { data, top5Total };
+  }, [holdings]);
+
+  const { data: HOLDINGS_DATA, top5Total: TOP_5_TOTAL } = ratioData;
+
+  const isEmpty = HOLDINGS_DATA.length === 0;
 
   // SVG Donut Chart Constants (호버 시 선 두께 증가로 인한 SVG 외곽선 잘림을 원천 차단하기 위해 radius 미세 축소)
   const size = 130;
@@ -56,37 +96,59 @@ export default function PortfolioHoldingsRatio() {
           {/* Left: Donut Chart (마이크로 호버 인터랙션 적용) */}
           <div className="relative flex items-center justify-center shrink-0">
             <svg width={size} height={size} className="transform -rotate-90">
-              {chartData.map((item, index) => {
-                const strokeDasharray = `${(item.ratio / 100) * circumference} ${circumference}`;
-                const strokeDashoffset = -((item.offset / 100) * circumference);
-                const isHovered = hoveredIndex === index;
-                const isAnyHovered = hoveredIndex !== null;
+              {isEmpty ? (
+                <circle
+                  cx={center}
+                  cy={center}
+                  r={radius}
+                  fill="transparent"
+                  stroke="#E2E8F0"
+                  strokeWidth={strokeWidth}
+                  strokeDasharray={`${circumference} ${circumference}`}
+                  className="origin-center"
+                />
+              ) : (
+                chartData.map((item, index) => {
+                  const strokeDasharray = `${(item.ratio / 100) * circumference} ${circumference}`;
+                  const strokeDashoffset = -((item.offset / 100) * circumference);
+                  const isHovered = hoveredIndex === index;
+                  const isAnyHovered = hoveredIndex !== null;
 
-                return (
-                  <circle
-                    key={index}
-                    cx={center}
-                    cy={center}
-                    r={radius}
-                    fill="transparent"
-                    stroke={item.color}
-                    strokeWidth={isHovered ? strokeWidth + 3 : strokeWidth}
-                    strokeDasharray={strokeDasharray}
-                    strokeDashoffset={strokeDashoffset}
-                    className="transition-all duration-300 ease-in-out cursor-pointer origin-center"
-                    style={{
-                      opacity: isAnyHovered && !isHovered ? 0.35 : 1,
-                    }}
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                  />
-                );
-              })}
+                  return (
+                    <circle
+                      key={index}
+                      cx={center}
+                      cy={center}
+                      r={radius}
+                      fill="transparent"
+                      stroke={item.color}
+                      strokeWidth={isHovered ? strokeWidth + 3 : strokeWidth}
+                      strokeDasharray={strokeDasharray}
+                      strokeDashoffset={strokeDashoffset}
+                      className="transition-all duration-300 ease-in-out cursor-pointer origin-center"
+                      style={{
+                        opacity: isAnyHovered && !isHovered ? 0.35 : 1,
+                      }}
+                      onMouseEnter={() => setHoveredIndex(index)}
+                      onMouseLeave={() => setHoveredIndex(null)}
+                    />
+                  );
+                })
+              )}
             </svg>
 
             {/* Center Text (호버 시 해당 항목명 및 수치 동적 업데이트로 고급감 극대화) */}
             <div className="absolute inset-0 flex flex-col items-center justify-center transform rotate-0 select-none pointer-events-none">
-              {hoveredIndex !== null ? (
+              {isEmpty ? (
+                <>
+                  <span className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider">
+                    보유
+                  </span>
+                  <span className="text-xl font-extrabold text-muted-foreground/50 leading-none mt-0.5 tabular-nums">
+                    0%
+                  </span>
+                </>
+              ) : hoveredIndex !== null ? (
                 <>
                   <span className="text-[10px] text-muted-foreground/80 font-semibold tracking-tight truncate max-w-[70px]">
                     {HOLDINGS_DATA[hoveredIndex].name}
@@ -98,63 +160,69 @@ export default function PortfolioHoldingsRatio() {
               ) : (
                 <>
                   <span className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider">
-                    Top 5
+                    {holdings.length <= 5 ? "보유 종목" : "Top 5"}
                   </span>
                   <span className="text-2xl font-extrabold text-foreground leading-none mt-0.5 tabular-nums">
-                    {TOP_5_TOTAL}%
+                    {holdings.length <= 5 ? "100%" : `${TOP_5_TOTAL}%`}
                   </span>
                 </>
               )}
             </div>
           </div>
 
-          {/* Right: Legend (글자칸과 숫자 칸을 밀착하고 원형이 잘리지 않도록 너비를 w-[130px]로 설계 및 truncate 위치 정정) */}
-          <div className="shrink-0 w-[130px]">
-            <ul className="space-y-2.5">
-              {HOLDINGS_DATA.map((item, index) => {
-                const isHovered = hoveredIndex === index;
-                const isAnyHovered = hoveredIndex !== null;
+          {/* Right: Legend */}
+          <div className="shrink-0 w-[130px] flex items-center justify-center">
+            {isEmpty ? (
+              <span className="text-xs text-muted-foreground/50 font-medium text-center py-4 select-none">
+                보유 종목 없음
+              </span>
+            ) : (
+              <ul className="space-y-2.5 w-full">
+                {HOLDINGS_DATA.map((item, index) => {
+                  const isHovered = hoveredIndex === index;
+                  const isAnyHovered = hoveredIndex !== null;
 
-                return (
-                  <li
-                    key={index}
-                    className="flex items-center justify-between group cursor-pointer py-0.5 transition-all duration-200"
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                    style={{
-                      opacity: isAnyHovered && !isHovered ? 0.4 : 1,
-                    }}
-                  >
-                    {/* 좌측: 로고 닷 + 브랜드명 (호버 시 원형 확대가 잘리지 않도록 overflow 차단 및 shrink-0 부여) */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <div
-                        className="w-2 h-2 rounded-full shadow-sm group-hover:scale-125 transition-transform shrink-0"
-                        style={{
-                          backgroundColor: item.color,
-                          boxShadow: isHovered ? `0 0 8px ${item.color}` : "none",
-                        }}
-                      />
+                  return (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between group cursor-pointer py-0.5 transition-all duration-200"
+                      onMouseEnter={() => setHoveredIndex(index)}
+                      onMouseLeave={() => setHoveredIndex(null)}
+                      style={{
+                        opacity: isAnyHovered && !isHovered ? 0.4 : 1,
+                      }}
+                    >
+                      {/* 좌측: 로고 닷 + 브랜드명 (호버 시 원형 확대가 잘리지 않도록 overflow 차단 및 shrink-0 부여) */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div
+                          className="w-2 h-2 rounded-full shadow-sm group-hover:scale-125 transition-transform shrink-0"
+                          style={{
+                            backgroundColor: item.color,
+                            boxShadow: isHovered ? `0 0 8px ${item.color}` : "none",
+                          }}
+                        />
+                        <span
+                          className={`text-xs font-medium transition-colors duration-300 truncate max-w-[75px] ${
+                            isHovered ? "text-foreground font-semibold" : "text-muted-foreground"
+                          }`}
+                        >
+                          {item.name}
+                        </span>
+                      </div>
+
+                      {/* 우측: 비율 (소수점 자릿수 정렬을 위한 tabular-nums) */}
                       <span
-                        className={`text-xs font-medium transition-colors duration-300 truncate max-w-[75px] ${
-                          isHovered ? "text-foreground font-semibold" : "text-muted-foreground"
+                        className={`text-xs tracking-tight transition-colors duration-300 tabular-nums shrink-0 ${
+                          isHovered ? "text-foreground font-bold" : "text-foreground font-semibold"
                         }`}
                       >
-                        {item.name}
+                        {item.ratio}%
                       </span>
-                    </div>
-
-                    {/* 우측: 비율 (소수점 자릿수 정렬을 위한 tabular-nums) */}
-                    <span
-                      className={`text-xs tracking-tight transition-colors duration-300 tabular-nums shrink-0 ${
-                        isHovered ? "text-foreground font-bold" : "text-foreground font-semibold"
-                      }`}
-                    >
-                      {item.ratio}%
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
       </CardContent>
