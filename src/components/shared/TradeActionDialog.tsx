@@ -1,39 +1,102 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { Search, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useStockSearch } from "@/hooks/useStockSearch";
-import type { StockItem } from "@/lib/stock-catalog";
+import { getStockPrice } from "@/services/investment";
 
 interface TradeActionDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface StockItem {
+  id: string;
+  name: string;
+  ticker: string;
+  initial: string;
+}
+
+// 기본 표시용 종목 카탈로그 (전체 종목 리스트 API 추가 시 교체 예정)
+const defaultStocks: StockItem[] = [
+  { id: "samsung-electronics", name: "삼성전자", ticker: "005930", initial: "S" },
+  { id: "sk-hynix", name: "SK하이닉스", ticker: "000660", initial: "S" },
+  { id: "apple", name: "Apple", ticker: "AAPL", initial: "A" },
+  { id: "tesla", name: "Tesla", ticker: "TSLA", initial: "T" },
+];
+
 export function TradeActionDialog({ isOpen, onClose }: TradeActionDialogProps) {
-  const {
-    searchQuery,
-    handleSearchChange,
-    reset,
-    hasSearch,
-    catalogMatches,
-    apiResult,
-    isSearchPending,
-    searchError,
-    defaultStocks,
-  } = useStockSearch();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResult, setSearchResult] = useState<StockItem | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState(false);
+
+  // API 검색
+  const searchByTicker = useCallback(async (query: string) => {
+    setIsSearching(true);
+    setSearchError(false);
+    setSearchResult(null);
+    try {
+      const response = await getStockPrice(query.trim());
+      if (response.success && response.data?.ticker) {
+        const ticker = response.data.ticker;
+        // 카탈로그에서 이름 매칭 시도
+        const catalogMatch = defaultStocks.find(
+          (s) => s.ticker.toLowerCase() === ticker.toLowerCase(),
+        );
+        setSearchResult({
+          id: catalogMatch?.id ?? ticker.toLowerCase(),
+          name: catalogMatch?.name ?? ticker,
+          ticker: ticker,
+          initial: catalogMatch?.initial ?? ticker[0],
+        });
+      } else {
+        setSearchError(true);
+      }
+    } catch {
+      setSearchError(true);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  // 디바운스 API 호출
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      searchByTicker(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchByTicker]);
+
+  // 검색어 변경 핸들러
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (!value.trim()) {
+      setSearchResult(null);
+      setSearchError(false);
+    }
+  };
 
   // 다이얼로그 닫힘 + 상태 초기화
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      reset();
+      setSearchQuery("");
+      setSearchResult(null);
+      setSearchError(false);
       onClose();
     }
   };
+
+  const hasSearch = searchQuery.trim().length > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -55,28 +118,21 @@ export function TradeActionDialog({ isOpen, onClose }: TradeActionDialogProps) {
         <div className="flex-1 overflow-y-auto px-5 pb-6">
           {hasSearch ? (
             <>
-              {/* 로컬 카탈로그 매치 결과 */}
-              {catalogMatches.map((stock) => (
-                <StockRow key={stock.id} stock={stock} onClose={onClose} />
-              ))}
-
-              {/* 카탈로그 매치 없을 때: API 검색 중 */}
-              {catalogMatches.length === 0 && isSearchPending && (
+              {/* 검색 중 */}
+              {isSearching && (
                 <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   종목을 검색하고 있습니다...
                 </div>
               )}
 
-              {/* 카탈로그 매치 없을 때: API 검색 결과 */}
-              {catalogMatches.length === 0 && apiResult && (
-                <StockRow stock={apiResult} onClose={onClose} />
-              )}
+              {/* 검색 결과 */}
+              {searchResult && !isSearching && <StockRow stock={searchResult} onClose={onClose} />}
 
-              {/* 카탈로그·API 모두 실패 */}
-              {catalogMatches.length === 0 && searchError && (
+              {/* 검색 실패 */}
+              {searchError && !isSearching && (
                 <div className="py-8 text-center text-sm text-muted-foreground">
-                  해당 종목을 찾을 수 없습니다.
+                  해당 티커의 종목을 찾을 수 없습니다.
                 </div>
               )}
             </>
