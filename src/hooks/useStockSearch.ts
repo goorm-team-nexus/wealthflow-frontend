@@ -71,6 +71,7 @@ export function useStockSearch(options: UseStockSearchOptions = {}): UseStockSea
           setApiResult({
             id: ticker.toLowerCase(),
             name: ticker,
+            englishName: ticker,
             ticker,
             initial: ticker[0],
           });

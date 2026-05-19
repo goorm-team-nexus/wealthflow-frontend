@@ -6,7 +6,7 @@
 export interface StockItem {
   id: string;
   name: string; // 표시용 한글명 (예: "삼성전자", "테슬라")
-  englishName: string; // 영문명 (예: "Samsung Electronics", "Tesla")
+  englishName?: string; // 영문명 (예: "Samsung Electronics", "Tesla")
   ticker: string; // 티커 (예: "005930", "TSLA")
   initial: string; // 세련된 영문 대문자 로고 이니셜 (예: "S", "T")
   aliases?: string[]; // 사용자가 검색할 수 있는 다양한 별칭 및 한글/영어 발음 준말
