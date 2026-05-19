@@ -14,6 +14,7 @@ const pathMap: Record<string, string> = {
   "/my-page": "마이페이지",
   "/profile": "프로필",
   "/edit-info": "내 정보 수정",
+  "/exchange": "환전",
 };
 
 function getPageTitle(pathname: string) {
@@ -30,7 +31,10 @@ function getPageTitle(pathname: string) {
 
 function isSubPage(pathname: string) {
   return (
-    pathname === "/profile" || pathname === "/edit-info" || pathname.startsWith("/stock-detail")
+    pathname === "/profile" ||
+    pathname === "/edit-info" ||
+    pathname === "/exchange" ||
+    pathname.startsWith("/stock-detail")
   );
 }
 

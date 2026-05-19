@@ -37,7 +37,7 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
     },
     { icon: Heart, label: "관심종목", href: "/favorites" },
     { icon: History, label: "거래내역", href: "#" },
-    { icon: Banknote, label: "환전", href: "#" },
+    { icon: Banknote, label: "환전", href: "/exchange" },
     { icon: PieChart, label: "포트폴리오", href: "/portfolio" },
     { icon: Trophy, label: "랭킹", href: "/ranking" },
     { icon: User, label: "마이페이지", href: "/my-page" },
