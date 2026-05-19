@@ -78,8 +78,14 @@ export default function MyPage() {
           <History className="size-5" />
           거래 내역
         </Button>
+        <Link href="/exchange" className="w-full">
+          <Button variant="outline" size="lg" className="w-full justify-start gap-3">
+            <Banknote className="size-5" />
+            환전하기
+          </Button>
+        </Link>
         <Button variant="outline" size="lg" className="w-full justify-start gap-3">
-          <Banknote className="size-5" />
+          <History className="size-5" />
           환전 내역
         </Button>
         <Button
