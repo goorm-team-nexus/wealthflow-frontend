@@ -34,6 +34,17 @@
         },
         "type": "object"
       },
+      "ApiResponseMyRankingResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MyRankingResponse"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApiResponseOrderResponse": {
         "properties": {
           "data": {
@@ -49,6 +60,17 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/PortfolioResponse"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ApiResponseRankingListResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RankingListResponse"
           },
           "success": {
             "type": "boolean"
@@ -156,6 +178,18 @@
         },
         "type": "object"
       },
+      "MyRankingResponse": {
+        "properties": {
+          "rankingInfo": {
+            "$ref": "#/components/schemas/RankingUserInfo"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "OrderRequest": {
         "properties": {
           "quantity": {
@@ -259,6 +293,51 @@
           },
           "totalYieldRate": {
             "format": "double",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "RankingListResponse": {
+        "properties": {
+          "rankings": {
+            "items": {
+              "$ref": "#/components/schemas/RankingUserInfo"
+            },
+            "type": "array"
+          },
+          "totalCount": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RankingUserInfo": {
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "profileImg": {
+            "type": "string"
+          },
+          "rank": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "returnRate": {
+            "format": "double",
+            "type": "number"
+          },
+          "stockCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalAsset": {
             "type": "number"
           }
         },
@@ -645,6 +724,93 @@
         "tags": ["Market"]
       }
     },
+    "/api/v1/ranking": {
+      "get": {
+        "description": "전체 랭킹 목록을 페이징하여 조회합니다.",
+        "operationId": "getRanking",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseRankingListResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "전체 랭킹 조회",
+        "tags": ["Ranking"]
+      }
+    },
+    "/api/v1/ranking/me": {
+      "get": {
+        "description": "로그인한 사용자의 현재 랭킹 순위, 총 자산, 수익률을 조회합니다.",
+        "operationId": "getMyRanking",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMyRankingResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
+        "summary": "나의 랭킹 조회",
+        "tags": ["Ranking"]
+      }
+    },
+    "/api/v1/ranking/top3": {
+      "get": {
+        "description": "전체 TOP 3 랭킹을 조회합니다.",
+        "operationId": "getTop3",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseRankingListResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "TOP 3 랭킹 조회",
+        "tags": ["Ranking"]
+      }
+    },
     "/api/v1/user/me": {
       "get": {
         "operationId": "getMyPage",
@@ -687,6 +853,10 @@
     {
       "description": "주식 주문 및 포트폴리오 조회",
       "name": "Investment"
+    },
+    {
+      "description": "투자 랭킹 조회",
+      "name": "Ranking"
     },
     {
       "description": "인증 / 회원가입",
