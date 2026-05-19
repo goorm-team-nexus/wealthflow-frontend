@@ -132,4 +132,9 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+
+  body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
 }
