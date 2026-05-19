@@ -1,4 +1,4 @@
-const API_BASE_PATH = "/backend-api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export type StockQuoteSeed = {
   id: number;
@@ -87,7 +87,7 @@ export function getStockQuoteSeed(ticker: string): StockQuoteSeed {
 }
 
 async function fetchStockQuote(seed: StockQuoteSeed): Promise<StockQuote> {
-  const response = await fetch(`${API_BASE_PATH}/v1/market/stocks/${seed.ticker}`);
+  const response = await fetch(buildApiUrl(`/api/v1/market/stocks/${seed.ticker}`));
 
   if (!response.ok) {
     throw new Error("Failed to fetch stock quote");
@@ -100,6 +100,14 @@ async function fetchStockQuote(seed: StockQuoteSeed): Promise<StockQuote> {
   }
 
   return toStockQuote(seed, apiResponse.data);
+}
+
+function buildApiUrl(path: string) {
+  if (!API_BASE_URL) {
+    throw new Error("Missing NEXT_PUBLIC_API_BASE_URL");
+  }
+
+  return `${API_BASE_URL.replace(/\/$/, "")}${path}`;
 }
 
 function toStockQuote(seed: StockQuoteSeed, quote: StockPriceResponse): StockQuote {

@@ -510,7 +510,7 @@ function StockRow({
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
           <span className="truncate text-[11px] font-medium text-muted-foreground">
-            {stock.ticker} 
+            {stock.ticker}
           </span>
         </span>
         <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
@@ -533,8 +533,4 @@ function StockRow({
       </Button>
     </div>
   );
-}
-
-function formatPer(per: number | null) {
-  return per === null ? "-" : `${per.toFixed(1)}x`;
 }

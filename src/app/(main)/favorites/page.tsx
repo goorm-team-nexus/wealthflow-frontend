@@ -35,8 +35,8 @@ export default function FavoritesPage() {
   const [favoriteIds, setFavoriteIds] = useState<Set<number>>(
     () => new Set(favoriteSeeds.map((stock) => stock.id)),
   );
-  const [favoriteStocks, setFavoriteStocks] = useState<FavoriteStock[]>(
-    () => favoriteSeeds.map(toPendingStock),
+  const [favoriteStocks, setFavoriteStocks] = useState<FavoriteStock[]>(() =>
+    favoriteSeeds.map(toPendingStock),
   );
   const [isStockLoading, setIsStockLoading] = useState(false);
   const [hasStockError, setHasStockError] = useState(false);
@@ -156,9 +156,7 @@ function FavoriteEmptyState() {
         </span>
         <div className="flex flex-col gap-1">
           <strong className="text-sm font-semibold">{copy.emptyTitle}</strong>
-          <p className="text-xs leading-5 text-muted-foreground">
-            {copy.emptyDescription}
-          </p>
+          <p className="text-xs leading-5 text-muted-foreground">{copy.emptyDescription}</p>
         </div>
       </CardContent>
     </Card>
@@ -197,11 +195,7 @@ function SummaryMetric({
   unit?: string;
 }) {
   const valueToneClass =
-    tone === "blue"
-      ? "text-blue-600"
-      : tone === "red"
-        ? "text-red-500"
-        : "text-foreground";
+    tone === "blue" ? "text-blue-600" : tone === "red" ? "text-red-500" : "text-foreground";
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -241,11 +235,9 @@ function FavoriteStockRow({
         </span>
 
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-sm font-medium text-foreground">
-            {stock.name}
-          </span>
+          <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
           <span className="truncate text-[11px] font-medium text-muted-foreground">
-            {stock.ticker} 
+            {stock.ticker}
           </span>
         </span>
 
@@ -253,9 +245,7 @@ function FavoriteStockRow({
           {stock.price}
         </strong>
 
-        <span className={`text-sm font-normal ${toneClass}`}>
-          {stock.change}
-        </span>
+        <span className={`text-sm font-normal ${toneClass}`}>{stock.change}</span>
       </Link>
 
       <Button
@@ -275,8 +265,4 @@ function FavoriteStockRow({
       </Button>
     </div>
   );
-}
-
-function formatPer(per: number | null) {
-  return per === null ? "-" : `${per.toFixed(1)}x`;
 }

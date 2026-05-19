@@ -1,4 +1,4 @@
-const API_BASE_PATH = "/backend-api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 type TradeType = "BUY" | "SELL";
 
@@ -30,7 +30,7 @@ export async function placeOrder(order: OrderRequest): Promise<OrderResult> {
     throw new Error("AUTH_REQUIRED");
   }
 
-  const response = await fetch(`${API_BASE_PATH}/v1/investments/order`, {
+  const response = await fetch(buildApiUrl("/api/v1/investments/order"), {
     body: JSON.stringify(order),
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -54,6 +54,14 @@ export async function placeOrder(order: OrderRequest): Promise<OrderResult> {
   }
 
   return apiResponse.data;
+}
+
+function buildApiUrl(path: string) {
+  if (!API_BASE_URL) {
+    throw new Error("ORDER_FAILED");
+  }
+
+  return `${API_BASE_URL.replace(/\/$/, "")}${path}`;
 }
 
 function getAccessToken() {
