@@ -21,6 +21,10 @@ function getPageTitle(pathname: string) {
     return "모의 매수";
   }
 
+  if (pathname.includes("/sell")) {
+    return "모의 매도";
+  }
+
   if (pathname.startsWith("/stock-detail")) {
     return "종목 상세";
   }

@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowLeft, CircleX } from "lucide-react";
-import Link from "next/link";
+import { CircleX } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { placeOrder } from "@/services/investmentService";
-import { fetchStockQuoteByTicker, getStockQuoteSeed } from "@/services/marketService";
+import { fetchStockQuoteByTicker } from "@/services/marketService";
 
 type KeypadItem = {
   label: string;
@@ -54,7 +53,6 @@ const keypadItems: KeypadItem[] = [
 export default function StockPurchasePage() {
   const params = useParams<{ slug: string }>();
   const ticker = params.slug;
-  const stockSeed = getStockQuoteSeed(ticker);
   const [quantity, setQuantity] = useState("0");
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
   const [orderMessage, setOrderMessage] = useState("");
@@ -165,17 +163,6 @@ export default function StockPurchasePage() {
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
-      <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
-        <Button asChild variant="ghost" size="icon" className="size-8">
-          <Link href={`/stock-detail/${ticker}`} aria-label="종목 상세로 돌아가기">
-            <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
-          </Link>
-        </Button>
-        <h1 className="truncate text-center text-sm font-semibold">
-          {stockSeed.name} ({ticker})
-        </h1>
-      </div>
-
       <Card className="bg-muted/50 py-4 shadow-sm">
         <CardContent className="flex h-24 flex-col justify-center gap-3 px-4">
           <span className="text-xs text-muted-foreground">구매할 가격</span>

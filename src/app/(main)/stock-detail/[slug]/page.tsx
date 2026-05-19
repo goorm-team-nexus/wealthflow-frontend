@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, CircleDollarSign, Heart, Sparkles } from "lucide-react";
+import { CircleDollarSign, Sparkles } from "lucide-react";
 import {
   CandlestickSeries,
   createChart,
@@ -40,7 +40,6 @@ const chartPeriods: { label: string; value: ChartPeriod }[] = [
 export default function StockDetailPage() {
   const params = useParams<{ slug: string }>();
   const ticker = params.slug;
-  const [isFavorite, setIsFavorite] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("1d");
   const [stock, setStock] = useState<StockQuote>(() => toPendingStock(getStockQuoteSeed(ticker)));
 
@@ -70,12 +69,6 @@ export default function StockDetailPage() {
 
   return (
     <div className="flex w-full flex-col gap-4 p-4">
-      <StockDetailHeader
-        isFavorite={isFavorite}
-        stockName={stock.name}
-        ticker={stock.ticker}
-        onFavoriteToggle={() => setIsFavorite((currentIsFavorite) => !currentIsFavorite)}
-      />
       <PriceSummary stock={stock} />
       <PriceChart
         selectedPeriod={selectedPeriod}
@@ -92,51 +85,6 @@ export default function StockDetailPage() {
           <Link href={`/stock-detail/${stock.ticker}/sell`}>{"\ud310\ub9e4\ud558\uae30"}</Link>
         </Button>
       </div>
-    </div>
-  );
-}
-
-function StockDetailHeader({
-  isFavorite,
-  stockName,
-  ticker,
-  onFavoriteToggle,
-}: {
-  isFavorite: boolean;
-  stockName: string;
-  ticker: string;
-  onFavoriteToggle: () => void;
-}) {
-  return (
-    <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
-      <Button
-        asChild
-        variant="ghost"
-        size="icon"
-        aria-label="\uc885\ubaa9 \ud398\uc774\uc9c0\ub85c \ub3cc\uc544\uac00\uae30"
-      >
-        <Link href="/stocks">
-          <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
-        </Link>
-      </Button>
-      <h1 className="truncate text-center text-sm font-semibold">
-        {stockName} ({ticker})
-      </h1>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label="\uad00\uc2ec \uc885\ubaa9"
-        aria-pressed={isFavorite}
-        onClick={onFavoriteToggle}
-      >
-        <Heart
-          className={`size-5 stroke-[2.2] ${
-            isFavorite ? "fill-red-500 text-red-500" : "text-foreground"
-          }`}
-          aria-hidden="true"
-        />
-      </Button>
     </div>
   );
 }
