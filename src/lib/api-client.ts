@@ -36,7 +36,7 @@ interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
 }
 
-const DEFAULT_DEV_API_BASE_URL = "https://d3uib3r331utfe.cloudfront.net/api/v1";
+const DEFAULT_DEV_API_BASE_URL = "/api-proxy";
 
 const getPublicApiBaseUrl = () => {
   const baseUrl =

@@ -5,7 +5,6 @@ import Image from "next/image";
 import crownIcon from "@/assets/images/ranking/crown.gif";
 import cupIcon from "@/assets/images/ranking/cup.gif";
 import vipIcon from "@/assets/images/ranking/vip.gif";
-import medalIcon from "@/assets/images/ranking/military-medal.gif";
 
 export default function WeeklyRanking() {
   const users = {
