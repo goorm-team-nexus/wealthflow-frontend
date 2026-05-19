@@ -14,7 +14,9 @@ export default function EditInfo() {
   useEffect(() => {
     const savedAvatar = localStorage.getItem("wealthflow_profile_avatar");
     if (savedAvatar && savedAvatar !== "default") {
-      setAvatarSrc(savedAvatar);
+      setTimeout(() => {
+        setAvatarSrc(savedAvatar);
+      }, 0);
     }
   }, []);
   return (

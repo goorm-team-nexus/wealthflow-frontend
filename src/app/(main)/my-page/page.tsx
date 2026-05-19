@@ -20,7 +20,9 @@ export default function MyPage() {
   useEffect(() => {
     const savedAvatar = localStorage.getItem("wealthflow_profile_avatar");
     if (savedAvatar && savedAvatar !== "default") {
-      setAvatarSrc(savedAvatar);
+      setTimeout(() => {
+        setAvatarSrc(savedAvatar);
+      }, 0);
     }
   }, []);
 
@@ -59,9 +61,9 @@ export default function MyPage() {
 
       {/* Menu Section */}
       <div className="flex flex-col gap-4">
-        <Button 
-          variant="outline" 
-          size="lg" 
+        <Button
+          variant="outline"
+          size="lg"
           className="w-full justify-start gap-3"
           onClick={() => setIsRankingOpen(true)}
         >

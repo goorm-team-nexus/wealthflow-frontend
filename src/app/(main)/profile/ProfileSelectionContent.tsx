@@ -33,7 +33,9 @@ export default function ProfileSelectionContent() {
     if (saved && saved !== "default") {
       const found = AVATARS.find((a) => a.src === saved);
       if (found) {
-        setSelectedAvatar(found.id);
+        setTimeout(() => {
+          setSelectedAvatar(found.id);
+        }, 0);
       }
     }
   }, []);
@@ -63,7 +65,11 @@ export default function ProfileSelectionContent() {
   return (
     <div className="flex w-full flex-col items-center gap-8 p-4 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {selectedAvatar === "default" ? (
-        <Button type="button" size="icon-lg" className="size-20 rounded-full cursor-default hover:bg-primary">
+        <Button
+          type="button"
+          size="icon-lg"
+          className="size-20 rounded-full cursor-default hover:bg-primary"
+        >
           <CircleUser className="size-10" />
         </Button>
       ) : (
@@ -107,12 +113,7 @@ export default function ProfileSelectionContent() {
         <Button type="button" className="w-full" onClick={handleSave}>
           프로필 저장
         </Button>
-        <Button 
-          type="button" 
-          variant="secondary" 
-          className="w-full"
-          onClick={handleDelete}
-        >
+        <Button type="button" variant="secondary" className="w-full" onClick={handleDelete}>
           프로필 삭제
         </Button>
       </div>

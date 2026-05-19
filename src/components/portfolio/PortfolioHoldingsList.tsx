@@ -159,7 +159,7 @@ export default function PortfolioHoldingsList() {
 
         {/* 3. 리스트 영역 (좌우 꽉 찬 5열 관심종목형 호버 테이블 제공) */}
         <ul className="flex flex-col">
-          {visibleItems.map((item, index) => {
+          {visibleItems.map((item) => {
             const isPositive = item.profitRate >= 0;
             const logoSrc = typeof item.logoSrc === "string" ? item.logoSrc : item.logoSrc.src;
 
