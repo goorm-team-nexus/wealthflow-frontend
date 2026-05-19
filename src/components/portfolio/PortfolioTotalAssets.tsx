@@ -1,22 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-// TODO: 백엔드 연동 시 API 응답 타입으로 교체
-interface TotalAssetsData {
-  totalAssets: number;
-  totalProfit: number;
-  totalProfitRate: number;
+import type { TotalAssetsData } from "@/services/portfolio";
+
+interface PortfolioTotalAssetsProps {
+  data: TotalAssetsData;
 }
 
-// 더미 데이터 - 추후 백엔드 API 연동으로 대체 예정
-const DUMMY_TOTAL_ASSETS: TotalAssetsData = {
-  totalAssets: 112450000,
-  totalProfit: 15200000,
-  totalProfitRate: 12.4,
-};
-
-export default function PortfolioTotalAssets() {
-  const { totalAssets, totalProfit, totalProfitRate } = DUMMY_TOTAL_ASSETS;
+export default function PortfolioTotalAssets({ data }: PortfolioTotalAssetsProps) {
+  const { totalAssets, totalProfit, totalProfitRate } = data;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("ko-KR").format(value);
@@ -30,7 +22,7 @@ export default function PortfolioTotalAssets() {
         {/* 1. 상단: 타이틀 및 기준 설명 글 (회색 글씨 적용) */}
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-foreground tracking-tight">총 모의 자산</span>
-          <span className="text-xs text-muted-foreground font-normal select-none">
+          <span className="text-xs text-muted-foreground/80 font-medium select-none bg-muted/60 px-2 py-0.5 rounded-md">
             투자 원금 1억 기준
           </span>
         </div>
