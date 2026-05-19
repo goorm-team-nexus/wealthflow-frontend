@@ -70,7 +70,7 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
           </div>
         ) : (
           <ul className="flex flex-col">
-            {visibleItems.map((item, index) => {
+            {visibleItems.map((item) => {
               const isPositive = item.profitRate >= 0;
               const logoSrc = typeof item.logoSrc === "string" ? item.logoSrc : item.logoSrc.src;
 
