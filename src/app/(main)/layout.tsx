@@ -12,7 +12,7 @@ export default function MainLayout({
       className="mx-auto min-h-dvh w-full max-w-[500px] border-x border-border bg-background"
     >
       <GlobalNavigationBar />
-      <main className="pb-20">{children}</main>
+      <main className="pb-16">{children}</main>
       <TabBar />
     </div>
   );

@@ -4,7 +4,7 @@ import OverallRanking from "@/components/ranking/OverallRanking";
 
 export default function RankingPage() {
   return (
-    <div className="flex w-full flex-col gap-6 p-4">
+    <div className="flex w-full flex-col gap-4 p-4 pb-0">
       <MyRankingCard />
       <WeeklyRanking />
       <OverallRanking />
