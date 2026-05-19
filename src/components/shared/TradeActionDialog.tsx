@@ -39,7 +39,7 @@ export function TradeActionDialog({ isOpen, onClose }: TradeActionDialogProps) {
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-sm p-0 overflow-hidden flex flex-col h-[450px]">
         <DialogHeader className="px-5 pt-6 pb-2 shrink-0">
-          <DialogTitle className="text-xl font-bold mb-4 text-left">빠른 종목 거래</DialogTitle>
+          <DialogTitle className="text-xl font-bold mb-4 text-left">간편 종목 검색</DialogTitle>
 
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -112,8 +112,8 @@ function StockRow({ stock, onClose }: { stock: StockItem; onClose: () => void })
         onClick={onClose}
         className="flex items-center gap-3 min-w-0 flex-1"
       >
-        <Avatar className="w-10 h-10 shrink-0 border border-border bg-transparent">
-          <AvatarFallback className="bg-transparent text-sm font-medium text-blue-500">
+        <Avatar className="w-5 h-5 shrink-0 border border-border bg-transparent">
+          <AvatarFallback className="bg-transparent text-[10px] font-normal text-blue-600 select-none">
             {stock.initial}
           </AvatarFallback>
         </Avatar>
