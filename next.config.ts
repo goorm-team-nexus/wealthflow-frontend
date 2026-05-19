@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         source: "/auth-proxy/:path*",
         destination: "/api/auth/:path*",
       },
+      {
+        source: "/api-proxy/:path*",
+        destination: "https://d3uib3r331utfe.cloudfront.net/api/v1/:path*",
+      },
     ];
   },
 };
