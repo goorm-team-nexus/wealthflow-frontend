@@ -204,7 +204,7 @@ export function filterStockCatalog(query: string): StockItem[] {
   return stockCatalog.filter(
     (s) =>
       s.name.toLowerCase().includes(q) ||
-      s.englishName.toLowerCase().includes(q) ||
+      (s.englishName && s.englishName.toLowerCase().includes(q)) ||
       s.ticker.toLowerCase().includes(q) ||
       (s.aliases && s.aliases.some((alias) => alias.toLowerCase().includes(q))),
   );
