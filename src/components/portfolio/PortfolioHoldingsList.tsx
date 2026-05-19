@@ -58,7 +58,6 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
           <span className="text-right">수익률</span>
         </div>
 
-       
         {/* 3. 리스트 영역 (좌우 꽉 찬 5열 관심종목형 호버 테이블 제공) */}
         {totalCount === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
@@ -109,29 +108,6 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
                     {/* Col 3: 수량 (우측정렬 + 우측 여백 pr-6 확보) */}
                     <span className="text-sm font-normal text-right pr-6 text-muted-foreground/80 tabular-nums">
                       {item.shares}
-                    </span>
-
-                    {/* Col 4: 평가금액 (우측정렬 + 패딩간격) */}
-                    <span className="text-sm font-semibold tracking-tight text-right pr-4 text-foreground tabular-nums">
-                      ₩{formatCurrency(item.value)}
-                    </span>
-
-                    {/* Col 5: 수익률 (우측정렬) */}
-                    <span
-                      className={`text-sm font-normal text-right tabular-nums transition-all duration-300 ${
-                        isPositive
-                          ? "text-red-500 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.2)]"
-                          : "text-blue-600 group-hover:drop-shadow-[0_0_8px_rgba(37,99,235,0.2)]"
-                      }`}
-                    >
-                      {isPositive ? "▲" : "▼"} {Math.abs(item.profitRate).toFixed(1)}%
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
                     </span>
 
                     {/* Col 4: 평가금액 (우측정렬 + 패딩간격) */}
