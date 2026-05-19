@@ -37,7 +37,7 @@ export function TradeActionDialog({ isOpen, onClose }: TradeActionDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-sm p-0 overflow-hidden flex flex-col max-h-[85vh]">
+      <DialogContent className="sm:max-w-sm p-0 overflow-hidden flex flex-col h-[450px]">
         <DialogHeader className="px-5 pt-6 pb-2 shrink-0">
           <DialogTitle className="text-xl font-bold mb-4 text-left">빠른 종목 거래</DialogTitle>
 
@@ -62,9 +62,13 @@ export function TradeActionDialog({ isOpen, onClose }: TradeActionDialogProps) {
 
               {/* 카탈로그 매치 없을 때: API 검색 중 */}
               {catalogMatches.length === 0 && isSearchPending && (
-                <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  종목을 검색하고 있습니다...
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="p-3 bg-blue-50 rounded-2xl dark:bg-blue-950/20">
+                    <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                  </div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    종목을 빠르게 찾고 있습니다...
+                  </p>
                 </div>
               )}
 
@@ -74,9 +78,17 @@ export function TradeActionDialog({ isOpen, onClose }: TradeActionDialogProps) {
               )}
 
               {/* 카탈로그·API 모두 실패 */}
-              {catalogMatches.length === 0 && searchError && (
-                <div className="py-8 text-center text-sm text-muted-foreground">
-                  해당 종목을 찾을 수 없습니다.
+              {catalogMatches.length === 0 && !isSearchPending && searchError && (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="mb-4 p-3 bg-muted rounded-2xl">
+                    <Search className="w-6 h-6 text-muted-foreground/70" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1 text-foreground">
+                    일치하는 종목을 찾지 못했어요
+                  </h3>
+                  <p className="text-xs text-muted-foreground max-w-[200px] leading-relaxed">
+                    종목명 또는 영어 티커(예: TSLA)가 정확한지 다시 한 번 확인해 보세요.
+                  </p>
                 </div>
               )}
             </>
