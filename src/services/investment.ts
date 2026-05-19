@@ -1,6 +1,29 @@
-import { apiClient } from "@/lib/api-client";
+import { apiClient, ApiError } from "@/lib/api-client";
 
-// --- Stock Price ---
+// --- Types ---
+
+export type TradeType = "BUY" | "SELL";
+
+export interface OrderRequest {
+  quantity: number;
+  ticker: string;
+  tradeType: TradeType;
+}
+
+export interface OrderResult {
+  currency?: "KRW" | "USD";
+  executedAt?: string;
+  price?: number;
+  quantity?: number;
+  ticker?: string;
+  totalAmount?: number;
+  tradeType?: TradeType;
+}
+
+export interface ApiResponse<T> {
+  success?: boolean;
+  data?: T;
+}
 
 export interface StockPriceResponse {
   ticker?: string;
@@ -13,15 +36,39 @@ export interface StockPriceResponse {
   priceUpdatedAt?: string;
 }
 
-export interface ApiResponseStockPriceResponse {
-  success?: boolean;
-  data?: StockPriceResponse;
-}
+// --- Stock Price ---
 
 /**
  * 특정 종목의 실시간 시세를 조회합니다.
  * GET /api/v1/market/stocks/{ticker}
  */
-export async function getStockPrice(ticker: string): Promise<ApiResponseStockPriceResponse> {
-  return apiClient<ApiResponseStockPriceResponse>(`/market/stocks/${encodeURIComponent(ticker)}`);
+export async function getStockPrice(ticker: string): Promise<ApiResponse<StockPriceResponse>> {
+  return apiClient<ApiResponse<StockPriceResponse>>(`/market/stocks/${encodeURIComponent(ticker)}`);
+}
+
+// --- Trade Order ---
+
+/**
+ * 주식 모의투자 주문을 처리합니다.
+ * POST /api/v1/investments/order
+ */
+export async function placeOrder(order: OrderRequest): Promise<OrderResult> {
+  try {
+    const response = await apiClient<ApiResponse<OrderResult>>("/investments/order", {
+      method: "POST",
+      body: JSON.stringify(order),
+    });
+
+    if (!response.success || !response.data) {
+      throw new Error("ORDER_FAILED");
+    }
+
+    return response.data;
+  } catch (error) {
+    // apiClient가 ApiError(401)를 던지면 화면단에서 AUTH_REQUIRED로 해석할 수 있도록 변환해줍니다.
+    if (error instanceof ApiError && error.status === 401) {
+      throw new Error("AUTH_REQUIRED");
+    }
+    throw error;
+  }
 }

@@ -1,5 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
+import { apiClient } from "@/lib/api-client";
 export type StockQuoteSeed = {
   id: number;
   logo: string;
@@ -87,27 +86,15 @@ export function getStockQuoteSeed(ticker: string): StockQuoteSeed {
 }
 
 async function fetchStockQuote(seed: StockQuoteSeed): Promise<StockQuote> {
-  const response = await fetch(buildApiUrl(`/api/v1/market/stocks/${seed.ticker}`));
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch stock quote");
-  }
-
-  const apiResponse = (await response.json()) as ApiResponse<StockPriceResponse>;
+  const apiResponse = await apiClient<ApiResponse<StockPriceResponse>>(
+    `/market/stocks/${encodeURIComponent(seed.ticker)}`,
+  );
 
   if (!apiResponse.success || !apiResponse.data) {
     throw new Error("Invalid stock quote response");
   }
 
   return toStockQuote(seed, apiResponse.data);
-}
-
-function buildApiUrl(path: string) {
-  if (!API_BASE_URL) {
-    throw new Error("Missing NEXT_PUBLIC_API_BASE_URL");
-  }
-
-  return `${API_BASE_URL.replace(/\/$/, "")}${path}`;
 }
 
 function toStockQuote(seed: StockQuoteSeed, quote: StockPriceResponse): StockQuote {
