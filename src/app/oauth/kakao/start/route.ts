@@ -9,6 +9,9 @@ const KAKAO_AUTHORIZE_URL = "https://kauth.kakao.com/oauth/authorize";
 const KAKAO_CALLBACK_PATH = "/oauth/kakao/callback";
 const STATE_MAX_AGE_SECONDS = 5 * 60;
 
+const getKakaoRedirectUri = (request: Request) =>
+  process.env.KAKAO_REDIRECT_URI || `${getRequestOrigin(request)}${KAKAO_CALLBACK_PATH}`;
+
 export async function GET(request: Request) {
   const kakaoClientId = process.env.KAKAO_CLIENT_ID;
 
@@ -16,8 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/login?authError=kakao", getRequestOrigin(request)));
   }
 
-  const origin = getRequestOrigin(request);
-  const redirectUri = `${origin}${KAKAO_CALLBACK_PATH}`;
+  const redirectUri = getKakaoRedirectUri(request);
   const state = randomBytes(32).toString("hex");
   const cookieStore = await cookies();
 
