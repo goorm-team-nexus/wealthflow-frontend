@@ -2,23 +2,115 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CircleUserRound } from "lucide-react";
+import { getMyPage, updateProfile, getAvatarSrc } from "@/services/user";
 
 export default function EditInfo() {
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
+  const router = useRouter();
+  const [avatarPresetId, setAvatarPresetId] = useState<number>(1);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const savedAvatar = localStorage.getItem("wealthflow_profile_avatar");
-    if (savedAvatar && savedAvatar !== "default") {
-      setTimeout(() => {
-        setAvatarSrc(savedAvatar);
-      }, 0);
-    }
+    const fetchUserInfo = async () => {
+      try {
+        const res = await getMyPage();
+        if (res.success && res.data) {
+          setName(res.data.name || "");
+          setEmail(res.data.email || "");
+          if (res.data.avatarPresetId) {
+            setAvatarPresetId(res.data.avatarPresetId);
+          }
+        } else {
+          setError(res.message || "사용자 정보를 불러오는 데 실패했습니다.");
+        }
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "사용자 정보를 불러오는 데 실패했습니다.";
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserInfo();
   }, []);
+
+  const isPasswordLengthInvalid = password.length > 0 && password.length < 9;
+  const isPasswordConfirmInvalid = passwordConfirm.length > 0 && password !== passwordConfirm;
+
+  const handleUpdate = async () => {
+    if (!name.trim()) {
+      alert("이름을 입력해주세요.");
+      return;
+    }
+
+    if (password) {
+      if (password.length < 9) {
+        alert("비밀번호는 9자리 이상이어야 합니다.");
+        return;
+      }
+      if (password !== passwordConfirm) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return;
+      }
+    }
+
+    setIsUpdating(true);
+    try {
+      const res = await updateProfile({
+        name,
+        avatarPresetId,
+        ...(password ? { newPassword: password, newPasswordConfirm: passwordConfirm } : {}),
+      });
+
+      if (res.success) {
+        alert("회원 정보가 성공적으로 수정되었습니다.");
+        router.push("/my-page");
+      } else {
+        alert(res.message || "정보 수정에 실패했습니다.");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "정보 수정에 실패했습니다.";
+      alert(msg);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 p-4">
+        <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+        <p className="text-sm text-muted-foreground">사용자 정보를 불러오는 중입니다...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[300px] flex-col items-center justify-center gap-4 p-4 text-center">
+        <p className="text-sm text-destructive font-medium">{error}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  const resolvedAvatar =
+    getAvatarSrc(avatarPresetId) || localStorage.getItem("wealthflow_profile_avatar");
+  const avatarSrc = resolvedAvatar && resolvedAvatar !== "default" ? resolvedAvatar : null;
+
   return (
     <div className="w-full p-4">
       <Card>
@@ -38,41 +130,59 @@ export default function EditInfo() {
             </Link>
           </div>
 
-          <form className="flex flex-col gap-6">
+          <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-col gap-2">
               <label htmlFor="name" className="text-sm font-medium">
                 이름
               </label>
-              <Input type="text" id="name" />
+              <Input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="password" className="text-sm font-medium">
                 비밀번호 변경
               </label>
-              <Input type="password" id="password" placeholder="********" />
-              <p className="text-xs text-destructive">
-                비밀번호는 영문, 숫자, 특수문자 조합으로 9자리를 입력하세요
-              </p>
+              <Input
+                type="password"
+                id="password"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {isPasswordLengthInvalid && (
+                <p className="text-xs text-destructive animate-in fade-in duration-300">
+                  비밀번호는 영문, 숫자, 특수문자 조합으로 9자리 이상이어야 합니다.
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="passwordConfirm" className="text-sm font-medium">
                 비밀번호 재입력
               </label>
-              <Input type="password" id="passwordConfirm" placeholder="********" />
-              <p className="text-xs text-destructive">비밀번호가 다릅니다</p>
+              <Input
+                type="password"
+                id="passwordConfirm"
+                placeholder="********"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+              />
+              {isPasswordConfirmInvalid && (
+                <p className="text-xs text-destructive animate-in fade-in duration-300">
+                  비밀번호가 다릅니다
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="email" className="text-sm font-medium">
                 이메일
               </label>
-              <Input id="email" value="xxxx@gmail.com" readOnly disabled />
+              <Input id="email" value={email} readOnly disabled />
             </div>
 
-            <Button type="button" className="w-full">
-              변경
+            <Button type="button" className="w-full" disabled={isUpdating} onClick={handleUpdate}>
+              {isUpdating ? "변경 중..." : "변경"}
             </Button>
           </form>
         </CardContent>

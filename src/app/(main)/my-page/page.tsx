@@ -11,20 +11,77 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/hooks/useLogout";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import MyRankingCard from "@/components/ranking/MyRankingCard";
+import { getMyPage, getAvatarSrc, type MyPageResponse } from "@/services/user";
 
 export default function MyPage() {
   const { handleLogout, isLoggingOut, logoutError } = useLogout();
   const [isRankingOpen, setIsRankingOpen] = useState(false);
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
+
+  const [userInfo, setUserInfo] = useState<MyPageResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const savedAvatar = localStorage.getItem("wealthflow_profile_avatar");
-    if (savedAvatar && savedAvatar !== "default") {
-      setTimeout(() => {
-        setAvatarSrc(savedAvatar);
-      }, 0);
-    }
+    const fetchUserInfo = async () => {
+      try {
+        const res = await getMyPage();
+        if (res.success && res.data) {
+          setUserInfo(res.data);
+        } else {
+          setError(res.message || "사용자 정보를 불러오는 데 실패했습니다.");
+        }
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "사용자 정보를 불러오는 데 실패했습니다.";
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserInfo();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 p-4">
+        <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+        <p className="text-sm text-muted-foreground">사용자 정보를 불러오는 중입니다...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[300px] flex-col items-center justify-center gap-4 p-4 text-center">
+        <p className="text-sm text-destructive font-medium">{error}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
+  const totalAsset = userInfo?.totalAsset ?? 0;
+  const totalProfit = userInfo?.totalProfit ?? 0;
+  const profitRate = userInfo?.profitRate ?? 0;
+  const currencyCode = userInfo?.currencyCode ?? "KRW";
+
+  const isPositive = totalProfit >= 0;
+  const isZero = totalProfit === 0;
+
+  const formattedAsset = `${currencyCode === "KRW" ? "₩" : "$"}${totalAsset.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formattedProfit = `${isPositive ? "+" : ""}${currencyCode === "KRW" ? "₩" : "$"}${totalProfit.toLocaleString("ko-KR")}`;
+  const formattedRate = `${isPositive ? "+" : ""}${profitRate.toFixed(2)}%`;
+
+  const badgeColor = isZero
+    ? "bg-muted text-muted-foreground hover:bg-muted"
+    : isPositive
+      ? "bg-red-500 hover:bg-red-600 text-white"
+      : "bg-blue-500 hover:bg-blue-600 text-white";
+
+  const resolvedAvatar =
+    getAvatarSrc(userInfo?.avatarPresetId) || localStorage.getItem("wealthflow_profile_avatar");
+  const avatarSrc = resolvedAvatar && resolvedAvatar !== "default" ? resolvedAvatar : null;
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
@@ -41,9 +98,8 @@ export default function MyPage() {
             )}
           </Avatar>
           <div className="flex flex-col">
-            <span className="text-lg font-semibold">@투자자 김성실</span>
-            <span className="text-sm text-muted-foreground">이메일일@kakao.com</span>
-            <span className="text-xs text-muted-foreground">December 2021(가입일)</span>
+            <span className="text-lg font-semibold">@{userInfo?.name || "사용자"}</span>
+            <span className="text-sm text-muted-foreground">{userInfo?.email}</span>
           </div>
         </div>
       </Card>
@@ -52,9 +108,9 @@ export default function MyPage() {
       <div className="flex flex-col gap-3 text-center">
         <span className="text-lg font-semibold">총액</span>
         <div className="flex flex-col items-center gap-4">
-          <h2 className="text-2xl font-bold">₩12,235,230.00</h2>
-          <Badge className="h-auto bg-red-500 px-4 py-2 text-sm font-semibold">
-            +12,555,550 (+12.3%)
+          <h2 className="text-2xl font-bold">{formattedAsset}</h2>
+          <Badge className={`h-auto px-4 py-2 text-sm font-semibold border-none ${badgeColor}`}>
+            {formattedProfit} ({formattedRate})
           </Badge>
         </div>
       </div>
@@ -78,14 +134,8 @@ export default function MyPage() {
           <History className="size-5" />
           거래 내역
         </Button>
-        <Link href="/exchange" className="w-full">
-          <Button variant="outline" size="lg" className="w-full justify-start gap-3">
-            <Banknote className="size-5" />
-            환전하기
-          </Button>
-        </Link>
         <Button variant="outline" size="lg" className="w-full justify-start gap-3">
-          <History className="size-5" />
+          <Banknote className="size-5" />
           환전 내역
         </Button>
         <Button

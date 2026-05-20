@@ -35,13 +35,17 @@ export async function POST(request: Request) {
 
     // Attempt to notify backend to invalidate token family
     try {
-      await fetch(fetchUrl, {
+      const backendResponse = await fetch(fetchUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ refreshToken }),
       });
+
+      if (!backendResponse.ok) {
+        console.warn(`Backend logout returned non-ok status: ${backendResponse.status}`);
+      }
     } catch (e) {
       console.warn("Backend logout notification failed, but proceeding to clear local cookie", e);
     }
