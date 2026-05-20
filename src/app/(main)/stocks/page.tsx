@@ -6,6 +6,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  addFavoriteStock,
+  fetchFavoriteStocks,
+  fetchMainStockQuotes,
+  MAIN_STOCK_SEEDS,
+  removeFavoriteStock,
+  type StockQuote,
+  type StockQuoteSeed,
+} from "@/services/marketService";
 
 type MarketIndex = {
   name: string;
@@ -15,15 +24,7 @@ type MarketIndex = {
   points: string;
 };
 
-type Stock = {
-  id: number;
-  logo: string;
-  name: string;
-  price: string;
-  priceValue: number;
-  change: string;
-  volumeRank: number;
-};
+type Stock = StockQuote;
 
 type SortType = "volume" | "price";
 type SlideDirection = "next" | "previous";
@@ -60,6 +61,9 @@ const copy = {
   ranking: "\ub7ad\ud0b9",
   chart: "\ucc28\ud2b8",
   favoriteStock: "\uad00\uc2ec \uc885\ubaa9",
+  loadingStocks: "\uc2dc\uc138 \ubd88\ub7ec\uc624\ub294 \uc911",
+  stockLoadFailed: "\uc2dc\uc138 \uc5f0\ub3d9 \uc2e4\ud328",
+  favoriteLoadFailed: "\uad00\uc2ec \uc885\ubaa9 \uc5f0\ub3d9 \uc2e4\ud328",
 };
 
 const marketIndexes: MarketIndex[] = [
@@ -109,159 +113,19 @@ const marketIndexes: MarketIndex[] = [
   },
 ];
 
-const stocks: Stock[] = [
-  {
-    id: 1,
-    logo: "S",
-    name: copy.samsung,
-    price: "\u20a9217,000",
-    priceValue: 217000,
-    change: "\u25bc 1.42%",
-    volumeRank: 1,
-  },
-  {
-    id: 2,
-    logo: "S",
-    name: copy.skHynix,
-    price: "\u20a9189,500",
-    priceValue: 189500,
-    change: "\u25bc 0.92%",
-    volumeRank: 2,
-  },
-  {
-    id: 3,
-    logo: "N",
-    name: copy.naver,
-    price: "\u20a9212,000",
-    priceValue: 212000,
-    change: "\u25bc 1.15%",
-    volumeRank: 5,
-  },
-  {
-    id: 4,
-    logo: "K",
-    name: copy.kakao,
-    price: "\u20a956,400",
-    priceValue: 56400,
-    change: "\u25bc 0.48%",
-    volumeRank: 3,
-  },
-  {
-    id: 5,
-    logo: "H",
-    name: copy.hyundai,
-    price: "\u20a9241,000",
-    priceValue: 241000,
-    change: "\u25bc 1.02%",
-    volumeRank: 4,
-  },
-  {
-    id: 6,
-    logo: "S",
-    name: copy.samsung,
-    price: "\u20a9217,000",
-    priceValue: 217000,
-    change: "\u25bc 1.42%",
-    volumeRank: 6,
-  },
-  {
-    id: 7,
-    logo: "N",
-    name: copy.naver,
-    price: "\u20a9212,000",
-    priceValue: 212000,
-    change: "\u25bc 1.15%",
-    volumeRank: 8,
-  },
-  {
-    id: 8,
-    logo: "K",
-    name: copy.kakao,
-    price: "\u20a956,400",
-    priceValue: 56400,
-    change: "\u25bc 0.48%",
-    volumeRank: 7,
-  },
-  {
-    id: 9,
-    logo: "L",
-    name: copy.lgEnergy,
-    price: "\u20a9378,500",
-    priceValue: 378500,
-    change: "\u25bc 0.74%",
-    volumeRank: 9,
-  },
-  {
-    id: 10,
-    logo: "P",
-    name: copy.posco,
-    price: "\u20a9318,000",
-    priceValue: 318000,
-    change: "\u25bc 1.21%",
-    volumeRank: 10,
-  },
-  {
-    id: 11,
-    logo: "C",
-    name: copy.celltrion,
-    price: "\u20a9176,300",
-    priceValue: 176300,
-    change: "\u25bc 0.36%",
-    volumeRank: 11,
-  },
-  {
-    id: 12,
-    logo: "H",
-    name: copy.hyundai,
-    price: "\u20a9241,000",
-    priceValue: 241000,
-    change: "\u25bc 1.02%",
-    volumeRank: 12,
-  },
-  {
-    id: 13,
-    logo: "K",
-    name: copy.kbFinance,
-    price: "\u20a984,200",
-    priceValue: 84200,
-    change: "\u25bc 0.67%",
-    volumeRank: 13,
-  },
-  {
-    id: 14,
-    logo: "S",
-    name: copy.shinhan,
-    price: "\u20a957,900",
-    priceValue: 57900,
-    change: "\u25bc 0.58%",
-    volumeRank: 14,
-  },
-  {
-    id: 15,
-    logo: "H",
-    name: copy.hanwha,
-    price: "\u20a963,100",
-    priceValue: 63100,
-    change: "\u25bc 1.33%",
-    volumeRank: 15,
-  },
-  {
-    id: 16,
-    logo: "K",
-    name: copy.krafton,
-    price: "\u20a9295,500",
-    priceValue: 295500,
-    change: "\u25bc 0.41%",
-    volumeRank: 16,
-  },
-];
+const stocks = MAIN_STOCK_SEEDS;
 
 export default function Home() {
   const [marketPage, setMarketPage] = useState(0);
   const [sortType, setSortType] = useState<SortType>("volume");
-  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+  const [favoriteTickers, setFavoriteTickers] = useState<Set<string>>(new Set());
+  const [updatingFavoriteTickers, setUpdatingFavoriteTickers] = useState<Set<string>>(new Set());
   const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
   const [isMarketSliding, setIsMarketSliding] = useState(false);
+  const [isStockLoading, setIsStockLoading] = useState(false);
+  const [hasFavoriteError, setHasFavoriteError] = useState(false);
+  const [hasStockError, setHasStockError] = useState(false);
+  const [mainStocks, setMainStocks] = useState<Stock[]>(() => stocks.map(toPendingStock));
   const [slideDirection, setSlideDirection] = useState<SlideDirection>("next");
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -269,21 +133,78 @@ export default function Home() {
   const visibleMarketIndexes = marketIndexes.slice(marketPage * 2, marketPage * 2 + 2);
   const sortedStocks = useMemo(() => {
     if (sortType === "price") {
-      return [...stocks].sort(
+      return [...mainStocks].sort(
         (firstStock, secondStock) => secondStock.priceValue - firstStock.priceValue,
       );
     }
 
-    return [...stocks].sort(
+    return [...mainStocks].sort(
       (firstStock, secondStock) => firstStock.volumeRank - secondStock.volumeRank,
     );
-  }, [sortType]);
+  }, [mainStocks, sortType]);
 
   useEffect(() => {
     return () => {
       if (slideTimerRef.current) {
         clearTimeout(slideTimerRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFavorites = async () => {
+      setHasFavoriteError(false);
+
+      try {
+        const favorites = await fetchFavoriteStocks();
+
+        if (isMounted) {
+          setFavoriteTickers(new Set(favorites.items.map((stock) => stock.ticker)));
+        }
+      } catch {
+        if (isMounted) {
+          setHasFavoriteError(true);
+        }
+      }
+    };
+
+    void loadFavorites();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadStocks = async () => {
+      setIsStockLoading(true);
+      setHasStockError(false);
+
+      try {
+        const stockQuotes = await fetchMainStockQuotes(stocks);
+
+        if (isMounted) {
+          setMainStocks(stockQuotes);
+        }
+      } catch {
+        if (isMounted) {
+          setHasStockError(true);
+        }
+      } finally {
+        if (isMounted) {
+          setIsStockLoading(false);
+        }
+      }
+    };
+
+    void loadStocks();
+
+    return () => {
+      isMounted = false;
     };
   }, []);
 
@@ -321,18 +242,62 @@ export default function Home() {
     moveMarketPage(nextPage, nextPage > marketPage ? "next" : "previous");
   };
 
-  const handleFavoriteStock = (stockId: number) => {
-    setFavoriteIds((currentFavoriteIds) => {
-      const nextFavoriteIds = new Set(currentFavoriteIds);
+  const handleFavoriteStock = async (stock: Stock) => {
+    const wasFavorite = favoriteTickers.has(stock.ticker);
 
-      if (nextFavoriteIds.has(stockId)) {
-        nextFavoriteIds.delete(stockId);
+    setHasFavoriteError(false);
+    setUpdatingFavoriteTickers((currentTickers) => new Set(currentTickers).add(stock.ticker));
+    setFavoriteTickers((currentTickers) => {
+      const nextTickers = new Set(currentTickers);
+
+      if (wasFavorite) {
+        nextTickers.delete(stock.ticker);
       } else {
-        nextFavoriteIds.add(stockId);
+        nextTickers.add(stock.ticker);
       }
 
-      return nextFavoriteIds;
+      return nextTickers;
     });
+
+    try {
+      const result = wasFavorite
+        ? await removeFavoriteStock(stock.ticker)
+        : await addFavoriteStock(stock.ticker);
+
+      setFavoriteTickers((currentTickers) => {
+        const nextTickers = new Set(currentTickers);
+        const resultTicker = result.ticker ?? stock.ticker;
+
+        if (result.favorite) {
+          nextTickers.add(resultTicker);
+        } else {
+          nextTickers.delete(resultTicker);
+        }
+
+        return nextTickers;
+      });
+    } catch {
+      setHasFavoriteError(true);
+      setFavoriteTickers((currentTickers) => {
+        const nextTickers = new Set(currentTickers);
+
+        if (wasFavorite) {
+          nextTickers.add(stock.ticker);
+        } else {
+          nextTickers.delete(stock.ticker);
+        }
+
+        return nextTickers;
+      });
+    } finally {
+      setUpdatingFavoriteTickers((currentTickers) => {
+        const nextTickers = new Set(currentTickers);
+
+        nextTickers.delete(stock.ticker);
+
+        return nextTickers;
+      });
+    }
   };
 
   return (
@@ -348,10 +313,14 @@ export default function Home() {
         slideDirection={slideDirection}
       />
       <MainStockSection
-        favoriteIds={favoriteIds}
+        favoriteTickers={favoriteTickers}
+        hasFavoriteError={hasFavoriteError}
+        hasStockError={hasStockError}
         isMoreStocksOpen={isMoreStocksOpen}
+        isStockLoading={isStockLoading}
         sortType={sortType}
         stocks={sortedStocks}
+        updatingFavoriteTickers={updatingFavoriteTickers}
         onFavoriteStock={handleFavoriteStock}
         onMoreStocksClose={() => setIsMoreStocksOpen(false)}
         onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
@@ -480,20 +449,28 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
 }
 
 function MainStockSection({
-  favoriteIds,
+  favoriteTickers,
+  hasFavoriteError,
+  hasStockError,
   isMoreStocksOpen,
+  isStockLoading,
   sortType,
   stocks,
+  updatingFavoriteTickers,
   onFavoriteStock,
   onMoreStocksClose,
   onMoreStocksOpen,
   onSortChange,
 }: {
-  favoriteIds: Set<number>;
+  favoriteTickers: Set<string>;
+  hasFavoriteError: boolean;
+  hasStockError: boolean;
   isMoreStocksOpen: boolean;
+  isStockLoading: boolean;
   sortType: SortType;
   stocks: Stock[];
-  onFavoriteStock: (stockId: number) => void;
+  updatingFavoriteTickers: Set<string>;
+  onFavoriteStock: (stock: Stock) => void;
   onMoreStocksClose: () => void;
   onMoreStocksOpen: () => void;
   onSortChange: (sortType: SortType) => void;
@@ -511,7 +488,18 @@ function MainStockSection({
     <Card className="shadow-md">
       <CardContent className="p-0">
         <div className="flex h-6 items-center justify-between px-4 pt-4 pb-3">
-          <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
+            {isStockLoading || hasStockError || hasFavoriteError ? (
+              <span className="text-xs font-medium text-muted-foreground">
+                {isStockLoading
+                  ? copy.loadingStocks
+                  : hasStockError
+                    ? copy.stockLoadFailed
+                    : copy.favoriteLoadFailed}
+              </span>
+            ) : null}
+          </div>
           <div className="flex items-center gap-2 text-xs font-medium">
             <span>{copy.sortLabel}</span>
             <Button
@@ -538,7 +526,8 @@ function MainStockSection({
           {visibleStocks.map((stock) => (
             <StockRow
               key={stock.id}
-              isFavorite={favoriteIds.has(stock.id)}
+              isFavorite={favoriteTickers.has(stock.ticker)}
+              isFavoriteUpdating={updatingFavoriteTickers.has(stock.ticker)}
               stock={stock}
               onFavoriteStock={onFavoriteStock}
             />
@@ -569,30 +558,54 @@ function MoreStocksButton({ label, onClick }: { label: string; onClick: () => vo
   );
 }
 
+function toPendingStock(stock: StockQuoteSeed): Stock {
+  return {
+    ...stock,
+    change: "-",
+    changePrice: 0,
+    changeRate: 0,
+    marketCap: null,
+    per: null,
+    price: "-",
+    priceValue: 0,
+    range52w: null,
+    tone: "blue",
+  };
+}
+
 function StockRow({
   isFavorite,
+  isFavoriteUpdating,
   stock,
   onFavoriteStock,
 }: {
   isFavorite: boolean;
+  isFavoriteUpdating: boolean;
   stock: Stock;
-  onFavoriteStock: (stockId: number) => void;
+  onFavoriteStock: (stock: Stock) => void;
 }) {
+  const changeToneClass = stock.tone === "red" ? "text-red-500" : "text-blue-600";
+
   return (
-    <div className="grid py-3 grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 px-4 border-b border-border/40 last:border-0 hover:bg-accent/40 transition-colors duration-200">
+    <div className="grid grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 border-b border-border/40 px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-accent/40">
       <Link
-        href="/stock-detail/samsung-electronics"
+        href={`/stock-detail/${stock.ticker}`}
         className="contents"
         aria-label={`${stock.name} 종목 상세로 이동`}
       >
         <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-xs font-normal text-blue-600">
           {stock.logo}
         </span>
-        <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
+          <span className="truncate text-[11px] font-medium text-muted-foreground">
+            {stock.ticker}
+          </span>
+        </span>
         <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
           {stock.price}
         </strong>
-        <span className="text-sm font-normal text-blue-600">{stock.change}</span>
+        <span className={`text-sm font-normal ${changeToneClass}`}>{stock.change}</span>
       </Link>
       <Button
         type="button"
@@ -600,7 +613,8 @@ function StockRow({
         size="icon-xs"
         aria-label={copy.favoriteStock}
         aria-pressed={isFavorite}
-        onClick={() => onFavoriteStock(stock.id)}
+        disabled={isFavoriteUpdating}
+        onClick={() => onFavoriteStock(stock)}
       >
         <Heart
           className={`size-5 stroke-[2] ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground"}`}

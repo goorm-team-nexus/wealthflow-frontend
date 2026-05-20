@@ -2,11 +2,14 @@
 
 import { ArrowLeft, CircleX } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { placeOrder } from "@/services/investment";
+import { fetchStockQuoteByTicker, getStockQuoteSeed } from "@/services/marketService";
 
 type KeypadItem = {
   label: string;
@@ -25,7 +28,7 @@ type QuickQuantityItem =
     };
 
 const maxPurchaseQuantity = 99;
-const stockPrice = 219500;
+const defaultStockPrice = 219500;
 
 const quickQuantityItems: QuickQuantityItem[] = [
   { label: "1주", increment: 1, type: "add" },
@@ -49,11 +52,41 @@ const keypadItems: KeypadItem[] = [
 ];
 
 export default function StockPurchasePage() {
+  const params = useParams<{ slug: string }>();
+  const ticker = params.slug;
+  const stockSeed = getStockQuoteSeed(ticker);
   const [quantity, setQuantity] = useState("0");
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
+  const [orderMessage, setOrderMessage] = useState("");
+  const [isOrderPending, setIsOrderPending] = useState(false);
+  const [stockPrice, setStockPrice] = useState(defaultStockPrice);
   const purchaseControlsRef = useRef<HTMLDivElement>(null);
   const purchaseQuantity = Number(quantity);
   const purchasePrice = stockPrice * purchaseQuantity;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadStockPrice = async () => {
+      try {
+        const stockQuote = await fetchStockQuoteByTicker(ticker);
+
+        if (isMounted) {
+          setStockPrice(stockQuote.priceValue);
+        }
+      } catch {
+        if (isMounted) {
+          setStockPrice(defaultStockPrice);
+        }
+      }
+    };
+
+    void loadStockPrice();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [ticker]);
 
   useEffect(() => {
     const handleDocumentPointerDown = (event: PointerEvent) => {
@@ -104,15 +137,43 @@ export default function StockPurchasePage() {
     setQuantity((currentQuantity) => String(Number(currentQuantity) + quickQuantity.increment));
   };
 
+  const handlePurchaseClick = async () => {
+    if (purchaseQuantity <= 0) {
+      setOrderMessage("1주 이상 입력해주세요.");
+      return;
+    }
+
+    setIsOrderPending(true);
+    setOrderMessage("");
+
+    try {
+      const orderResult = await placeOrder({
+        quantity: purchaseQuantity,
+        ticker,
+        tradeType: "BUY",
+      });
+
+      setOrderMessage(
+        `${orderResult.ticker ?? ticker} ${orderResult.quantity ?? purchaseQuantity}주 구매가 완료되었습니다.`,
+      );
+    } catch (error) {
+      setOrderMessage(getOrderErrorMessage(error));
+    } finally {
+      setIsOrderPending(false);
+    }
+  };
+
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
         <Button asChild variant="ghost" size="icon" className="size-8">
-          <Link href="/stock-detail/samsung-electronics" aria-label="종목 상세로 돌아가기">
+          <Link href={`/stock-detail/${ticker}`} aria-label="종목 상세로 돌아가기">
             <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
           </Link>
         </Button>
-        <h1 className="truncate text-center text-sm font-semibold">삼성전자 (005930)</h1>
+        <h1 className="truncate text-center text-sm font-semibold">
+          {stockSeed.name} ({ticker})
+        </h1>
       </div>
 
       <Card className="bg-muted/50 py-4 shadow-sm">
@@ -186,11 +247,30 @@ export default function StockPurchasePage() {
         ) : null}
       </div>
 
-      <Button className="w-full bg-red-500 text-white hover:bg-red-600">구매하기</Button>
+      {orderMessage ? (
+        <p className="text-center text-sm font-medium text-muted-foreground">{orderMessage}</p>
+      ) : null}
+
+      <Button
+        type="button"
+        className="w-full bg-red-500 text-white hover:bg-red-600"
+        disabled={isOrderPending}
+        onClick={handlePurchaseClick}
+      >
+        {isOrderPending ? "구매 요청 중" : "구매하기"}
+      </Button>
     </div>
   );
 }
 
 function formatCurrency(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
+}
+
+function getOrderErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message === "AUTH_REQUIRED") {
+    return "로그인이 필요합니다.";
+  }
+
+  return "주문 처리에 실패했습니다. 잠시 후 다시 시도해주세요.";
 }
