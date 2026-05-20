@@ -7,16 +7,15 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  fetchMainStockQuotes,
-  MAIN_STOCK_SEEDS,
+  fetchFavoriteStocks,
+  removeFavoriteStock,
+  type FavoriteStockSummary,
   type StockQuote,
-  type StockQuoteSeed,
 } from "@/services/marketService";
 
 type FavoriteStock = StockQuote;
 
 const copy = {
-  title: "관심 종목",
   sectionTitle: "내 관심 종목",
   total: "전체 종목",
   rising: "상승 종목",
@@ -25,20 +24,22 @@ const copy = {
   favorite: "관심 종목",
   emptyTitle: "관심 종목이 없습니다",
   emptyDescription: "시장/거래에서 관심 있는 종목을 추가해보세요.",
-  loadingStocks: "시세 불러오는 중",
-  stockLoadFailed: "시세 연동 실패",
+  loadingStocks: "관심 종목 불러오는 중",
+  stockLoadFailed: "관심 종목 연동 실패",
+  favoriteUpdateFailed: "관심 종목 변경 실패",
 };
 
-const favoriteSeeds = MAIN_STOCK_SEEDS.slice(0, 6);
-
 export default function FavoritesPage() {
-  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(
-    () => new Set(favoriteSeeds.map((stock) => stock.id)),
-  );
-  const [favoriteStocks, setFavoriteStocks] = useState<FavoriteStock[]>(() =>
-    favoriteSeeds.map(toPendingStock),
-  );
+  const [favoriteTickers, setFavoriteTickers] = useState<Set<string>>(new Set());
+  const [updatingFavoriteTickers, setUpdatingFavoriteTickers] = useState<Set<string>>(new Set());
+  const [favoriteStocks, setFavoriteStocks] = useState<FavoriteStock[]>([]);
+  const [favoriteSummary, setFavoriteSummary] = useState<FavoriteStockSummary>({
+    falling: 0,
+    rising: 0,
+    total: 0,
+  });
   const [isStockLoading, setIsStockLoading] = useState(false);
+  const [hasFavoriteError, setHasFavoriteError] = useState(false);
   const [hasStockError, setHasStockError] = useState(false);
 
   useEffect(() => {
@@ -49,10 +50,12 @@ export default function FavoritesPage() {
       setHasStockError(false);
 
       try {
-        const stockQuotes = await fetchMainStockQuotes(favoriteSeeds);
+        const favorites = await fetchFavoriteStocks();
 
         if (isMounted) {
-          setFavoriteStocks(stockQuotes);
+          setFavoriteStocks(favorites.items);
+          setFavoriteSummary(favorites.summary);
+          setFavoriteTickers(new Set(favorites.items.map((stock) => stock.ticker)));
         }
       } catch {
         if (isMounted) {
@@ -73,28 +76,43 @@ export default function FavoritesPage() {
   }, []);
 
   const visibleFavoriteStocks = useMemo(() => {
-    return favoriteStocks.filter((stock) => favoriteIds.has(stock.id));
-  }, [favoriteStocks, favoriteIds]);
+    return favoriteStocks.filter((stock) => favoriteTickers.has(stock.ticker));
+  }, [favoriteStocks, favoriteTickers]);
 
-  const favoriteSummary = visibleFavoriteStocks.reduce(
-    (summary, stock) => {
-      return {
-        total: summary.total + 1,
-        rising: summary.rising + (stock.tone === "red" ? 1 : 0),
-        falling: summary.falling + (stock.tone === "blue" ? 1 : 0),
-      };
-    },
-    { falling: 0, rising: 0, total: 0 },
-  );
+  const handleFavoriteToggle = async (stock: FavoriteStock) => {
+    setHasFavoriteError(false);
+    setUpdatingFavoriteTickers((currentTickers) => new Set(currentTickers).add(stock.ticker));
+    setFavoriteTickers((currentTickers) => {
+      const nextTickers = new Set(currentTickers);
 
-  const handleFavoriteToggle = (stockId: number) => {
-    setFavoriteIds((currentFavoriteIds) => {
-      const nextFavoriteIds = new Set(currentFavoriteIds);
+      nextTickers.delete(stock.ticker);
 
-      nextFavoriteIds.delete(stockId);
-
-      return nextFavoriteIds;
+      return nextTickers;
     });
+    setFavoriteSummary((currentSummary) => getSummaryAfterRemoval(currentSummary, stock));
+
+    try {
+      const result = await removeFavoriteStock(stock.ticker);
+
+      if (result.favorite) {
+        setFavoriteTickers((currentTickers) =>
+          new Set(currentTickers).add(result.ticker ?? stock.ticker),
+        );
+        setFavoriteSummary((currentSummary) => getSummaryAfterRestore(currentSummary, stock));
+      }
+    } catch {
+      setHasFavoriteError(true);
+      setFavoriteTickers((currentTickers) => new Set(currentTickers).add(stock.ticker));
+      setFavoriteSummary((currentSummary) => getSummaryAfterRestore(currentSummary, stock));
+    } finally {
+      setUpdatingFavoriteTickers((currentTickers) => {
+        const nextTickers = new Set(currentTickers);
+
+        nextTickers.delete(stock.ticker);
+
+        return nextTickers;
+      });
+    }
   };
 
   return (
@@ -102,9 +120,13 @@ export default function FavoritesPage() {
       <section className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold">{copy.sectionTitle}</h2>
-          {isStockLoading || hasStockError ? (
+          {isStockLoading || hasStockError || hasFavoriteError ? (
             <span className="text-xs font-medium text-muted-foreground">
-              {isStockLoading ? copy.loadingStocks : copy.stockLoadFailed}
+              {isStockLoading
+                ? copy.loadingStocks
+                : hasStockError
+                  ? copy.stockLoadFailed
+                  : copy.favoriteUpdateFailed}
             </span>
           ) : null}
         </div>
@@ -116,8 +138,9 @@ export default function FavoritesPage() {
             <CardContent className="p-0">
               {visibleFavoriteStocks.map((stock) => (
                 <FavoriteStockRow
-                  key={stock.id}
-                  isFavorite={favoriteIds.has(stock.id)}
+                  key={stock.ticker}
+                  isFavorite={favoriteTickers.has(stock.ticker)}
+                  isFavoriteUpdating={updatingFavoriteTickers.has(stock.ticker)}
                   stock={stock}
                   onFavoriteToggle={handleFavoriteToggle}
                 />
@@ -132,18 +155,19 @@ export default function FavoritesPage() {
   );
 }
 
-function toPendingStock(stock: StockQuoteSeed): FavoriteStock {
+function getSummaryAfterRemoval(summary: FavoriteStockSummary, stock: FavoriteStock) {
   return {
-    ...stock,
-    change: "-",
-    changePrice: 0,
-    changeRate: 0,
-    marketCap: null,
-    per: null,
-    price: "-",
-    priceValue: 0,
-    range52w: null,
-    tone: "blue",
+    falling: Math.max(0, summary.falling - (stock.tone === "blue" ? 1 : 0)),
+    rising: Math.max(0, summary.rising - (stock.tone === "red" ? 1 : 0)),
+    total: Math.max(0, summary.total - 1),
+  };
+}
+
+function getSummaryAfterRestore(summary: FavoriteStockSummary, stock: FavoriteStock) {
+  return {
+    falling: summary.falling + (stock.tone === "blue" ? 1 : 0),
+    rising: summary.rising + (stock.tone === "red" ? 1 : 0),
+    total: summary.total + 1,
   };
 }
 
@@ -175,9 +199,9 @@ function FavoriteSummary({
   return (
     <Card className="py-4 shadow-sm">
       <CardContent className="grid grid-cols-3 divide-x divide-border px-0">
-        <SummaryMetric label={copy.total} value={`${summary.total}개`} unit={copy.unit} />
-        <SummaryMetric label={copy.rising} value={`${summary.rising}개`} tone="red" />
-        <SummaryMetric label={copy.falling} value={`${summary.falling}개`} tone="blue" />
+        <SummaryMetric label={copy.total} value={`${summary.total}`} unit={copy.unit} />
+        <SummaryMetric label={copy.rising} value={`${summary.rising}`} tone="red" />
+        <SummaryMetric label={copy.falling} value={`${summary.falling}`} tone="blue" />
       </CardContent>
     </Card>
   );
@@ -212,12 +236,14 @@ function SummaryMetric({
 
 function FavoriteStockRow({
   isFavorite,
+  isFavoriteUpdating,
   stock,
   onFavoriteToggle,
 }: {
   isFavorite: boolean;
+  isFavoriteUpdating: boolean;
   stock: FavoriteStock;
-  onFavoriteToggle: (stockId: number) => void;
+  onFavoriteToggle: (stock: FavoriteStock) => void;
 }) {
   const toneClass = stock.tone === "blue" ? "text-blue-600" : "text-red-500";
 
@@ -254,7 +280,8 @@ function FavoriteStockRow({
         size="icon-xs"
         aria-label={copy.favorite}
         aria-pressed={isFavorite}
-        onClick={() => onFavoriteToggle(stock.id)}
+        disabled={isFavoriteUpdating}
+        onClick={() => onFavoriteToggle(stock)}
       >
         <Heart
           className={`size-5 stroke-[2] ${
