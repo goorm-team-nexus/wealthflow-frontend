@@ -40,9 +40,7 @@ const DEFAULT_API_BASE_URL = "https://d3uib3r331utfe.cloudfront.net/api/v1";
 
 const getPublicApiBaseUrl = () => {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    DEFAULT_API_BASE_URL;
+    process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_BASE_URL;
 
   return baseUrl.replace(/\/$/, "");
 };
