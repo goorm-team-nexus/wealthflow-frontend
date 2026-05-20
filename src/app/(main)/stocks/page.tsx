@@ -7,8 +7,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  addFavoriteStock,
+  fetchFavoriteStocks,
   fetchMainStockQuotes,
   MAIN_STOCK_SEEDS,
+  removeFavoriteStock,
   type StockQuote,
   type StockQuoteSeed,
 } from "@/services/marketService";
@@ -60,6 +63,7 @@ const copy = {
   favoriteStock: "\uad00\uc2ec \uc885\ubaa9",
   loadingStocks: "\uc2dc\uc138 \ubd88\ub7ec\uc624\ub294 \uc911",
   stockLoadFailed: "\uc2dc\uc138 \uc5f0\ub3d9 \uc2e4\ud328",
+  favoriteLoadFailed: "\uad00\uc2ec \uc885\ubaa9 \uc5f0\ub3d9 \uc2e4\ud328",
 };
 
 const marketIndexes: MarketIndex[] = [
@@ -114,10 +118,12 @@ const stocks = MAIN_STOCK_SEEDS;
 export default function Home() {
   const [marketPage, setMarketPage] = useState(0);
   const [sortType, setSortType] = useState<SortType>("volume");
-  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+  const [favoriteTickers, setFavoriteTickers] = useState<Set<string>>(new Set());
+  const [updatingFavoriteTickers, setUpdatingFavoriteTickers] = useState<Set<string>>(new Set());
   const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
   const [isMarketSliding, setIsMarketSliding] = useState(false);
   const [isStockLoading, setIsStockLoading] = useState(false);
+  const [hasFavoriteError, setHasFavoriteError] = useState(false);
   const [hasStockError, setHasStockError] = useState(false);
   const [mainStocks, setMainStocks] = useState<Stock[]>(() => stocks.map(toPendingStock));
   const [slideDirection, setSlideDirection] = useState<SlideDirection>("next");
@@ -142,6 +148,32 @@ export default function Home() {
       if (slideTimerRef.current) {
         clearTimeout(slideTimerRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFavorites = async () => {
+      setHasFavoriteError(false);
+
+      try {
+        const favorites = await fetchFavoriteStocks();
+
+        if (isMounted) {
+          setFavoriteTickers(new Set(favorites.items.map((stock) => stock.ticker)));
+        }
+      } catch {
+        if (isMounted) {
+          setHasFavoriteError(true);
+        }
+      }
+    };
+
+    void loadFavorites();
+
+    return () => {
+      isMounted = false;
     };
   }, []);
 
@@ -210,18 +242,62 @@ export default function Home() {
     moveMarketPage(nextPage, nextPage > marketPage ? "next" : "previous");
   };
 
-  const handleFavoriteStock = (stockId: number) => {
-    setFavoriteIds((currentFavoriteIds) => {
-      const nextFavoriteIds = new Set(currentFavoriteIds);
+  const handleFavoriteStock = async (stock: Stock) => {
+    const wasFavorite = favoriteTickers.has(stock.ticker);
 
-      if (nextFavoriteIds.has(stockId)) {
-        nextFavoriteIds.delete(stockId);
+    setHasFavoriteError(false);
+    setUpdatingFavoriteTickers((currentTickers) => new Set(currentTickers).add(stock.ticker));
+    setFavoriteTickers((currentTickers) => {
+      const nextTickers = new Set(currentTickers);
+
+      if (wasFavorite) {
+        nextTickers.delete(stock.ticker);
       } else {
-        nextFavoriteIds.add(stockId);
+        nextTickers.add(stock.ticker);
       }
 
-      return nextFavoriteIds;
+      return nextTickers;
     });
+
+    try {
+      const result = wasFavorite
+        ? await removeFavoriteStock(stock.ticker)
+        : await addFavoriteStock(stock.ticker);
+
+      setFavoriteTickers((currentTickers) => {
+        const nextTickers = new Set(currentTickers);
+        const resultTicker = result.ticker ?? stock.ticker;
+
+        if (result.favorite) {
+          nextTickers.add(resultTicker);
+        } else {
+          nextTickers.delete(resultTicker);
+        }
+
+        return nextTickers;
+      });
+    } catch {
+      setHasFavoriteError(true);
+      setFavoriteTickers((currentTickers) => {
+        const nextTickers = new Set(currentTickers);
+
+        if (wasFavorite) {
+          nextTickers.add(stock.ticker);
+        } else {
+          nextTickers.delete(stock.ticker);
+        }
+
+        return nextTickers;
+      });
+    } finally {
+      setUpdatingFavoriteTickers((currentTickers) => {
+        const nextTickers = new Set(currentTickers);
+
+        nextTickers.delete(stock.ticker);
+
+        return nextTickers;
+      });
+    }
   };
 
   return (
@@ -237,12 +313,14 @@ export default function Home() {
         slideDirection={slideDirection}
       />
       <MainStockSection
-        favoriteIds={favoriteIds}
+        favoriteTickers={favoriteTickers}
+        hasFavoriteError={hasFavoriteError}
         hasStockError={hasStockError}
         isMoreStocksOpen={isMoreStocksOpen}
         isStockLoading={isStockLoading}
         sortType={sortType}
         stocks={sortedStocks}
+        updatingFavoriteTickers={updatingFavoriteTickers}
         onFavoriteStock={handleFavoriteStock}
         onMoreStocksClose={() => setIsMoreStocksOpen(false)}
         onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
@@ -371,24 +449,28 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
 }
 
 function MainStockSection({
-  favoriteIds,
+  favoriteTickers,
+  hasFavoriteError,
   hasStockError,
   isMoreStocksOpen,
   isStockLoading,
   sortType,
   stocks,
+  updatingFavoriteTickers,
   onFavoriteStock,
   onMoreStocksClose,
   onMoreStocksOpen,
   onSortChange,
 }: {
-  favoriteIds: Set<number>;
+  favoriteTickers: Set<string>;
+  hasFavoriteError: boolean;
   hasStockError: boolean;
   isMoreStocksOpen: boolean;
   isStockLoading: boolean;
   sortType: SortType;
   stocks: Stock[];
-  onFavoriteStock: (stockId: number) => void;
+  updatingFavoriteTickers: Set<string>;
+  onFavoriteStock: (stock: Stock) => void;
   onMoreStocksClose: () => void;
   onMoreStocksOpen: () => void;
   onSortChange: (sortType: SortType) => void;
@@ -408,9 +490,13 @@ function MainStockSection({
         <div className="flex h-6 items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
-            {isStockLoading || hasStockError ? (
+            {isStockLoading || hasStockError || hasFavoriteError ? (
               <span className="text-xs font-medium text-muted-foreground">
-                {isStockLoading ? copy.loadingStocks : copy.stockLoadFailed}
+                {isStockLoading
+                  ? copy.loadingStocks
+                  : hasStockError
+                    ? copy.stockLoadFailed
+                    : copy.favoriteLoadFailed}
               </span>
             ) : null}
           </div>
@@ -440,7 +526,8 @@ function MainStockSection({
           {visibleStocks.map((stock) => (
             <StockRow
               key={stock.id}
-              isFavorite={favoriteIds.has(stock.id)}
+              isFavorite={favoriteTickers.has(stock.ticker)}
+              isFavoriteUpdating={updatingFavoriteTickers.has(stock.ticker)}
               stock={stock}
               onFavoriteStock={onFavoriteStock}
             />
@@ -488,12 +575,14 @@ function toPendingStock(stock: StockQuoteSeed): Stock {
 
 function StockRow({
   isFavorite,
+  isFavoriteUpdating,
   stock,
   onFavoriteStock,
 }: {
   isFavorite: boolean;
+  isFavoriteUpdating: boolean;
   stock: Stock;
-  onFavoriteStock: (stockId: number) => void;
+  onFavoriteStock: (stock: Stock) => void;
 }) {
   const changeToneClass = stock.tone === "red" ? "text-red-500" : "text-blue-600";
 
@@ -524,7 +613,8 @@ function StockRow({
         size="icon-xs"
         aria-label={copy.favoriteStock}
         aria-pressed={isFavorite}
-        onClick={() => onFavoriteStock(stock.id)}
+        disabled={isFavoriteUpdating}
+        onClick={() => onFavoriteStock(stock)}
       >
         <Heart
           className={`size-5 stroke-[2] ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground"}`}

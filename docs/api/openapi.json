@@ -12,6 +12,28 @@
         },
         "type": "object"
       },
+      "ApiResponseFavoriteStockListResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FavoriteStockListResponse"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ApiResponseFavoriteStockResultResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FavoriteStockResultResponse"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApiResponseLogoutResponse": {
         "properties": {
           "data": {
@@ -100,6 +122,17 @@
         },
         "type": "object"
       },
+      "ApiResponseUserProfileResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UserProfileResponse"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApiResponseUserResponse": {
         "properties": {
           "data": {
@@ -126,6 +159,88 @@
         },
         "type": "object"
       },
+      "FavoriteStockItemResponse": {
+        "properties": {
+          "changePrice": {
+            "type": "number"
+          },
+          "changeRate": {
+            "format": "double",
+            "type": "number"
+          },
+          "currentPrice": {
+            "type": "number"
+          },
+          "marketType": {
+            "enum": [
+              "KOSPI",
+              "KOSDAQ",
+              "NASDAQ",
+              "NYSE"
+            ],
+            "type": "string"
+          },
+          "nameKo": {
+            "type": "string"
+          },
+          "priceUpdatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "ticker": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FavoriteStockListResponse": {
+        "properties": {
+          "fallingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FavoriteStockItemResponse"
+            },
+            "type": "array"
+          },
+          "risingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "FavoriteStockRequest": {
+        "properties": {
+          "ticker": {
+            "example": "005930",
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticker"
+        ],
+        "type": "object"
+      },
+      "FavoriteStockResultResponse": {
+        "properties": {
+          "favorite": {
+            "type": "boolean"
+          },
+          "ticker": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "LoginRequest": {
         "properties": {
           "email": {
@@ -140,7 +255,10 @@
             "type": "string"
           }
         },
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "type": "object"
       },
       "LogoutResponse": {
@@ -153,6 +271,10 @@
       },
       "MyPageResponse": {
         "properties": {
+          "avatarPresetId": {
+            "format": "int32",
+            "type": "integer"
+          },
           "cashBalance": {
             "type": "number"
           },
@@ -160,6 +282,10 @@
             "type": "string"
           },
           "email": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "format": "date",
             "type": "string"
           },
           "name": {
@@ -202,18 +328,28 @@
             "type": "string"
           },
           "tradeType": {
-            "enum": ["BUY", "SELL"],
+            "enum": [
+              "BUY",
+              "SELL"
+            ],
             "example": "BUY",
             "type": "string"
           }
         },
-        "required": ["quantity", "ticker", "tradeType"],
+        "required": [
+          "quantity",
+          "ticker",
+          "tradeType"
+        ],
         "type": "object"
       },
       "OrderResponse": {
         "properties": {
           "currency": {
-            "enum": ["KRW", "USD"],
+            "enum": [
+              "KRW",
+              "USD"
+            ],
             "type": "string"
           },
           "executedAt": {
@@ -233,7 +369,10 @@
             "type": "number"
           },
           "tradeType": {
-            "enum": ["BUY", "SELL"],
+            "enum": [
+              "BUY",
+              "SELL"
+            ],
             "type": "string"
           }
         },
@@ -319,6 +458,10 @@
       },
       "RankingUserInfo": {
         "properties": {
+          "avatarPresetId": {
+            "format": "int32",
+            "type": "integer"
+          },
           "nickname": {
             "type": "string"
           },
@@ -350,7 +493,9 @@
             "type": "string"
           }
         },
-        "required": ["refreshToken"],
+        "required": [
+          "refreshToken"
+        ],
         "type": "object"
       },
       "StockPriceResponse": {
@@ -397,6 +542,58 @@
         },
         "type": "object"
       },
+      "UpdateUserProfileRequest": {
+        "properties": {
+          "avatarPresetId": {
+            "example": 2,
+            "format": "int32",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "currentPassword": {
+            "example": "OldPassword1!",
+            "type": "string"
+          },
+          "name": {
+            "example": "홍길동",
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "newPassword": {
+            "example": "NewPassword1!",
+            "type": "string"
+          },
+          "newPasswordConfirm": {
+            "example": "NewPassword1!",
+            "type": "string"
+          }
+        },
+        "required": [
+          "avatarPresetId",
+          "name"
+        ],
+        "type": "object"
+      },
+      "UserProfileResponse": {
+        "properties": {
+          "avatarPresetId": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "email": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "format": "date",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "UserResponse": {
         "properties": {
           "email": {
@@ -428,10 +625,15 @@
           "password": {
             "example": "Password123!",
             "minLength": 1,
+            "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{9,}$",
             "type": "string"
           }
         },
-        "required": ["email", "name", "password"],
+        "required": [
+          "email",
+          "name",
+          "password"
+        ],
         "type": "object"
       }
     },
@@ -480,7 +682,9 @@
           }
         },
         "summary": "카카오 로그인",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/api/v1/auth/login": {
@@ -509,7 +713,9 @@
           }
         },
         "summary": "로그인",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/api/v1/auth/logout": {
@@ -539,7 +745,9 @@
           }
         },
         "summary": "로그아웃",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/api/v1/auth/refresh": {
@@ -569,7 +777,9 @@
           }
         },
         "summary": "리프레시 토큰 재발급",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/api/v1/auth/signup": {
@@ -598,7 +808,110 @@
           }
         },
         "summary": "회원가입",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/favorites": {
+      "get": {
+        "description": "로그인한 사용자의 관심 종목 목록과 상승/하락 개수를 조회합니다.",
+        "operationId": "getFavorites",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFavoriteStockListResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
+        "summary": "관심 종목 목록 조회",
+        "tags": [
+          "Favorite"
+        ]
+      },
+      "post": {
+        "description": "등록된 종목을 관심 종목에 추가합니다.",
+        "operationId": "addFavorite",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavoriteStockRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFavoriteStockResultResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
+        "summary": "관심 종목 추가",
+        "tags": [
+          "Favorite"
+        ]
+      }
+    },
+    "/api/v1/favorites/{ticker}": {
+      "delete": {
+        "description": "관심 종목에서 지정한 티커를 제거합니다.",
+        "operationId": "removeFavorite",
+        "parameters": [
+          {
+            "description": "주식 티커 심볼",
+            "example": "005930",
+            "in": "path",
+            "name": "ticker",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFavoriteStockResultResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
+        "summary": "관심 종목 삭제",
+        "tags": [
+          "Favorite"
+        ]
       }
     },
     "/api/v1/investments/order": {
@@ -633,7 +946,9 @@
           }
         ],
         "summary": "주식 주문",
-        "tags": ["Investment"]
+        "tags": [
+          "Investment"
+        ]
       }
     },
     "/api/v1/investments/portfolio": {
@@ -657,7 +972,9 @@
           }
         ],
         "summary": "포트폴리오 조회",
-        "tags": ["Investment"]
+        "tags": [
+          "Investment"
+        ]
       }
     },
     "/api/v1/market/exchange/{currency}": {
@@ -689,7 +1006,9 @@
           }
         },
         "summary": "환율 조회",
-        "tags": ["Market"]
+        "tags": [
+          "Market"
+        ]
       }
     },
     "/api/v1/market/stocks/{ticker}": {
@@ -721,7 +1040,9 @@
           }
         },
         "summary": "주식 시세 조회",
-        "tags": ["Market"]
+        "tags": [
+          "Market"
+        ]
       }
     },
     "/api/v1/ranking": {
@@ -763,7 +1084,9 @@
           }
         },
         "summary": "전체 랭킹 조회",
-        "tags": ["Ranking"]
+        "tags": [
+          "Ranking"
+        ]
       }
     },
     "/api/v1/ranking/me": {
@@ -788,7 +1111,9 @@
           }
         ],
         "summary": "나의 랭킹 조회",
-        "tags": ["Ranking"]
+        "tags": [
+          "Ranking"
+        ]
       }
     },
     "/api/v1/ranking/top3": {
@@ -808,7 +1133,9 @@
           }
         },
         "summary": "TOP 3 랭킹 조회",
-        "tags": ["Ranking"]
+        "tags": [
+          "Ranking"
+        ]
       }
     },
     "/api/v1/user/me": {
@@ -832,7 +1159,43 @@
           }
         ],
         "summary": "마이페이지 조회",
-        "tags": ["User"]
+        "tags": [
+          "User"
+        ]
+      },
+      "patch": {
+        "operationId": "updateProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseUserProfileResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
+        "summary": "내 정보 수정",
+        "tags": [
+          "User"
+        ]
       }
     }
   },
@@ -861,6 +1224,10 @@
     {
       "description": "인증 / 회원가입",
       "name": "Auth"
+    },
+    {
+      "description": "관심 종목 관리",
+      "name": "Favorite"
     }
   ]
 }

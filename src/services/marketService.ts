@@ -45,6 +45,17 @@ type ApiResponse<T> = {
   success?: boolean;
 };
 
+export type FavoriteStockSummary = {
+  falling: number;
+  rising: number;
+  total: number;
+};
+
+export type FavoriteStockList = {
+  items: StockQuote[];
+  summary: FavoriteStockSummary;
+};
+
 type StockPriceResponse = {
   changePrice?: number | null;
   changeRate?: number | null;
@@ -55,6 +66,28 @@ type StockPriceResponse = {
   priceUpdatedAt?: string | null;
   range52w?: string | null;
   ticker?: string | null;
+};
+
+type FavoriteStockItemResponse = {
+  changePrice?: number | null;
+  changeRate?: number | null;
+  currentPrice?: number | null;
+  marketType?: "KOSPI" | "KOSDAQ" | "NASDAQ" | null;
+  nameKo?: string | null;
+  priceUpdatedAt?: string | null;
+  ticker?: string | null;
+};
+
+type FavoriteStockListResponse = {
+  fallingCount?: number | null;
+  items?: FavoriteStockItemResponse[] | null;
+  risingCount?: number | null;
+  totalCount?: number | null;
+};
+
+type FavoriteStockResultResponse = {
+  favorite?: boolean;
+  ticker?: string;
 };
 
 export async function fetchMainStockQuotes(seeds: StockQuoteSeed[]): Promise<StockQuote[]> {
@@ -71,6 +104,51 @@ export async function fetchMainStockQuotes(seeds: StockQuoteSeed[]): Promise<Sto
 
 export async function fetchStockQuoteByTicker(ticker: string): Promise<StockQuote> {
   return fetchStockQuote(getStockQuoteSeed(ticker));
+}
+
+export async function fetchFavoriteStocks(): Promise<FavoriteStockList> {
+  const apiResponse = await apiClient<ApiResponse<FavoriteStockListResponse>>("/favorites");
+
+  if (!apiResponse.success || !apiResponse.data) {
+    throw new Error("Invalid favorite stock response");
+  }
+
+  const items = apiResponse.data.items ?? [];
+
+  return {
+    items: items.map(toFavoriteStockQuote),
+    summary: {
+      falling: apiResponse.data.fallingCount ?? 0,
+      rising: apiResponse.data.risingCount ?? 0,
+      total: apiResponse.data.totalCount ?? items.length,
+    },
+  };
+}
+
+export async function addFavoriteStock(ticker: string): Promise<FavoriteStockResultResponse> {
+  const apiResponse = await apiClient<ApiResponse<FavoriteStockResultResponse>>("/favorites", {
+    method: "POST",
+    body: JSON.stringify({ ticker }),
+  });
+
+  if (!apiResponse.success || !apiResponse.data) {
+    throw new Error("Invalid add favorite response");
+  }
+
+  return apiResponse.data;
+}
+
+export async function removeFavoriteStock(ticker: string): Promise<FavoriteStockResultResponse> {
+  const apiResponse = await apiClient<ApiResponse<FavoriteStockResultResponse>>(
+    `/favorites/${encodeURIComponent(ticker)}`,
+    { method: "DELETE" },
+  );
+
+  if (!apiResponse.success || !apiResponse.data) {
+    throw new Error("Invalid remove favorite response");
+  }
+
+  return apiResponse.data;
 }
 
 export function getStockQuoteSeed(ticker: string): StockQuoteSeed {
@@ -130,6 +208,30 @@ function toFallbackStockQuote(seed: StockQuoteSeed): StockQuote {
     range52w: null,
     priceValue: 0,
     tone: "blue",
+  };
+}
+
+function toFavoriteStockQuote(stock: FavoriteStockItemResponse): StockQuote {
+  const ticker = stock.ticker ?? "";
+  const seed = getStockQuoteSeed(ticker);
+  const priceValue = stock.currentPrice ?? 0;
+  const changeRate = stock.changeRate ?? 0;
+  const changePrice = stock.changePrice ?? 0;
+  const isRising = changeRate >= 0;
+
+  return {
+    ...seed,
+    change: `${isRising ? "\u25b2" : "\u25bc"} ${Math.abs(changeRate).toFixed(2)}%`,
+    changePrice,
+    changeRate,
+    marketCap: null,
+    name: stock.nameKo ?? seed.name,
+    per: null,
+    price: formatKoreanWon(priceValue),
+    priceValue,
+    range52w: null,
+    ticker,
+    tone: isRising ? "red" : "blue",
   };
 }
 
