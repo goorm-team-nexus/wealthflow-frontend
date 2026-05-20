@@ -36,6 +36,11 @@ spec:
               value: "3000"
             - name: HOSTNAME
               value: 0.0.0.0
+            - name: KAKAO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: wealthflow-backend-secret
+                  key: KAKAO_CLIENT_ID
           readinessProbe:
             tcpSocket:
               port: http
