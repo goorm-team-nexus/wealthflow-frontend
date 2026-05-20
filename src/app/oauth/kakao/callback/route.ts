@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { getRequestOrigin, isSecureRequest, KAKAO_STATE_COOKIE } from "@/lib/oauth";
+import { getCanonicalFrontendRedirectUrl, isSecureRequest, KAKAO_STATE_COOKIE } from "@/lib/oauth";
 
 const getApiBaseUrl = () => {
   const baseUrl =
@@ -28,8 +28,8 @@ const getKakaoLoginUrl = (request: Request, code: string) => {
   return url.toString();
 };
 
-const redirectToLoginError = (request: Request) =>
-  NextResponse.redirect(new URL("/login?authError=kakao", getRequestOrigin(request)));
+const redirectToLoginError = () =>
+  NextResponse.redirect(getCanonicalFrontendRedirectUrl("/login?authError=kakao"));
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
   cookieStore.delete(KAKAO_STATE_COOKIE);
 
   if (error || !code || !state || !storedState || state !== storedState) {
-    return redirectToLoginError(request);
+    return redirectToLoginError();
   }
 
   try {
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     }
 
     if (!backendResponse.ok || !data?.success || !data.data?.refreshToken) {
-      return redirectToLoginError(request);
+      return redirectToLoginError();
     }
 
     cookieStore.set({
@@ -76,8 +76,8 @@ export async function GET(request: Request) {
       sameSite: "lax",
     });
 
-    return NextResponse.redirect(new URL("/stocks", getRequestOrigin(request)));
+    return NextResponse.redirect(getCanonicalFrontendRedirectUrl("/stocks"));
   } catch {
-    return redirectToLoginError(request);
+    return redirectToLoginError();
   }
 }

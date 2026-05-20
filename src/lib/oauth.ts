@@ -2,6 +2,19 @@ export const KAKAO_STATE_COOKIE = "kakaoOAuthState";
 
 const getFirstHeaderValue = (value: string | null) => value?.split(",")[0]?.trim();
 
+export const getCanonicalFrontendUrl = () => {
+  const appUrl = process.env.APP_FRONTEND_URL ?? process.env.NEXT_PUBLIC_APP_URL;
+
+  if (!appUrl) {
+    throw new Error("APP_FRONTEND_URL or NEXT_PUBLIC_APP_URL is required.");
+  }
+
+  return appUrl;
+};
+
+export const getCanonicalFrontendRedirectUrl = (path: string) =>
+  new URL(path, getCanonicalFrontendUrl());
+
 export const getRequestOrigin = (request: Request) => {
   const requestUrl = new URL(request.url);
   const forwardedProto = getFirstHeaderValue(request.headers.get("x-forwarded-proto"));
