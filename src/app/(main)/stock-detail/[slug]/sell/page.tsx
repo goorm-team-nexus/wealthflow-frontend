@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { placeOrder } from "@/services/investmentService";
+import { placeOrder } from "@/services/investment";
 import { fetchStockQuoteByTicker, getStockQuoteSeed } from "@/services/marketService";
 
 type KeypadItem = {
