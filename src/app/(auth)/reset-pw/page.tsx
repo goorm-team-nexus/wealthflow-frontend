@@ -89,17 +89,17 @@ function ResetPasswordPage() {
                 <p className="text-sm text-muted-foreground">
                   비밀번호 재설정 링크가 유효하지 않습니다. 이메일을 다시 요청해주세요.
                 </p>
-                <Button asChild className="w-full">
+                <Button asChild size="lg" className="w-full">
                   <Link href="/find-pw">재설정 메일 다시 받기</Link>
                 </Button>
-                <Button asChild variant="secondary" className="w-full">
+                <Button asChild size="lg" variant="secondary" className="w-full">
                   <Link href="/login">로그인으로 돌아가기</Link>
                 </Button>
               </div>
             ) : isSuccess ? (
               <div className="flex flex-col gap-4">
                 <p className="text-sm text-muted-foreground">{successMsg}</p>
-                <Button asChild className="w-full">
+                <Button asChild size="lg" className="w-full">
                   <Link href="/login">로그인하기</Link>
                 </Button>
               </div>
@@ -145,12 +145,18 @@ function ResetPasswordPage() {
                 {errorMsg && <p className="text-xs text-destructive">{errorMsg}</p>}
 
                 <div className="pt-2">
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                     {isLoading ? "변경 중..." : "비밀번호 변경"}
                   </Button>
                 </div>
 
-                <Button asChild variant="secondary" className="w-full" disabled={isLoading}>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="secondary"
+                  className="w-full"
+                  disabled={isLoading}
+                >
                   <Link href="/login">로그인으로 돌아가기</Link>
                 </Button>
               </form>

@@ -147,10 +147,16 @@ export default function SignUp() {
               {errorMsg && <p className="text-xs text-destructive">{errorMsg}</p>}
 
               <div className="flex flex-col gap-3 pt-4">
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                   {isLoading ? "처리 중..." : "회원가입"}
                 </Button>
-                <Button asChild variant="secondary" className="w-full" disabled={isLoading}>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="secondary"
+                  className="w-full"
+                  disabled={isLoading}
+                >
                   <Link href="/login">로그인으로 돌아가기</Link>
                 </Button>
               </div>
