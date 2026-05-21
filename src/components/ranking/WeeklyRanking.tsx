@@ -111,11 +111,11 @@ export default function WeeklyRanking() {
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-2xl font-bold">2</span>
-                <span className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
-                  {rank2.totalAsset}
-                </span>
                 <span className="text-red-500 text-xs font-medium leading-none mt-0.5">
                   {rank2.rate}
+                </span>
+                <span className="text-xs font-semibold text-foreground leading-none mt-0.5">
+                  {rank2.totalAsset}
                 </span>
               </div>
             </div>
@@ -145,11 +145,11 @@ export default function WeeklyRanking() {
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-3xl font-bold">1</span>
-                <span className="text-[11px] text-muted-foreground font-medium leading-none mt-0.5">
-                  {rank1.totalAsset}
-                </span>
                 <span className="text-red-500 text-sm font-semibold leading-none mt-0.5">
                   {rank1.rate}
+                </span>
+                <span className="text-xs font-bold text-foreground leading-none mt-0.5">
+                  {rank1.totalAsset}
                 </span>
               </div>
             </div>
@@ -172,11 +172,11 @@ export default function WeeklyRanking() {
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-2xl font-bold">3</span>
-                <span className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
-                  {rank3.totalAsset}
-                </span>
                 <span className="text-red-500 text-xs font-medium leading-none mt-0.5">
                   {rank3.rate}
+                </span>
+                <span className="text-xs font-semibold text-foreground leading-none mt-0.5">
+                  {rank3.totalAsset}
                 </span>
               </div>
             </div>

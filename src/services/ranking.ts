@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import { getAvatarSrc } from "@/services/user";
 
 // ==========================================
 // 1. OpenAPI 스키마 기반 TypeScript 타입 정의
@@ -7,6 +8,7 @@ import { apiClient } from "@/lib/api-client";
 export interface RankingUserInfo {
   nickname: string;
   profileImg: string;
+  avatarPresetId?: number;
   rank: number;
   returnRate: number;
   stockCount: number;
@@ -48,6 +50,7 @@ export interface MyRankingUIModel {
   isAuthenticated: boolean;
   totalAsset?: number;
   returnRate?: number;
+  totalAssetFormatted: string;
 }
 
 export interface WeeklyUserUIModel {
@@ -127,11 +130,12 @@ export function mapToMyRankingUI(
       topPercent: 0,
       message: "",
       isAuthenticated: false,
+      totalAssetFormatted: "",
     };
   }
 
   const nickname = rankingInfo.nickname || "홍길동";
-  const avatarUrl = rankingInfo.profileImg || "";
+  const avatarUrl = getAvatarSrc(rankingInfo.avatarPresetId) || "";
   const rank = rankingInfo.rank || 0;
   const returnRateVal = rankingInfo.returnRate || 0;
 
@@ -150,6 +154,7 @@ export function mapToMyRankingUI(
     isAuthenticated: true,
     totalAsset: rankingInfo.totalAsset,
     returnRate: returnRateVal,
+    totalAssetFormatted: formatTotalAsset(rankingInfo.totalAsset || 0),
   };
 }
 
@@ -173,19 +178,19 @@ export function mapToWeeklyRankingUI(rankings: RankingUserInfo[] = []): WeeklyRa
     rank1: {
       name: r1?.nickname || "홍길동",
       rate: formatRate(r1?.returnRate),
-      img: r1?.profileImg || "",
+      img: getAvatarSrc(r1?.avatarPresetId) || "",
       totalAsset: formatTotalAsset(r1?.totalAsset || 0),
     },
     rank2: {
       name: r2?.nickname || "임꺽정",
       rate: formatRate(r2?.returnRate),
-      img: r2?.profileImg || "",
+      img: getAvatarSrc(r2?.avatarPresetId) || "",
       totalAsset: formatTotalAsset(r2?.totalAsset || 0),
     },
     rank3: {
       name: r3?.nickname || "심청이",
       rate: formatRate(r3?.returnRate),
-      img: r3?.profileImg || "",
+      img: getAvatarSrc(r3?.avatarPresetId) || "",
       totalAsset: formatTotalAsset(r3?.totalAsset || 0),
     },
   };
@@ -202,7 +207,7 @@ export function mapToOverallRankingUI(rankings: RankingUserInfo[] = []): Overall
     return {
       rank: r.rank || 0,
       name: r.nickname || `투자자 ${r.rank || 0}`,
-      avatarUrl: r.profileImg || "",
+      avatarUrl: getAvatarSrc(r.avatarPresetId) || "",
       rate: formattedRate,
       totalAsset: formatTotalAsset(r.totalAsset || 0),
       stocks: r.stockCount || 0,
