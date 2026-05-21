@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Search } from "lucide-react";
-import { DateRange } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MAIN_STOCK_SEEDS } from "@/services/marketService";
 
 import { StockSearchList } from "./StockSearchList";
 import { DatePickerPopover } from "./DatePickerPopover";
@@ -27,14 +28,13 @@ interface TransactionFilterProps {
   dateRange: DateRange | undefined;
   onDateRangeChange: (range: DateRange | undefined) => void;
   onSearch: () => void;
+  isLoading: boolean;
 }
 
-const ALL_STOCKS = [
-  { name: "NAVER", code: "035420" },
-  { name: "삼성전자", code: "005930" },
-  { name: "SK하이닉스", code: "000660" },
-  { name: "카카오", code: "035720" },
-];
+const ALL_STOCKS = MAIN_STOCK_SEEDS.map((stock) => ({
+  name: stock.name,
+  code: stock.ticker,
+}));
 
 export function TransactionFilter({
   selectedCodes,
@@ -44,6 +44,7 @@ export function TransactionFilter({
   dateRange,
   onDateRangeChange,
   onSearch,
+  isLoading,
 }: TransactionFilterProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [isStockOpen, setIsStockOpen] = React.useState(false);
@@ -158,9 +159,10 @@ export function TransactionFilter({
         <Button
           type="button"
           onClick={onSearch}
+          disabled={isLoading}
           className="w-full h-11 mt-2 bg-[#008DFF] hover:bg-[#008DFF]/90 active:bg-[#008DFF]/80 text-white font-bold rounded-xl border-none transition-colors shadow-md"
         >
-          조회하기
+          {isLoading ? "조회 중" : "조회하기"}
         </Button>
       </CardContent>
     </Card>
