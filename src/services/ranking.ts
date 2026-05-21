@@ -106,7 +106,14 @@ export async function getTop3(): Promise<ApiResponseRankingListResponse> {
 
 function formatTotalAsset(value: number): string {
   if (value >= 100_000_000) {
-    return `₩${(value / 100_000_000).toFixed(1)}억`;
+    const eok = Math.floor(value / 100_000_000);
+    const remainder = value % 100_000_000;
+    const man = Math.floor(remainder / 10_000);
+
+    if (man > 0) {
+      return `₩${eok}억 ${man.toLocaleString()}만`;
+    }
+    return `₩${eok}억`;
   }
   if (value >= 10_000) {
     return `₩${Math.floor(value / 10_000).toLocaleString()}만`;
