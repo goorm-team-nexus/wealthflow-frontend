@@ -5,7 +5,6 @@ import PortfolioHoldingsList from "@/components/portfolio/PortfolioHoldingsList"
 import PortfolioHoldingsRatio from "@/components/portfolio/PortfolioHoldingsRatio";
 import PortfolioMyRanking from "@/components/portfolio/PortfolioMyRanking";
 import PortfolioTotalAssets from "@/components/portfolio/PortfolioTotalAssets";
-import PortfolioAiAnalysis from "@/components/portfolio/PortfolioAiAnalysis";
 import {
   getPortfolio,
   mapToTotalAssetsData,
@@ -63,13 +62,11 @@ export default function PortfolioPage() {
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
-      <PortfolioMyRanking />
       <PortfolioTotalAssets data={totalAssets} />
       {hasHoldings ? (
         <>
           <PortfolioHoldingsRatio holdings={holdings} />
           <PortfolioHoldingsList holdings={holdings} />
-          <PortfolioAiAnalysis />
         </>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-border/80 bg-white p-8 shadow-sm text-center gap-2">
@@ -81,6 +78,7 @@ export default function PortfolioPage() {
           </span>
         </div>
       )}
+      <PortfolioMyRanking />
     </div>
   );
 }
