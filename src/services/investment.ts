@@ -123,6 +123,12 @@ export interface GetExchangeHistoryParams {
   sort?: string;
 }
 
+export interface ExchangeRequestDto {
+  amount: number;
+  fromCurrency: "KRW" | "USD";
+  toCurrency: "KRW" | "USD";
+}
+
 // --- Stock Price ---
 
 /**
@@ -232,6 +238,27 @@ function toExchangeHistoryItem(item: ExchangeResponseDto): ExchangeHistoryItem {
     exchangeRate: item.exchangeRate ?? 0,
     date: toValidDate(item.createdAt),
   };
+}
+
+// --- Currency Exchange ---
+
+/**
+ * 모의투자 예수금을 기준으로 환전을 처리합니다.
+ * POST /api/v1/exchange
+ */
+export async function exchangeCurrency(request: ExchangeRequestDto): Promise<string> {
+  try {
+    return await apiClient<string>("/exchange", {
+      method: "POST",
+      body: JSON.stringify(request),
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      throw new Error("AUTH_REQUIRED");
+    }
+
+    throw error;
+  }
 }
 
 // --- Trade Order ---

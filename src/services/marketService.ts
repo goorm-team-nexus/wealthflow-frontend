@@ -302,6 +302,23 @@ type MarketIndexResponseDto = {
 
 type MarketIndexListResponse = ApiResponse<MarketIndexResponseDto[]>;
 
+export type ExchangeRateResponse = {
+  currency?: string;
+  rate?: number;
+  rateDate?: string;
+};
+
+export type ApiResponseExchangeRateResponse = {
+  data?: ExchangeRateResponse;
+  success?: boolean;
+};
+
+export type ExchangeRate = {
+  currency: "KRW" | "USD";
+  rate: number;
+  rateDate: string | null;
+};
+
 export async function fetchMainStockQuotes(seeds: StockQuoteSeed[]): Promise<StockQuote[]> {
   const results = await Promise.allSettled(seeds.map((seed) => fetchStockQuote(seed)));
 
@@ -332,6 +349,22 @@ export async function fetchMarketIndices(): Promise<MarketIndexQuote[]> {
 
 export async function fetchStockQuoteByTicker(ticker: string): Promise<StockQuote> {
   return fetchStockQuote(getStockQuoteSeed(ticker));
+}
+
+export async function getExchangeRate(currency: "KRW" | "USD"): Promise<ExchangeRate> {
+  const apiResponse = await apiClient<ApiResponseExchangeRateResponse>(
+    `/market/exchange/${encodeURIComponent(currency)}`,
+  );
+
+  if (!apiResponse.success || !apiResponse.data || typeof apiResponse.data.rate !== "number") {
+    throw new Error("Invalid exchange rate response");
+  }
+
+  return {
+    currency: toCurrencyCode(apiResponse.data.currency) ?? currency,
+    rate: apiResponse.data.rate,
+    rateDate: apiResponse.data.rateDate ?? null,
+  };
 }
 
 export async function fetchFavoriteStocks(): Promise<FavoriteStockList> {
@@ -467,6 +500,14 @@ function toFallbackStockQuote(seed: StockQuoteSeed): StockQuote {
 
 function normalizeIndexName(indexName?: string | null) {
   return (indexName ?? "").replace(/\s/g, "").toUpperCase();
+}
+
+function toCurrencyCode(value: string | undefined): "KRW" | "USD" | null {
+  if (value === "KRW" || value === "USD") {
+    return value;
+  }
+
+  return null;
 }
 
 function toMarketIndexPoints({
