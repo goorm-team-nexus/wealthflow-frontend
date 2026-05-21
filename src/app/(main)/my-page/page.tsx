@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import MyRankingCard from "@/components/ranking/MyRankingCard";
 import { getMyPage, type MyPageResponse } from "@/services/user";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { getPortfolio, mapToTotalAssetsData, type TotalAssetsData } from "@/services/portfolio";
 
 export default function MyPage() {
   const { handleLogout, isLoggingOut, logoutError } = useLogout();
@@ -21,18 +22,43 @@ export default function MyPage() {
   const { userProfile } = useAuth();
 
   const [userInfo, setUserInfo] = useState<MyPageResponse | null>(null);
+  const [assetsData, setAssetsData] = useState<TotalAssetsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const res = await getMyPage();
-        if (res.success && res.data) {
-          setUserInfo(res.data);
-        } else {
-          setError(res.message || "사용자 정보를 불러오는 데 실패했습니다.");
+        const [userResult, portfolioResult] = await Promise.allSettled([
+          getMyPage(),
+          getPortfolio(),
+        ]);
+
+        if (userResult.status === "rejected") {
+          const errorMessage =
+            userResult.reason instanceof Error
+              ? userResult.reason.message
+              : "사용자 정보를 불러오는 데 실패했습니다.";
+          setError(errorMessage);
+          return;
         }
+
+        if (!userResult.value.success || !userResult.value.data) {
+          setError(userResult.value.message || "사용자 정보를 불러오는 데 실패했습니다.");
+          return;
+        }
+
+        if (
+          portfolioResult.status === "rejected" ||
+          !portfolioResult.value.success ||
+          !portfolioResult.value.data
+        ) {
+          setError("자산 정보를 불러오는 데 실패했습니다.");
+          return;
+        }
+
+        setUserInfo(userResult.value.data);
+        setAssetsData(mapToTotalAssetsData(portfolioResult.value.data));
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : "사용자 정보를 불러오는 데 실패했습니다.";
@@ -59,17 +85,17 @@ export default function MyPage() {
     );
   }
 
-  const totalAsset = userInfo?.totalAsset ?? 0;
-  const totalProfit = userInfo?.totalProfit ?? 0;
-  const profitRate = userInfo?.profitRate ?? 0;
-  const currencyCode = userInfo?.currencyCode ?? "KRW";
+  if (!assetsData) {
+    return null;
+  }
 
+  const { totalAssets, totalProfit, totalProfitRate } = assetsData;
   const isPositive = totalProfit >= 0;
   const isZero = totalProfit === 0;
 
-  const formattedAsset = `${currencyCode === "KRW" ? "₩" : "$"}${totalAsset.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const formattedProfit = `${isPositive ? "+" : ""}${currencyCode === "KRW" ? "₩" : "$"}${totalProfit.toLocaleString("ko-KR")}`;
-  const formattedRate = `${isPositive ? "+" : ""}${profitRate.toFixed(2)}%`;
+  const formattedAsset = `₩${totalAssets.toLocaleString("ko-KR")}`;
+  const formattedProfit = `${isPositive ? "+ ₩" : "- ₩"}${Math.abs(totalProfit).toLocaleString("ko-KR")}`;
+  const formattedRate = `${isPositive ? "+" : ""}${totalProfitRate.toFixed(2)}%`;
 
   const badgeColor = isZero
     ? "bg-muted text-muted-foreground"
@@ -103,7 +129,7 @@ export default function MyPage() {
 
       {/* Assets Section */}
       <div className="flex flex-col gap-3 text-center">
-        <span className="text-lg font-semibold">총액</span>
+        <span className="text-lg font-semibold">총 모의 자산</span>
         <div className="flex flex-col items-center gap-4">
           <h2 className="text-2xl font-bold">{formattedAsset}</h2>
           <Badge className={`h-auto px-4 py-2 text-sm font-semibold border-none ${badgeColor}`}>
