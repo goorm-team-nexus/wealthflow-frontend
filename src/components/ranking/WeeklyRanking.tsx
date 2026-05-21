@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { getTop3, mapToWeeklyRankingUI, type WeeklyRankingUIModel } from "@/services/ranking";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -50,25 +51,25 @@ export default function WeeklyRanking() {
     return (
       <Card className="w-full border border-border bg-card shadow-none">
         <CardContent className="p-4 flex flex-col items-center">
-          <div className="h-6 w-24 bg-muted animate-pulse rounded-md mb-4" />
+          <Skeleton className="mb-4 h-6 w-24" />
           <div className="flex items-end justify-center gap-3 w-full px-1">
             {/* 2위 skeleton */}
             <div className="flex flex-col items-center flex-1">
-              <div className="h-5 w-16 bg-muted animate-pulse rounded-md mb-2" />
-              <div className="w-16 h-16 bg-muted animate-pulse rounded-full mb-2" />
-              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-36 animate-pulse bg-muted/20" />
+              <Skeleton className="mb-2 h-5 w-16" />
+              <Skeleton className="mb-2 size-16 rounded-full" />
+              <Skeleton className="h-36 w-full rounded-xl border border-border/80 bg-muted/20 shadow-sm" />
             </div>
             {/* 1위 skeleton */}
             <div className="flex flex-col items-center flex-1 z-10">
-              <div className="w-20 h-20 bg-muted animate-pulse rounded-full mb-2" />
-              <div className="h-5 w-20 bg-muted animate-pulse rounded-md mb-2" />
-              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-4 shadow-md h-44 animate-pulse bg-muted/20" />
+              <Skeleton className="mb-2 size-20 rounded-full" />
+              <Skeleton className="mb-2 h-5 w-20" />
+              <Skeleton className="h-44 w-full rounded-xl border border-border/80 bg-muted/20 shadow-md" />
             </div>
             {/* 3위 skeleton */}
             <div className="flex flex-col items-center flex-1">
-              <div className="h-5 w-16 bg-muted animate-pulse rounded-md mb-2" />
-              <div className="w-16 h-16 bg-muted animate-pulse rounded-full mb-2" />
-              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-36 animate-pulse bg-muted/20" />
+              <Skeleton className="mb-2 h-5 w-16" />
+              <Skeleton className="mb-2 size-16 rounded-full" />
+              <Skeleton className="h-36 w-full rounded-xl border border-border/80 bg-muted/20 shadow-sm" />
             </div>
           </div>
         </CardContent>

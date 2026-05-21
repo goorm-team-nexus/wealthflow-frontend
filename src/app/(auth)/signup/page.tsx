@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { MessageBox } from "@/components/shared/message-box";
 import { signUp } from "@/services/auth";
 
 export default function SignUp() {
@@ -19,6 +20,7 @@ export default function SignUp() {
 
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   // Validate password: 9 chars minimum, must contain letters, numbers, and special chars
   const validatePassword = (pwd: string) => {
@@ -50,8 +52,7 @@ export default function SignUp() {
       const res = await signUp({ name, email, password });
 
       if (res.success) {
-        alert("회원가입이 완료되었습니다. 로그인해주세요.");
-        router.push("/login");
+        setIsSuccessModalOpen(true);
       } else {
         setErrorMsg("회원가입에 실패했습니다.");
       }
@@ -147,10 +148,16 @@ export default function SignUp() {
               {errorMsg && <p className="text-xs text-destructive">{errorMsg}</p>}
 
               <div className="flex flex-col gap-3 pt-4">
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                   {isLoading ? "처리 중..." : "회원가입"}
                 </Button>
-                <Button asChild variant="secondary" className="w-full" disabled={isLoading}>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="secondary"
+                  className="w-full"
+                  disabled={isLoading}
+                >
                   <Link href="/login">로그인으로 돌아가기</Link>
                 </Button>
               </div>
@@ -158,6 +165,14 @@ export default function SignUp() {
           </CardContent>
         </Card>
       </div>
+
+      <MessageBox
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        title="회원가입 완료"
+        message={"회원가입이 완료되었습니다.\n로그인 페이지로 이동합니다."}
+        onConfirm={() => router.push("/login")}
+      />
     </div>
   );
 }

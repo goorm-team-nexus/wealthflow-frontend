@@ -108,10 +108,16 @@ function LoginPage() {
               {errorMsg && <p className="text-xs text-destructive">{errorMsg}</p>}
 
               <div className="space-y-3 pt-2">
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                   {isLoading ? "로그인 중..." : "로그인"}
                 </Button>
-                <Button asChild variant="secondary" className="w-full" disabled={isLoading}>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="secondary"
+                  className="w-full"
+                  disabled={isLoading}
+                >
                   <Link href="/signup">회원가입</Link>
                 </Button>
               </div>

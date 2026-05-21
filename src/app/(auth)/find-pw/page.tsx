@@ -117,12 +117,12 @@ export default function FindPassword() {
               {successMsg && <StatusMessage message={successMsg} variant="success" />}
 
               <div className="pt-2">
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                   {isLoading ? "발송 중..." : "이메일 보내기"}
                 </Button>
               </div>
 
-              <Button asChild variant="secondary" className="w-full" disabled={isLoading}>
+              <Button asChild size="lg" variant="secondary" className="w-full" disabled={isLoading}>
                 <Link href="/login">로그인으로 돌아가기</Link>
               </Button>
             </form>

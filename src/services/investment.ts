@@ -74,9 +74,59 @@ export interface TransactionHistoryItem {
 
 export interface GetTransactionsParams {
   tradeType?: TradeType;
+  startDate?: Date;
+  endDate?: Date;
   page?: number;
   size?: number;
   sort?: string;
+}
+
+export interface ExchangeResponseDto {
+  id?: number;
+  createdAt?: string;
+  fromCurrency?: string;
+  toCurrency?: string;
+  fromAmount?: number;
+  toAmount?: number;
+  exchangeRate?: number;
+}
+
+export interface PageExchangeResponseDto {
+  content?: ExchangeResponseDto[];
+  empty?: boolean;
+  first?: boolean;
+  last?: boolean;
+  number?: number;
+  numberOfElements?: number;
+  size?: number;
+  totalElements?: number;
+  totalPages?: number;
+}
+
+export interface ExchangeHistoryItem {
+  id: string;
+  fromCurrency: "KRW" | "USD";
+  toCurrency: "KRW" | "USD";
+  fromAmount: number;
+  toAmount: number;
+  exchangeRate: number;
+  date: Date;
+}
+
+export interface GetExchangeHistoryParams {
+  fromCurrency?: "KRW" | "USD";
+  toCurrency?: "KRW" | "USD";
+  startDate?: Date;
+  endDate?: Date;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
+export interface ExchangeRequestDto {
+  amount: number;
+  fromCurrency: "KRW" | "USD";
+  toCurrency: "KRW" | "USD";
 }
 
 // --- Stock Price ---
@@ -97,8 +147,10 @@ export async function getStockPrice(ticker: string): Promise<ApiResponse<StockPr
  */
 export async function getTransactions({
   tradeType,
+  startDate,
+  endDate,
   page = 0,
-  size = 200,
+  size = 20,
   sort = "createdAt,desc",
 }: GetTransactionsParams = {}): Promise<TransactionHistoryItem[]> {
   const searchParams = new URLSearchParams({
@@ -111,11 +163,102 @@ export async function getTransactions({
     searchParams.set("tradeType", tradeType);
   }
 
+  const formattedStartDate = formatDateParam(startDate);
+  const formattedEndDate = formatDateParam(endDate);
+
+  if (formattedStartDate) {
+    searchParams.set("startDate", formattedStartDate);
+  }
+
+  if (formattedEndDate) {
+    searchParams.set("endDate", formattedEndDate);
+  }
+
   const response = await apiClient<PageTransactionResponseDto>(
     `/exchange/transactions?${searchParams.toString()}`,
   );
 
   return (response.content ?? []).map(toTransactionHistoryItem);
+}
+
+// --- Exchange History ---
+
+/**
+ * 환전 내역을 조회합니다.
+ * GET /api/v1/exchange/history
+ */
+export async function getExchangeHistory({
+  fromCurrency,
+  toCurrency,
+  startDate,
+  endDate,
+  page = 0,
+  size = 20,
+  sort = "createdAt,desc",
+}: GetExchangeHistoryParams = {}): Promise<ExchangeHistoryItem[]> {
+  const searchParams = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+    sort,
+  });
+
+  if (fromCurrency) {
+    searchParams.set("fromCurrency", fromCurrency);
+  }
+
+  if (toCurrency) {
+    searchParams.set("toCurrency", toCurrency);
+  }
+
+  const formattedStartDate = formatDateParam(startDate);
+  const formattedEndDate = formatDateParam(endDate);
+
+  if (formattedStartDate) {
+    searchParams.set("startDate", formattedStartDate);
+  }
+
+  if (formattedEndDate) {
+    searchParams.set("endDate", formattedEndDate);
+  }
+
+  const response = await apiClient<PageExchangeResponseDto>(
+    `/exchange/history?${searchParams.toString()}`,
+  );
+
+  return (response.content ?? []).map(toExchangeHistoryItem);
+}
+
+function toExchangeHistoryItem(item: ExchangeResponseDto): ExchangeHistoryItem {
+  return {
+    id: String(item.id ?? ""),
+    fromCurrency: (item.fromCurrency as "KRW" | "USD") ?? "KRW",
+    toCurrency: (item.toCurrency as "KRW" | "USD") ?? "USD",
+    fromAmount: item.fromAmount ?? 0,
+    toAmount: item.toAmount ?? 0,
+    exchangeRate: item.exchangeRate ?? 0,
+    date: toValidDate(item.createdAt),
+  };
+}
+
+// --- Currency Exchange ---
+
+/**
+ * 모의투자 예수금을 기준으로 환전을 처리합니다.
+ * POST /api/v1/exchange
+ */
+export async function exchangeCurrency(request: ExchangeRequestDto): Promise<string> {
+  try {
+    return await apiClient<string>("/exchange", {
+      method: "POST",
+      body: JSON.stringify(request),
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      throw new Error("AUTH_REQUIRED");
+    }
+
+    throw error;
+  }
 }
 
 // --- Trade Order ---
@@ -169,4 +312,16 @@ function toValidDate(value: string | undefined): Date {
 
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? new Date(0) : date;
+}
+
+function formatDateParam(date: Date | undefined) {
+  if (!date || Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   addFavoriteStock,
   fetchFavoriteStocks,
@@ -23,7 +24,9 @@ type MarketIndex = MarketIndexQuote;
 
 type Stock = StockQuote;
 
-type SortType = "volume" | "price";
+type SortField = "name" | "price" | "change";
+type SortOrder = "asc" | "desc";
+type MarketFilter = "all" | "krw" | "usd";
 type SlideDirection = "next" | "previous";
 
 const copy = {
@@ -37,6 +40,9 @@ const copy = {
   sortLabel: "\uc815\ub82c\uae30\uc900",
   volumeSort: "\uac70\ub798\ub7c9\uc21c",
   priceSort: "\uac00\uaca9\uc21c",
+  nameSort: "\uc885\ubaa9\uba85",
+  priceSortLabel: "\uac00\uaca9",
+  changeSort: "\ub4f1\ub77d\ub960",
   samsung: "\uc0bc\uc131\uc804\uc790",
   skHynix: "SK\ud558\uc774\ub2c9\uc2a4",
   naver: "\ub124\uc774\ubc84",
@@ -120,7 +126,9 @@ const stocks = MAIN_STOCK_SEEDS;
 
 export default function Home() {
   const [marketPage, setMarketPage] = useState(0);
-  const [sortType, setSortType] = useState<SortType>("volume");
+  const [sortField, setSortField] = useState<SortField>("change");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [marketFilter, setMarketFilter] = useState<MarketFilter>("all");
   const [favoriteTickers, setFavoriteTickers] = useState<Set<string>>(new Set());
   const [updatingFavoriteTickers, setUpdatingFavoriteTickers] = useState<Set<string>>(new Set());
   const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
@@ -137,17 +145,28 @@ export default function Home() {
 
   const totalMarketPages = Math.ceil(marketIndexes.length / 2);
   const visibleMarketIndexes = marketIndexes.slice(marketPage * 2, marketPage * 2 + 2);
-  const sortedStocks = useMemo(() => {
-    if (sortType === "price") {
-      return [...mainStocks].sort(
-        (firstStock, secondStock) => secondStock.priceValue - firstStock.priceValue,
-      );
-    }
-
-    return [...mainStocks].sort(
-      (firstStock, secondStock) => firstStock.volumeRank - secondStock.volumeRank,
+  const filteredStocks = useMemo(() => {
+    if (marketFilter === "all") return mainStocks;
+    return mainStocks.filter((stock) =>
+      marketFilter === "krw" ? stock.currency === "KRW" : stock.currency === "USD",
     );
-  }, [mainStocks, sortType]);
+  }, [mainStocks, marketFilter]);
+
+  const sortedStocks = useMemo(() => {
+    return [...filteredStocks].sort((firstStock, secondStock) => {
+      let comparison = 0;
+
+      if (sortField === "name") {
+        comparison = firstStock.name.localeCompare(secondStock.name, "ko");
+      } else if (sortField === "price") {
+        comparison = firstStock.priceValue - secondStock.priceValue;
+      } else if (sortField === "change") {
+        comparison = firstStock.changeRate - secondStock.changeRate;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+  }, [filteredStocks, sortField, sortOrder]);
 
   useEffect(() => {
     return () => {
@@ -359,13 +378,17 @@ export default function Home() {
         isFavoriteLoading={isFavoriteLoading}
         isMoreStocksOpen={isMoreStocksOpen}
         isStockLoading={isStockLoading}
-        sortType={sortType}
+        marketFilter={marketFilter}
+        sortField={sortField}
+        sortOrder={sortOrder}
         stocks={sortedStocks}
         updatingFavoriteTickers={updatingFavoriteTickers}
         onFavoriteStock={handleFavoriteStock}
+        onMarketFilterChange={setMarketFilter}
         onMoreStocksClose={() => setIsMoreStocksOpen(false)}
         onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
-        onSortChange={setSortType}
+        onSortFieldChange={setSortField}
+        onSortOrderChange={setSortOrder}
       />
     </div>
   );
@@ -375,11 +398,11 @@ function MarketIndexCardSkeleton() {
   return (
     <Card className="h-[112px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0">
       <CardContent className="flex h-full flex-col gap-1.5 px-2.5">
-        <div className="h-3 w-10 animate-pulse rounded bg-muted" />
-        <div className="min-h-0 w-full flex-1 animate-pulse rounded bg-muted" />
+        <Skeleton className="h-3 w-10" />
+        <Skeleton className="min-h-0 w-full flex-1 rounded" />
         <div className="flex items-center justify-between gap-1">
-          <div className="h-3.5 w-16 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+          <Skeleton className="h-3.5 w-16 rounded" />
+          <Skeleton className="h-3 w-20 rounded" />
         </div>
       </CardContent>
     </Card>
@@ -528,13 +551,17 @@ function MainStockSection({
   isFavoriteLoading,
   isMoreStocksOpen,
   isStockLoading,
-  sortType,
+  marketFilter,
+  sortField,
+  sortOrder,
   stocks,
   updatingFavoriteTickers,
   onFavoriteStock,
+  onMarketFilterChange,
   onMoreStocksClose,
   onMoreStocksOpen,
-  onSortChange,
+  onSortFieldChange,
+  onSortOrderChange,
 }: {
   favoriteTickers: Set<string>;
   hasFavoriteError: boolean;
@@ -542,13 +569,17 @@ function MainStockSection({
   isFavoriteLoading: boolean;
   isMoreStocksOpen: boolean;
   isStockLoading: boolean;
-  sortType: SortType;
+  marketFilter: MarketFilter;
+  sortField: SortField;
+  sortOrder: SortOrder;
   stocks: Stock[];
   updatingFavoriteTickers: Set<string>;
   onFavoriteStock: (stock: Stock) => void;
+  onMarketFilterChange: (filter: MarketFilter) => void;
   onMoreStocksClose: () => void;
   onMoreStocksOpen: () => void;
-  onSortChange: (sortType: SortType) => void;
+  onSortFieldChange: (field: SortField) => void;
+  onSortOrderChange: (order: SortOrder) => void;
 }) {
   const stockListRef = useRef<HTMLDivElement | null>(null);
   const visibleStocks = isMoreStocksOpen ? stocks : stocks.slice(0, 10);
@@ -559,37 +590,94 @@ function MainStockSection({
     }
   }, [isMoreStocksOpen]);
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      onSortOrderChange(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      onSortFieldChange(field);
+      onSortOrderChange(field === "name" ? "asc" : "desc");
+    }
+  };
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) return null;
+    return sortOrder === "asc" ? " ▲" : " ▼";
+  };
+
   return (
     <Card className="shadow-md">
       <CardContent className="p-0">
-        <div className="flex h-6 items-center justify-between px-4 pt-4 pb-3">
+        <div className="flex items-center justify-between px-4 pt-4 pb-2.5">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
+            <h2 className="text-lg font-semibold leading-none">{copy.mainStocks}</h2>
             {hasStockError || hasFavoriteError ? (
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-xs font-medium leading-none text-muted-foreground">
                 {hasStockError ? copy.stockLoadFailed : copy.favoriteLoadFailed}
               </span>
             ) : null}
           </div>
-          <div className="flex items-center gap-2 text-xs font-medium">
-            <span>{copy.sortLabel}</span>
+        </div>
+
+        <div className="flex gap-1.5 px-4 pb-3">
+          {(["all", "krw", "usd"] as const).map((filter) => {
+            const label = filter === "all" ? "전체" : filter === "krw" ? "한국 주식" : "미국 주식";
+            const isActive = marketFilter === filter;
+            return (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => onMarketFilterChange(filter)}
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center justify-end border-t border-border/40 bg-zinc-50/50 px-4 py-2.5 text-xs font-medium">
+          <div className="flex items-center gap-2">
             <Button
               type="button"
               variant="link"
               size="xs"
-              className={sortType === "volume" ? "text-foreground" : "text-muted-foreground"}
-              onClick={() => onSortChange("volume")}
+              className={`h-auto p-0 hover:no-underline ${
+                sortField === "name" ? "text-foreground font-semibold" : "text-muted-foreground"
+              }`}
+              onClick={() => handleSort("name")}
             >
-              {copy.volumeSort}
+              {copy.nameSort}
+              {getSortIcon("name")}
             </Button>
+            <span className="text-muted-foreground/30">|</span>
             <Button
               type="button"
               variant="link"
               size="xs"
-              className={sortType === "price" ? "text-foreground" : "text-muted-foreground"}
-              onClick={() => onSortChange("price")}
+              className={`h-auto p-0 hover:no-underline ${
+                sortField === "price" ? "text-foreground font-semibold" : "text-muted-foreground"
+              }`}
+              onClick={() => handleSort("price")}
             >
-              {copy.priceSort}
+              {copy.priceSortLabel}
+              {getSortIcon("price")}
+            </Button>
+            <span className="text-muted-foreground/30">|</span>
+            <Button
+              type="button"
+              variant="link"
+              size="xs"
+              className={`h-auto p-0 hover:no-underline ${
+                sortField === "change" ? "text-foreground font-semibold" : "text-muted-foreground"
+              }`}
+              onClick={() => handleSort("change")}
+            >
+              {copy.changeSort}
+              {getSortIcon("change")}
             </Button>
           </div>
         </div>
@@ -651,14 +739,14 @@ function toPendingStock(stock: StockQuoteSeed): Stock {
 function StockRowSkeleton() {
   return (
     <div className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 last:border-0">
-      <div className="size-5 shrink-0 animate-pulse rounded-full bg-muted" />
+      <Skeleton className="size-5 shrink-0 rounded-full" />
       <div className="flex flex-col gap-1">
-        <div className="h-3.5 w-24 animate-pulse rounded bg-muted" />
-        <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
+        <Skeleton className="h-3.5 w-24 rounded" />
+        <Skeleton className="h-2.5 w-12 rounded" />
       </div>
-      <div className="ml-auto h-3.5 w-14 animate-pulse rounded bg-muted" />
-      <div className="ml-auto h-3.5 w-16 animate-pulse rounded bg-muted" />
-      <div className="size-5 shrink-0 animate-pulse rounded bg-muted" />
+      <Skeleton className="ml-auto h-3.5 w-14 rounded" />
+      <Skeleton className="ml-auto h-3.5 w-16 rounded" />
+      <Skeleton className="size-5 shrink-0 rounded" />
     </div>
   );
 }

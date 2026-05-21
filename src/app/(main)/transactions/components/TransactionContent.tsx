@@ -35,11 +35,14 @@ export function TransactionContent() {
       setErrorMessage(null);
 
       try {
+        const normalizedRange = normalizeDateRange(filters.dateRange);
         const transactions = await getTransactions({
           tradeType: tradeType === "ALL" ? undefined : tradeType,
+          startDate: normalizedRange?.from,
+          endDate: normalizedRange?.to,
         });
 
-        setFilteredItems(filterTransactions(transactions, filters));
+        setFilteredItems(filterTransactions(transactions, filters.selectedCodes));
       } catch (error) {
         setFilteredItems([]);
         setErrorMessage(toErrorMessage(error));
@@ -51,37 +54,13 @@ export function TransactionContent() {
   );
 
   React.useEffect(() => {
-    let isActive = true;
-
-    async function loadInitialTransactions() {
-      try {
-        const transactions = await getTransactions();
-
-        if (!isActive) {
-          return;
-        }
-
-        setFilteredItems(transactions);
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-
-        setFilteredItems([]);
-        setErrorMessage(toErrorMessage(error));
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    void loadInitialTransactions();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+    void Promise.resolve().then(() => {
+      void loadTransactions("ALL", {
+        selectedCodes: [],
+        dateRange: undefined,
+      });
+    });
+  }, [loadTransactions]);
 
   const handleToggleStock = React.useCallback((code: string) => {
     setSelectedCodes((prev) =>
@@ -154,32 +133,10 @@ function TransactionErrorState({ message, onRetry }: { message: string; onRetry:
 
 function filterTransactions(
   transactions: TransactionHistoryItem[],
-  { selectedCodes, dateRange }: TransactionFilters,
+  selectedCodes: TransactionFilters["selectedCodes"],
 ) {
-  const normalizedRange = normalizeDateRange(dateRange);
-
   return transactions.filter((item) => {
-    if (selectedCodes.length > 0 && !selectedCodes.includes(item.stockCode)) {
-      return false;
-    }
-
-    if (!normalizedRange?.from) {
-      return true;
-    }
-
-    const itemDate = startOfDay(item.date);
-    const startDate = startOfDay(normalizedRange.from);
-
-    if (itemDate < startDate) {
-      return false;
-    }
-
-    if (!normalizedRange.to) {
-      return true;
-    }
-
-    const endDate = endOfDay(normalizedRange.to);
-    return item.date <= endDate;
+    return selectedCodes.length === 0 || selectedCodes.includes(item.stockCode);
   });
 }
 
@@ -189,18 +146,6 @@ function normalizeDateRange(range: DateRange | undefined): DateRange | undefined
   }
 
   return range.from <= range.to ? range : { from: range.to, to: range.from };
-}
-
-function startOfDay(date: Date) {
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(0, 0, 0, 0);
-  return normalizedDate;
-}
-
-function endOfDay(date: Date) {
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(23, 59, 59, 999);
-  return normalizedDate;
 }
 
 function toTransactionTypeFilter(type: string): TransactionTypeFilter {

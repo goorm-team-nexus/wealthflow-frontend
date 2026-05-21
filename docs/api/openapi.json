@@ -800,9 +800,6 @@
           "nickname": {
             "type": "string"
           },
-          "profileImg": {
-            "type": "string"
-          },
           "rank": {
             "format": "int32",
             "type": "integer"
@@ -1129,6 +1126,11 @@
             "description": "OK"
           }
         },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
         "summary": "로그아웃",
         "tags": [
           "Auth"
@@ -1287,6 +1289,11 @@
             "description": "OK"
           }
         },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
         "tags": [
           "exchange-controller"
         ]
@@ -1314,6 +1321,24 @@
           },
           {
             "in": "query",
+            "name": "startDate",
+            "required": false,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "required": false,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "pageable",
             "required": true,
             "schema": {
@@ -1333,6 +1358,11 @@
             "description": "OK"
           }
         },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
         "tags": [
           "exchange-controller"
         ]
@@ -1351,6 +1381,24 @@
                 "BUY",
                 "SELL"
               ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "startDate",
+            "required": false,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "required": false,
+            "schema": {
+              "format": "date",
               "type": "string"
             }
           },
@@ -1375,6 +1423,11 @@
             "description": "OK"
           }
         },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
         "tags": [
           "exchange-controller"
         ]
@@ -1708,6 +1761,11 @@
             "description": "OK"
           }
         },
+        "security": [
+          {
+            "Bearer Authentication": []
+          }
+        ],
         "tags": [
           "portfolio-controller"
         ]

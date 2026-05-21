@@ -302,6 +302,23 @@ type MarketIndexResponseDto = {
 
 type MarketIndexListResponse = ApiResponse<MarketIndexResponseDto[]>;
 
+export type ExchangeRateResponse = {
+  currency?: string;
+  rate?: number;
+  rateDate?: string;
+};
+
+export type ApiResponseExchangeRateResponse = {
+  data?: ExchangeRateResponse;
+  success?: boolean;
+};
+
+export type ExchangeRate = {
+  currency: "KRW" | "USD";
+  rate: number;
+  rateDate: string | null;
+};
+
 export async function fetchMainStockQuotes(seeds: StockQuoteSeed[]): Promise<StockQuote[]> {
   const results = await Promise.allSettled(seeds.map((seed) => fetchStockQuote(seed)));
 
@@ -330,8 +347,83 @@ export async function fetchMarketIndices(): Promise<MarketIndexQuote[]> {
   );
 }
 
+export type PricePointDto = {
+  closePrice: number;
+  date: string;
+};
+
+export type HistoricalPriceResponseDto = {
+  prices: PricePointDto[];
+  range: string;
+  ticker: string;
+};
+
+const KOSDAQ_TICKERS = new Set([
+  "247540", // 에코프로비엠
+  "086520", // 에코프로
+  "066970", // 엘앤에프
+  "293490", // 카카오게임즈
+  "253450", // 스튜디오드래곤
+  "196170", // 알테오젠
+  "214150", // 클래시스
+  "036830", // 솔브레인
+  "039030", // 이오테크닉스
+]);
+
+export function getBackendChartTicker(ticker: string): string {
+  if (/^\d+$/.test(ticker)) {
+    if (KOSDAQ_TICKERS.has(ticker)) {
+      return `${ticker}.KQ`;
+    }
+    return `${ticker}.KS`;
+  }
+  return ticker;
+}
+
+const RANGE_MAPPING: Record<string, string> = {
+  "1d": "5d",
+  "1w": "1mo",
+  "1m": "3mo",
+  "3m": "6mo",
+  "1y": "1y",
+};
+
+export async function fetchStockCharts(
+  ticker: string,
+  range: string,
+): Promise<HistoricalPriceResponseDto> {
+  const formattedTicker = getBackendChartTicker(ticker);
+  const mappedRange = RANGE_MAPPING[range] ?? range;
+
+  const apiResponse = await apiClient<ApiResponse<HistoricalPriceResponseDto>>(
+    `/market/charts?ticker=${encodeURIComponent(formattedTicker)}&range=${encodeURIComponent(mappedRange)}`,
+  );
+
+  if (!apiResponse.success || !apiResponse.data) {
+    throw new Error("Invalid stock charts response");
+  }
+
+  return apiResponse.data;
+}
+
 export async function fetchStockQuoteByTicker(ticker: string): Promise<StockQuote> {
   return fetchStockQuote(getStockQuoteSeed(ticker));
+}
+
+export async function getExchangeRate(currency: "KRW" | "USD"): Promise<ExchangeRate> {
+  const apiResponse = await apiClient<ApiResponseExchangeRateResponse>(
+    `/market/exchange/${encodeURIComponent(currency)}`,
+  );
+
+  if (!apiResponse.success || !apiResponse.data || typeof apiResponse.data.rate !== "number") {
+    throw new Error("Invalid exchange rate response");
+  }
+
+  return {
+    currency: toCurrencyCode(apiResponse.data.currency) ?? currency,
+    rate: apiResponse.data.rate,
+    rateDate: apiResponse.data.rateDate ?? null,
+  };
 }
 
 export async function fetchFavoriteStocks(): Promise<FavoriteStockList> {
@@ -467,6 +559,14 @@ function toFallbackStockQuote(seed: StockQuoteSeed): StockQuote {
 
 function normalizeIndexName(indexName?: string | null) {
   return (indexName ?? "").replace(/\s/g, "").toUpperCase();
+}
+
+function toCurrencyCode(value: string | undefined): "KRW" | "USD" | null {
+  if (value === "KRW" || value === "USD") {
+    return value;
+  }
+
+  return null;
 }
 
 function toMarketIndexPoints({

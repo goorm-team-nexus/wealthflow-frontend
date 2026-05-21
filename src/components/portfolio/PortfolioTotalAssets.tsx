@@ -5,13 +5,28 @@ import type { TotalAssetsData } from "@/services/portfolio";
 
 interface PortfolioTotalAssetsProps {
   data: TotalAssetsData;
+  cashKrw: number;
+  cashUsd: number;
+  exchangeRate: number;
 }
 
-export default function PortfolioTotalAssets({ data }: PortfolioTotalAssetsProps) {
+export default function PortfolioTotalAssets({
+  data,
+  cashKrw,
+  cashUsd,
+  exchangeRate,
+}: PortfolioTotalAssetsProps) {
   const { totalAssets, totalProfit, totalProfitRate } = data;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("ko-KR").format(value);
+  };
+
+  const formatUsd = (value: number) => {
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
   };
 
   const isPositive = totalProfit >= 0;
@@ -61,6 +76,52 @@ export default function PortfolioTotalAssets({ data }: PortfolioTotalAssetsProps
             >
               {isPositive ? "▲" : "▼"} {Math.abs(totalProfitRate).toFixed(2)}%
             </Badge>
+          </div>
+        </div>
+
+        {/* 구분용 수평선 */}
+        <div className="border-t border-border/40 my-1" />
+
+        {/* 4. 원화 & 달러 현금 구성 (2열 그리드) */}
+        <div className="grid grid-cols-2 gap-3.5 mt-1">
+          {/* 원화 현금 카드 */}
+          <div className="bg-emerald-50/30 rounded-xl p-3.5 border border-emerald-100/50 flex flex-col gap-2 transition-all duration-300 hover:bg-emerald-50/50">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-emerald-800/80 uppercase tracking-wider">
+                원화 현금
+              </span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-100/70 text-emerald-700 font-bold select-none">
+                KRW
+              </span>
+            </div>
+            <div className="text-lg font-extrabold text-foreground tracking-tight leading-none mt-1">
+              ₩ {formatCurrency(cashKrw)}
+            </div>
+          </div>
+
+          {/* 달러 현금 카드 */}
+          <div className="bg-blue-50/30 rounded-xl p-3.5 border border-blue-100/50 flex flex-col gap-2 transition-all duration-300 hover:bg-blue-50/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold text-blue-800/80 uppercase tracking-wider">
+                  달러 현금
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-100/70 text-blue-700 font-bold select-none">
+                  USD
+                </span>
+              </div>
+              <span className="text-[9px] text-muted-foreground/50 font-medium select-none">
+                환율: {formatCurrency(exchangeRate)}원
+              </span>
+            </div>
+            <div className="flex flex-col mt-1 gap-1">
+              <div className="text-lg font-extrabold text-foreground tracking-tight leading-none">
+                $ {formatUsd(cashUsd)}
+              </div>
+              <div className="text-[9px] font-medium text-muted-foreground/60 leading-none">
+                (₩ {formatCurrency(Math.round(cashUsd * exchangeRate))})
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>

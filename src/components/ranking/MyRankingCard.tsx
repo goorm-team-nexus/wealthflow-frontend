@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getMyRanking, mapToMyRankingUI, type MyRankingUIModel } from "@/services/ranking";
 import { useAuth } from "@/components/providers/AuthProvider";
 
@@ -80,20 +81,20 @@ export default function MyRankingCard({ isLink = false, initialData }: MyRanking
       <Card className="w-full border border-border/80 bg-white shadow-sm rounded-2xl overflow-hidden">
         <CardContent className="p-5 flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <div className="h-6 w-20 bg-muted animate-pulse rounded-md" />
-            <div className="h-7 w-7 bg-muted animate-pulse rounded-full animate-bounce duration-1000" />
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="size-7 rounded-full" />
           </div>
           <div className="flex items-center w-full">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-muted animate-pulse rounded-full" />
-              <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
+              <Skeleton className="size-12 rounded-full" />
+              <Skeleton className="h-5 w-24" />
             </div>
-            <div className="ml-auto h-8 w-20 bg-muted animate-pulse rounded-md" />
+            <Skeleton className="ml-auto h-8 w-20" />
           </div>
           <div className="border-t border-border/40 my-1" />
           <div className="flex items-center justify-between gap-4">
-            <div className="h-4 w-48 bg-muted animate-pulse rounded-md" />
-            <div className="h-6 w-16 bg-muted animate-pulse rounded-full" />
+            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-6 w-16 rounded-full" />
           </div>
         </CardContent>
       </Card>

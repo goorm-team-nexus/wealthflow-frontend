@@ -2,19 +2,18 @@
 
 import { Inbox } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { TransactionHistoryItem } from "@/services/investment";
+import type { ExchangeHistoryItem } from "@/services/investment";
 
-interface TransactionTableProps {
-  items: TransactionHistoryItem[];
+interface ExchangeHistoryTableProps {
+  items: ExchangeHistoryItem[];
   isLoading: boolean;
 }
 
-export function TransactionTable({ items, isLoading }: TransactionTableProps) {
+export function ExchangeHistoryTable({ items, isLoading }: ExchangeHistoryTableProps) {
   if (isLoading) {
-    return <TransactionLoadingState />;
+    return <ExchangeHistoryLoadingState />;
   }
 
   if (items.length === 0) {
@@ -36,10 +35,10 @@ export function TransactionTable({ items, isLoading }: TransactionTableProps) {
   return (
     <div className="flex flex-col w-full bg-white rounded-2xl border border-neutral-100 overflow-hidden shadow-sm">
       <div className="flex items-center px-4 py-3 bg-neutral-50 text-xs font-semibold text-neutral-400 border-b border-neutral-100">
-        <div className="w-1/4 text-left">거래일시</div>
-        <div className="w-1/3 text-left pl-2">종목명/코드</div>
-        <div className="w-1/5 text-center">유형</div>
-        <div className="w-1/4 text-right">체결단가</div>
+        <div className="w-1/4 text-left">환전일시</div>
+        <div className="w-1/4 text-right">보낸 금액</div>
+        <div className="w-1/4 text-right">받은 금액</div>
+        <div className="w-1/4 text-right">환율</div>
       </div>
 
       <div className="flex flex-col">
@@ -55,33 +54,25 @@ export function TransactionTable({ items, isLoading }: TransactionTableProps) {
                 </span>
               </div>
 
-              <div className="w-1/3 text-left pl-2 flex flex-col gap-0.5">
-                <span className="text-[14px] font-semibold text-neutral-800 leading-tight">
-                  {item.stockName}
-                </span>
-                <span className="text-[11px] font-normal text-neutral-400 tracking-wide leading-none">
-                  {item.stockCode}
-                </span>
-              </div>
-
-              <div className="w-1/5 flex justify-center">
-                {item.type === "BUY" ? (
-                  <Badge className="bg-red-500 hover:bg-red-500 text-white font-semibold px-2 py-0.5 rounded-md border-none select-none text-[10px] tracking-wide">
-                    매수
-                  </Badge>
-                ) : (
-                  <Badge className="bg-blue-500 hover:bg-blue-500 text-white font-semibold px-2 py-0.5 rounded-md border-none select-none text-[10px] tracking-wide">
-                    매도
-                  </Badge>
-                )}
-              </div>
-
-              <div className="flex w-1/4 flex-col gap-0.5 text-right">
-                <span className="text-[14px] font-semibold text-neutral-900 select-all">
-                  {formatCurrency(item.price, item.currency)}
+              <div className="w-1/4 text-right flex flex-col gap-0.5">
+                <span className="text-[13px] font-semibold text-neutral-900 select-all">
+                  {formatAmount(item.fromAmount, item.fromCurrency)}
                 </span>
                 <span className="text-[10px] font-normal text-neutral-400">
-                  {formatQuantity(item.quantity)}주
+                  {item.fromCurrency}
+                </span>
+              </div>
+
+              <div className="w-1/4 text-right flex flex-col gap-0.5">
+                <span className="text-[13px] font-semibold text-emerald-600 select-all">
+                  {formatAmount(item.toAmount, item.toCurrency)}
+                </span>
+                <span className="text-[10px] font-normal text-neutral-400">{item.toCurrency}</span>
+              </div>
+
+              <div className="w-1/4 text-right">
+                <span className="text-[11px] font-normal text-neutral-500">
+                  {formatExchangeRate(item.exchangeRate, item.fromCurrency)}
                 </span>
               </div>
             </div>
@@ -93,14 +84,14 @@ export function TransactionTable({ items, isLoading }: TransactionTableProps) {
   );
 }
 
-function TransactionLoadingState() {
+function ExchangeHistoryLoadingState() {
   return (
     <div className="flex flex-col w-full bg-white rounded-2xl border border-neutral-100 overflow-hidden shadow-sm">
       <div className="flex items-center px-4 py-3 bg-neutral-50 text-xs font-semibold text-neutral-400 border-b border-neutral-100">
-        <div className="w-1/4 text-left">거래일시</div>
-        <div className="w-1/3 text-left pl-2">종목명/코드</div>
-        <div className="w-1/5 text-center">유형</div>
-        <div className="w-1/4 text-right">체결단가</div>
+        <div className="w-1/4 text-left">환전일시</div>
+        <div className="w-1/4 text-right">보낸 금액</div>
+        <div className="w-1/4 text-right">받은 금액</div>
+        <div className="w-1/4 text-right">환율</div>
       </div>
       {Array.from({ length: 4 }, (_, index) => (
         <div key={index} className="flex flex-col">
@@ -108,13 +99,13 @@ function TransactionLoadingState() {
             <div className="w-1/4">
               <Skeleton className="h-4 w-16 bg-neutral-100" />
             </div>
-            <div className="w-1/3 pl-2">
+            <div className="w-1/4 flex justify-end">
               <Skeleton className="h-4 w-20 bg-neutral-100" />
             </div>
-            <div className="flex w-1/5 justify-center">
-              <Skeleton className="h-5 w-10 bg-neutral-100" />
+            <div className="w-1/4 flex justify-end">
+              <Skeleton className="h-4 w-20 bg-neutral-100" />
             </div>
-            <div className="flex w-1/4 justify-end">
+            <div className="w-1/4 flex justify-end">
               <Skeleton className="h-4 w-16 bg-neutral-100" />
             </div>
           </div>
@@ -138,14 +129,16 @@ function formatDateTime(date: Date) {
   }).format(date);
 }
 
-function formatCurrency(value: number, currency: TransactionHistoryItem["currency"]) {
+function formatAmount(value: number, currency: "KRW" | "USD") {
   if (currency === "USD") {
-    return `$${value.toLocaleString("ko-KR", { maximumFractionDigits: 2 })}`;
+    return `$${value.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
-
   return `₩${Math.round(value).toLocaleString("ko-KR")}`;
 }
 
-function formatQuantity(value: number) {
-  return value.toLocaleString("ko-KR", { maximumFractionDigits: 6 });
+function formatExchangeRate(rate: number, fromCurrency: "KRW" | "USD") {
+  if (fromCurrency === "KRW") {
+    return `1 USD = ₩${Math.round(rate).toLocaleString("ko-KR")}`;
+  }
+  return `1 USD = ₩${Math.round(rate).toLocaleString("ko-KR")}`;
 }

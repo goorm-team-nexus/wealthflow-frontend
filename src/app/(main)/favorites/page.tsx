@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   fetchFavoriteStocks,
   removeFavoriteStock,
@@ -24,7 +25,6 @@ const copy = {
   favorite: "관심 종목",
   emptyTitle: "관심 종목이 없습니다",
   emptyDescription: "시장/거래에서 관심 있는 종목을 추가해보세요.",
-  loadingStocks: "관심 종목 불러오는 중",
   stockLoadFailed: "관심 종목 연동 실패",
   favoriteUpdateFailed: "관심 종목 변경 실패",
 };
@@ -79,6 +79,8 @@ export default function FavoritesPage() {
     return favoriteStocks.filter((stock) => favoriteTickers.has(stock.ticker));
   }, [favoriteStocks, favoriteTickers]);
 
+  const isInitialLoading = isStockLoading && favoriteStocks.length === 0;
+
   const handleFavoriteToggle = async (stock: FavoriteStock) => {
     setHasFavoriteError(false);
     setUpdatingFavoriteTickers((currentTickers) => new Set(currentTickers).add(stock.ticker));
@@ -115,18 +117,18 @@ export default function FavoritesPage() {
     }
   };
 
+  if (isInitialLoading) {
+    return <FavoritesPageSkeleton />;
+  }
+
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       <section className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold">{copy.sectionTitle}</h2>
-          {isStockLoading || hasStockError || hasFavoriteError ? (
+          {hasStockError || hasFavoriteError ? (
             <span className="text-xs font-medium text-muted-foreground">
-              {isStockLoading
-                ? copy.loadingStocks
-                : hasStockError
-                  ? copy.stockLoadFailed
-                  : copy.favoriteUpdateFailed}
+              {hasStockError ? copy.stockLoadFailed : copy.favoriteUpdateFailed}
             </span>
           ) : null}
         </div>
@@ -150,6 +152,53 @@ export default function FavoritesPage() {
         ) : (
           <FavoriteEmptyState />
         )}
+      </section>
+    </div>
+  );
+}
+
+function FavoritesPageSkeleton() {
+  return (
+    <div className="flex w-full flex-col gap-6 p-4">
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-6 w-28" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+
+        <Card className="py-4 shadow-sm">
+          <CardContent className="grid grid-cols-3 divide-x divide-border px-0">
+            {Array.from({ length: 3 }, (_, index) => (
+              <div key={index} className="flex flex-col items-center gap-2">
+                <Skeleton className="h-4 w-12" />
+                <div className="flex h-8 items-end justify-center gap-1">
+                  <Skeleton className="h-7 w-8" />
+                  {index === 0 ? <Skeleton className="mb-0.5 h-3 w-6" /> : null}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardContent className="p-0">
+            {Array.from({ length: 5 }, (_, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 last:border-0"
+              >
+                <Skeleton className="size-5 shrink-0 rounded-full" />
+                <div className="flex min-w-0 flex-col gap-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+                <Skeleton className="ml-auto h-4 w-14" />
+                <Skeleton className="ml-auto h-4 w-16" />
+                <Skeleton className="size-5 shrink-0 rounded-full" />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

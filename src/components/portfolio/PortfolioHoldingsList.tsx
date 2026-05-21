@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import type { HoldingItem } from "@/services/portfolio";
+import { getTickerCurrency } from "@/services/marketService";
 
 const DEFAULT_VISIBLE_COUNT = 5;
 const LOAD_MORE_COUNT = 5;
@@ -16,11 +17,22 @@ function formatCurrency(value: number): string {
   return new Intl.NumberFormat("ko-KR").format(value);
 }
 
-interface PortfolioHoldingsListProps {
-  holdings: HoldingItem[];
+function formatUsd(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
-export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsListProps) {
+interface PortfolioHoldingsListProps {
+  holdings: HoldingItem[];
+  exchangeRate?: number;
+}
+
+export default function PortfolioHoldingsList({
+  holdings,
+  exchangeRate = 1350,
+}: PortfolioHoldingsListProps) {
   const [visibleCount, setVisibleCount] = useState(DEFAULT_VISIBLE_COUNT);
 
   const totalCount = holdings.length;
@@ -50,7 +62,7 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
         </div>
 
         {/* 2. 관심종목 테이블과 100% 동일한 5열 구조의 테이블 헤더 (업계 표준 정렬 적용) */}
-        <div className="bg-muted/40 grid grid-cols-[20px_1fr_60px_105px_70px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
+        <div className="bg-muted/40 grid grid-cols-[20px_1fr_50px_130px_70px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
           <span></span>
           <span className="text-left pl-3">종목명</span>
           <span className="text-right pr-6">수량</span>
@@ -73,12 +85,17 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
             {visibleItems.map((item) => {
               const isPositive = item.profitRate >= 0;
               const logoSrc = typeof item.logoSrc === "string" ? item.logoSrc : item.logoSrc.src;
+              const isUsd = getTickerCurrency(item.slug) === "USD";
+              const displayValue = isUsd
+                ? formatUsd(item.value / exchangeRate)
+                : formatCurrency(item.value);
+              const currencySymbol = isUsd ? "$" : "₩";
 
               return (
                 <li key={item.name} className="border-b border-border/40 last:border-0">
                   <Link
                     href={`/stock-detail/${item.slug}`}
-                    className="grid grid-cols-[20px_1fr_60px_105px_70px] items-center py-3.5 px-4 hover:bg-accent/40 transition-all duration-300 group cursor-pointer"
+                    className="grid grid-cols-[20px_1fr_50px_130px_70px] items-center py-3.5 px-4 hover:bg-accent/40 transition-all duration-300 group cursor-pointer"
                   >
                     {/* Col 1: 로고 (관심종목처럼 size-5로 소형화 및 슬림 아웃라인 테두리 적용) */}
                     <div className="flex items-center justify-center shrink-0">
@@ -112,7 +129,8 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
 
                     {/* Col 4: 평가금액 (우측정렬 + 패딩간격) */}
                     <span className="text-sm font-semibold tracking-tight text-right pr-4 text-foreground tabular-nums">
-                      ₩{formatCurrency(item.value)}
+                      {currencySymbol}
+                      {displayValue}
                     </span>
 
                     {/* Col 5: 수익률 (우측정렬) */}
