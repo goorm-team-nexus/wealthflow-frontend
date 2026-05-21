@@ -27,7 +27,7 @@ export default function PortfolioPage() {
   const [holdings, setHoldings] = useState<HoldingItem[]>([]);
   const [cashKrw, setCashKrw] = useState<number>(0);
   const [cashUsd, setCashUsd] = useState<number>(0);
-  // 달러 현금자산 환율 미갱신 이슈로 인해 임시로 1500원 고정 적용
+  // 환율 API 조회 실패 시 기본 1500원 설정
   const [exchangeRate, setExchangeRate] = useState<number>(1500);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +56,8 @@ export default function PortfolioPage() {
         }
 
         if (rateRes.status === "fulfilled" && rateRes.value) {
-          // 달러 현금자산 환율 미갱신 이슈로 인해 임시로 1500원 고정 적용
+          setExchangeRate(rateRes.value.rate);
+        } else {
           setExchangeRate(1500);
         }
       } catch (err) {
