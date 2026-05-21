@@ -126,9 +126,11 @@ export default function Home() {
   const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
   const [isMarketSliding, setIsMarketSliding] = useState(false);
   const [isStockLoading, setIsStockLoading] = useState(false);
+  const [isMarketIndexLoading, setIsMarketIndexLoading] = useState(true);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(true);
   const [hasFavoriteError, setHasFavoriteError] = useState(false);
   const [hasStockError, setHasStockError] = useState(false);
-  const [marketIndexes, setMarketIndexes] = useState<MarketIndex[]>(fallbackMarketIndexes);
+  const [marketIndexes, setMarketIndexes] = useState<MarketIndex[]>([]);
   const [mainStocks, setMainStocks] = useState<Stock[]>(() => stocks.map(toPendingStock));
   const [slideDirection, setSlideDirection] = useState<SlideDirection>("next");
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -169,6 +171,10 @@ export default function Home() {
         if (isMounted) {
           setMarketIndexes(fallbackMarketIndexes);
         }
+      } finally {
+        if (isMounted) {
+          setIsMarketIndexLoading(false);
+        }
       }
     };
 
@@ -183,6 +189,7 @@ export default function Home() {
     let isMounted = true;
 
     const loadFavorites = async () => {
+      setIsFavoriteLoading(true);
       setHasFavoriteError(false);
 
       try {
@@ -194,6 +201,10 @@ export default function Home() {
       } catch {
         if (isMounted) {
           setHasFavoriteError(true);
+        }
+      } finally {
+        if (isMounted) {
+          setIsFavoriteLoading(false);
         }
       }
     };
@@ -331,6 +342,7 @@ export default function Home() {
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       <MarketIndexSection
+        isLoading={isMarketIndexLoading}
         marketPage={marketPage}
         marketPages={totalMarketPages}
         marketIndexes={visibleMarketIndexes}
@@ -344,6 +356,7 @@ export default function Home() {
         favoriteTickers={favoriteTickers}
         hasFavoriteError={hasFavoriteError}
         hasStockError={hasStockError}
+        isFavoriteLoading={isFavoriteLoading}
         isMoreStocksOpen={isMoreStocksOpen}
         isStockLoading={isStockLoading}
         sortType={sortType}
@@ -358,7 +371,23 @@ export default function Home() {
   );
 }
 
+function MarketIndexCardSkeleton() {
+  return (
+    <Card className="h-[112px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0">
+      <CardContent className="flex h-full flex-col gap-1.5 px-2.5">
+        <div className="h-3 w-10 animate-pulse rounded bg-muted" />
+        <div className="min-h-0 w-full flex-1 animate-pulse rounded bg-muted" />
+        <div className="flex items-center justify-between gap-1">
+          <div className="h-3.5 w-16 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function MarketIndexSection({
+  isLoading,
   marketIndexes,
   marketPage,
   marketPages,
@@ -368,6 +397,7 @@ function MarketIndexSection({
   onSelectPage,
   slideDirection,
 }: {
+  isLoading: boolean;
   marketIndexes: MarketIndex[];
   marketPage: number;
   marketPages: number;
@@ -385,47 +415,61 @@ function MarketIndexSection({
 
   return (
     <section className="flex flex-col gap-4 pt-6">
-      <div className="grid grid-cols-[24px_minmax(0,1fr)_24px] items-center gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Previous market cards"
-          onClick={onPrevious}
-        >
-          <ChevronLeft className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
-        </Button>
+      <div className="grid grid-cols-[24px_minmax(0,1fr)_24px] items-stretch gap-2">
+        {!isLoading ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="h-full"
+            aria-label="Previous market cards"
+            onClick={onPrevious}
+          >
+            <ChevronLeft className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          </Button>
+        ) : (
+          <div />
+        )}
         <div
           className={`grid flex-1 grid-cols-2 gap-4 transition-all duration-300 ease-out ${slideClass}`}
         >
-          {marketIndexes.map((marketIndex) => (
-            <MarketIndexCard key={marketIndex.id} marketIndex={marketIndex} />
-          ))}
+          {isLoading
+            ? [0, 1].map((i) => <MarketIndexCardSkeleton key={i} />)
+            : marketIndexes.map((marketIndex) => (
+                <MarketIndexCard key={marketIndex.id} marketIndex={marketIndex} />
+              ))}
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Next market cards"
-          onClick={onNext}
-        >
-          <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
-        </Button>
-      </div>
-      <div className="flex h-3 items-center justify-center gap-3">
-        {Array.from({ length: marketPages }, (_, page) => (
+        {!isLoading ? (
           <Button
-            key={page}
             type="button"
             variant="ghost"
-            size="icon-xs"
-            className={`size-3 rounded-full p-0 ${marketPage === page ? "bg-blue-600" : "bg-muted"}`}
-            aria-label={`Market page ${page + 1}`}
-            aria-pressed={marketPage === page}
-            onClick={() => onSelectPage(page)}
-          />
-        ))}
+            size="icon-sm"
+            className="h-full"
+            aria-label="Next market cards"
+            onClick={onNext}
+          >
+            <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          </Button>
+        ) : (
+          <div />
+        )}
       </div>
+      {!isLoading && (
+        <div className="flex h-3 items-center justify-center gap-3">
+          {Array.from({ length: marketPages }, (_, page) => (
+            <Button
+              key={page}
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className={`size-3 rounded-full p-0 ${marketPage === page ? "bg-blue-600" : "bg-muted"}`}
+              aria-label={`Market page ${page + 1}`}
+              aria-pressed={marketPage === page}
+              onClick={() => onSelectPage(page)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -438,18 +482,14 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
 
   return (
     <Card
-      className={`${cardToneClass} h-[92px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0`}
+      className={`${cardToneClass} h-[112px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0`}
     >
-      <CardContent className="flex h-full flex-col gap-1 px-2.5">
-        <div className="flex items-start justify-between gap-2">
-          <span className="text-xs font-medium leading-none text-foreground">
-            {marketIndex.name}
-          </span>
-          <span className={`text-xs leading-none ${changeToneClass}`}>{marketIndex.change}</span>
-        </div>
+      <CardContent className="flex h-full flex-col gap-1.5 px-2.5">
+        <span className="text-xs font-medium leading-none text-foreground">{marketIndex.name}</span>
         <svg
-          className={`h-12 w-full ${chartToneClass}`}
+          className={`min-h-0 w-full flex-1 ${chartToneClass}`}
           viewBox="0 0 120 56"
+          preserveAspectRatio="none"
           role="img"
           aria-label={`${marketIndex.name} ${copy.chart}`}
         >
@@ -468,9 +508,14 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
             strokeWidth="1.4"
           />
         </svg>
-        <strong className="text-base leading-none font-bold tracking-tight text-foreground">
-          {marketIndex.price}
-        </strong>
+        <div className="flex items-baseline justify-between gap-1">
+          <strong className="text-sm font-bold leading-none tracking-tight text-foreground">
+            {marketIndex.price}
+          </strong>
+          <span className={`text-[11px] font-medium leading-none ${changeToneClass}`}>
+            {marketIndex.change}
+          </span>
+        </div>
       </CardContent>
     </Card>
   );
@@ -480,6 +525,7 @@ function MainStockSection({
   favoriteTickers,
   hasFavoriteError,
   hasStockError,
+  isFavoriteLoading,
   isMoreStocksOpen,
   isStockLoading,
   sortType,
@@ -493,6 +539,7 @@ function MainStockSection({
   favoriteTickers: Set<string>;
   hasFavoriteError: boolean;
   hasStockError: boolean;
+  isFavoriteLoading: boolean;
   isMoreStocksOpen: boolean;
   isStockLoading: boolean;
   sortType: SortType;
@@ -518,13 +565,9 @@ function MainStockSection({
         <div className="flex h-6 items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
-            {isStockLoading || hasStockError || hasFavoriteError ? (
+            {hasStockError || hasFavoriteError ? (
               <span className="text-xs font-medium text-muted-foreground">
-                {isStockLoading
-                  ? copy.loadingStocks
-                  : hasStockError
-                    ? copy.stockLoadFailed
-                    : copy.favoriteLoadFailed}
+                {hasStockError ? copy.stockLoadFailed : copy.favoriteLoadFailed}
               </span>
             ) : null}
           </div>
@@ -551,15 +594,18 @@ function MainStockSection({
           </div>
         </div>
         <div ref={stockListRef}>
-          {visibleStocks.map((stock) => (
-            <StockRow
-              key={stock.id}
-              isFavorite={favoriteTickers.has(stock.ticker)}
-              isFavoriteUpdating={updatingFavoriteTickers.has(stock.ticker)}
-              stock={stock}
-              onFavoriteStock={onFavoriteStock}
-            />
-          ))}
+          {isStockLoading
+            ? Array.from({ length: 10 }, (_, i) => <StockRowSkeleton key={i} />)
+            : visibleStocks.map((stock) => (
+                <StockRow
+                  key={stock.id}
+                  isFavorite={favoriteTickers.has(stock.ticker)}
+                  isFavoriteLoading={isFavoriteLoading}
+                  isFavoriteUpdating={updatingFavoriteTickers.has(stock.ticker)}
+                  stock={stock}
+                  onFavoriteStock={onFavoriteStock}
+                />
+              ))}
         </div>
         <div className="border-t border-border">
           {!isMoreStocksOpen ? (
@@ -602,13 +648,30 @@ function toPendingStock(stock: StockQuoteSeed): Stock {
   };
 }
 
+function StockRowSkeleton() {
+  return (
+    <div className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 last:border-0">
+      <div className="size-5 shrink-0 animate-pulse rounded-full bg-muted" />
+      <div className="flex flex-col gap-1">
+        <div className="h-3.5 w-24 animate-pulse rounded bg-muted" />
+        <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
+      </div>
+      <div className="ml-auto h-3.5 w-14 animate-pulse rounded bg-muted" />
+      <div className="ml-auto h-3.5 w-16 animate-pulse rounded bg-muted" />
+      <div className="size-5 shrink-0 animate-pulse rounded bg-muted" />
+    </div>
+  );
+}
+
 function StockRow({
   isFavorite,
+  isFavoriteLoading,
   isFavoriteUpdating,
   stock,
   onFavoriteStock,
 }: {
   isFavorite: boolean;
+  isFavoriteLoading: boolean;
   isFavoriteUpdating: boolean;
   stock: Stock;
   onFavoriteStock: (stock: Stock) => void;
@@ -648,11 +711,17 @@ function StockRow({
         size="icon-xs"
         aria-label={copy.favoriteStock}
         aria-pressed={isFavorite}
-        disabled={isFavoriteUpdating}
+        disabled={isFavoriteLoading || isFavoriteUpdating}
         onClick={() => onFavoriteStock(stock)}
       >
         <Heart
-          className={`size-5 stroke-[2] ${isFavorite ? "fill-red-500 text-red-500" : "text-foreground"}`}
+          className={`size-5 stroke-[2] ${
+            isFavoriteLoading
+              ? "text-muted-foreground/40"
+              : isFavorite
+                ? "fill-red-500 text-red-500"
+                : "text-foreground"
+          }`}
           aria-hidden="true"
         />
       </Button>

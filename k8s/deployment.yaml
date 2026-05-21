@@ -41,12 +41,6 @@ spec:
                 secretKeyRef:
                   name: wealthflow-backend-secret
                   key: KAKAO_CLIENT_ID
-            - name: KAKAO_REDIRECT_URI
-              valueFrom:
-                configMapKeyRef:
-                  name: wealthflow-backend-config
-                  key: KAKAO_REDIRECT_URI
-                  optional: true
           readinessProbe:
             tcpSocket:
               port: http
