@@ -26,6 +26,10 @@ function getPageTitle(pathname: string) {
     return "모의 매수";
   }
 
+  if (pathname.includes("/sell")) {
+    return "모의 매도";
+  }
+
   if (pathname.startsWith("/stock-detail")) {
     return "종목 상세";
   }
@@ -79,9 +83,7 @@ export default function GlobalNavigationBar() {
                   />
                 </div>
               </Link>
-              <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                {title}
-              </span>
+              <span className="font-extrabold text-lg tracking-tight text-foreground">{title}</span>
             </div>
           )}
         </div>

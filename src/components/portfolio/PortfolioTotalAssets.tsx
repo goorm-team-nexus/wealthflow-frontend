@@ -56,9 +56,7 @@ export default function PortfolioTotalAssets({ data }: PortfolioTotalAssetsProps
             <Badge
               variant="outline"
               className={`h-auto font-bold px-2.5 py-0.5 rounded-full flex items-center gap-0.5 border-none select-none text-xs ${
-                isPositive
-                  ? "bg-red-50 text-red-600 hover:bg-red-50"
-                  : "bg-blue-50 text-blue-600 hover:bg-blue-50"
+                isPositive ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
               }`}
             >
               {isPositive ? "▲" : "▼"} {Math.abs(totalProfitRate).toFixed(2)}%

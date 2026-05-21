@@ -248,7 +248,7 @@ function FavoriteStockRow({
   const toneClass = stock.tone === "blue" ? "text-blue-600" : "text-red-500";
 
   return (
-    <div className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-accent/40">
+    <div className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-accent/40 group">
       <Link
         href={`/stock-detail/${stock.ticker}`}
         className="contents"
@@ -261,7 +261,9 @@ function FavoriteStockRow({
         </span>
 
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-sm font-medium text-foreground">{stock.name}</span>
+          <span className="truncate text-sm font-medium text-foreground inline-block origin-left group-hover:scale-105">
+            {stock.name}
+          </span>
           <span className="truncate text-[11px] font-medium text-muted-foreground">
             {stock.ticker}
           </span>
