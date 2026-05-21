@@ -358,12 +358,45 @@ export type HistoricalPriceResponseDto = {
   ticker: string;
 };
 
+const KOSDAQ_TICKERS = new Set([
+  "247540", // 에코프로비엠
+  "086520", // 에코프로
+  "066970", // 엘앤에프
+  "293490", // 카카오게임즈
+  "253450", // 스튜디오드래곤
+  "196170", // 알테오젠
+  "214150", // 클래시스
+  "036830", // 솔브레인
+  "039030", // 이오테크닉스
+]);
+
+export function getBackendChartTicker(ticker: string): string {
+  if (/^\d+$/.test(ticker)) {
+    if (KOSDAQ_TICKERS.has(ticker)) {
+      return `${ticker}.KQ`;
+    }
+    return `${ticker}.KS`;
+  }
+  return ticker;
+}
+
+const RANGE_MAPPING: Record<string, string> = {
+  "1d": "1d",
+  "1w": "5d",
+  "1m": "1mo",
+  "3m": "3mo",
+  "1y": "1y",
+};
+
 export async function fetchStockCharts(
   ticker: string,
   range: string,
 ): Promise<HistoricalPriceResponseDto> {
+  const formattedTicker = getBackendChartTicker(ticker);
+  const mappedRange = RANGE_MAPPING[range] ?? range;
+
   const apiResponse = await apiClient<ApiResponse<HistoricalPriceResponseDto>>(
-    `/market/charts?ticker=${encodeURIComponent(ticker)}&range=${encodeURIComponent(range)}`,
+    `/market/charts?ticker=${encodeURIComponent(formattedTicker)}&range=${encodeURIComponent(mappedRange)}`,
   );
 
   if (!apiResponse.success || !apiResponse.data) {
