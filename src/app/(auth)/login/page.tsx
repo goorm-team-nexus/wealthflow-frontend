@@ -56,13 +56,13 @@ function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 sm:bg-muted">
-      <div className="w-full max-w-[400px]">
+      <div className="w-full max-w-100">
         <Card>
           <CardContent className="p-6 sm:p-8">
             <div className="mb-6 border-b border-border pb-6">
               <h1 className="text-2xl font-bold text-foreground">WealthFlow</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                모든 자산을 WealthFlow로 한번에 관리하세요
+                모의투자로 투자 감각을 키워보세요
               </p>
             </div>
 
@@ -71,34 +71,38 @@ function LoginPage() {
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                  Email
+                  이메일
                 </label>
                 <Input
                   type="email"
                   id="email"
-                  placeholder="m@example.com"
+                  placeholder="이메일 주소 입력"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  autoFocus
                 />
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-sm font-medium text-foreground">
-                    Password
-                  </label>
-                  <Link href="/find-pw" className="text-sm text-foreground hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground">
+                  비밀번호
+                </label>
                 <Input
+                  className="col-span-2"
                   type="password"
                   id="password"
+                  placeholder="비밀번호 입력"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                 />
+                <Link
+                  href="/find-pw"
+                  className="col-start-2 row-start-1 justify-self-end text-xs text-muted-foreground hover:text-foreground hover:underline"
+                >
+                  비밀번호 찾기
+                </Link>
               </div>
 
               {errorMsg && <p className="text-xs text-destructive">{errorMsg}</p>}
@@ -124,7 +128,7 @@ function LoginPage() {
               {/* Kakao - provider color exception */}
               <a
                 href="/oauth/kakao/start"
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#FEE500] py-2.5 text-sm font-medium text-black transition-colors hover:bg-[#FDD800]"
+                className="flex w-full items-center justify-center gap-2 bg-[#FEE500] py-2.5 text-sm font-medium text-black transition-colors hover:bg-[#FDD800]"
               >
                 <svg
                   width="18"

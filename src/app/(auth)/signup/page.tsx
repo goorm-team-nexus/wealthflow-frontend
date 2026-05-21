@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -67,13 +68,13 @@ export default function SignUp() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 sm:bg-muted">
-      <div className="w-full max-w-[400px]">
+      <div className="w-full max-w-100">
         <Card>
           <CardContent className="p-6 sm:p-8">
             <div className="mb-6 border-b border-border pb-6">
               <h1 className="text-2xl font-bold text-foreground">WealthFlow</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                모든 자산을 WealthFlow로 한번에 관리하세요
+                모의투자로 투자 감각을 키워보세요
               </p>
             </div>
 
@@ -87,9 +88,11 @@ export default function SignUp() {
                 <Input
                   type="text"
                   id="name"
+                  placeholder="이름 입력"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={isLoading}
+                  autoFocus
                 />
               </div>
 
@@ -100,16 +103,11 @@ export default function SignUp() {
                 <Input
                   type="email"
                   id="email"
-                  placeholder="xxxx@gmail.com"
+                  placeholder="이메일 주소 입력"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                 />
-                <div className="flex justify-end pt-1">
-                  <Button type="button" size="sm" variant="outline" disabled={isLoading}>
-                    인증요청
-                  </Button>
-                </div>
               </div>
 
               <div className="space-y-2">
@@ -119,7 +117,7 @@ export default function SignUp() {
                 <Input
                   type="password"
                   id="password"
-                  placeholder="********"
+                  placeholder="비밀번호 입력"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
@@ -139,7 +137,7 @@ export default function SignUp() {
                 <Input
                   type="password"
                   id="passwordConfirm"
-                  placeholder="********"
+                  placeholder="비밀번호 다시 입력"
                   value={passwordConfirm}
                   onChange={(e) => setPasswordConfirm(e.target.value)}
                   disabled={isLoading}
@@ -148,9 +146,12 @@ export default function SignUp() {
 
               {errorMsg && <p className="text-xs text-destructive">{errorMsg}</p>}
 
-              <div className="pt-4">
+              <div className="flex flex-col gap-3 pt-4">
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "처리 중..." : "회원가입"}
+                </Button>
+                <Button asChild variant="secondary" className="w-full" disabled={isLoading}>
+                  <Link href="/login">로그인으로 돌아가기</Link>
                 </Button>
               </div>
             </form>

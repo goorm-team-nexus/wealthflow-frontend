@@ -126,5 +126,17 @@ export async function apiClient<T>(
     return {} as T;
   }
 
-  return response.json();
+  const responseText = await response.text();
+
+  if (!responseText) {
+    return {} as T;
+  }
+
+  const contentType = response.headers.get("content-type");
+
+  if (contentType?.includes("application/json")) {
+    return JSON.parse(responseText) as T;
+  }
+
+  return responseText as T;
 }

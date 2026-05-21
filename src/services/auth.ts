@@ -36,6 +36,21 @@ export interface ApiResponseLogoutResponse {
   success?: boolean;
 }
 
+export interface ApiResponseVoid {
+  success?: boolean;
+  data?: unknown;
+  message?: string;
+}
+
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetConfirmRequest {
+  token: string;
+  newPassword: string;
+}
+
 /**
  * 로그인 API (Next.js Route Handler Proxy 호출)
  */
@@ -83,6 +98,28 @@ export async function logout(): Promise<ApiResponseLogoutResponse> {
  */
 export async function signUp(data: UserSignUpRequest): Promise<ApiResponseUserResponse> {
   return apiClient<ApiResponseUserResponse>("/auth/signup", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * 비밀번호 재설정 메일 발송 요청
+ */
+export async function requestPasswordReset(data: PasswordResetRequest): Promise<ApiResponseVoid> {
+  return apiClient<ApiResponseVoid>("/auth/password-reset/request", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * 비밀번호 재설정 완료
+ */
+export async function confirmPasswordReset(
+  data: PasswordResetConfirmRequest,
+): Promise<ApiResponseVoid> {
+  return apiClient<ApiResponseVoid>("/auth/password-reset/confirm", {
     method: "POST",
     body: JSON.stringify(data),
   });
