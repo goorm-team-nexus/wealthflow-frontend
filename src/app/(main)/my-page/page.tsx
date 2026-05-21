@@ -122,7 +122,17 @@ export default function MyPage() {
           </Avatar>
           <div className="flex flex-col">
             <span className="text-lg font-semibold">@{userName}</span>
-            <span className="text-sm text-muted-foreground">{userInfo?.email}</span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-sm text-muted-foreground">{userInfo?.email}</span>
+              {userInfo?.email?.toLowerCase().endsWith("@kakao.com") && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#FEE500] px-2 py-0.5 text-[10px] font-bold text-[#191919]">
+                  <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-current text-[#191919]">
+                    <path d="M12 3c-5.52 0-10 3.58-10 8 0 2.92 2 5.47 5 6.9L6 21c-.13.52.19.57.4.43l3.6-2.4c.67.1 1.37.17 2 .17 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
+                  </svg>
+                  카카오 계정
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </Card>

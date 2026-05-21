@@ -144,7 +144,6 @@ export default function EditInfo() {
               <Input
                 type="password"
                 id="password"
-                placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -162,7 +161,6 @@ export default function EditInfo() {
               <Input
                 type="password"
                 id="passwordConfirm"
-                placeholder="********"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
               />
@@ -174,9 +172,19 @@ export default function EditInfo() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                이메일
-              </label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="email" className="text-sm font-medium">
+                  이메일
+                </label>
+                {email.toLowerCase().endsWith("@kakao.com") && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#FEE500] px-2 py-0.5 text-[10px] font-bold text-[#191919]">
+                    <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-current text-[#191919]">
+                      <path d="M12 3c-5.52 0-10 3.58-10 8 0 2.92 2 5.47 5 6.9L6 21c-.13.52.19.57.4.43l3.6-2.4c.67.1 1.37.17 2 .17 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
+                    </svg>
+                    카카오 계정
+                  </span>
+                )}
+              </div>
               <Input id="email" value={email} readOnly disabled />
             </div>
 
