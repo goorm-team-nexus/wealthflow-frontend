@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -105,12 +106,7 @@ export default function ProfileSelectionContent() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 p-4">
-        <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
-        <p className="text-sm text-muted-foreground">사용자 정보를 불러오는 중입니다...</p>
-      </div>
-    );
+    return <ProfileSelectionSkeleton />;
   }
 
   return (
@@ -174,6 +170,26 @@ export default function ProfileSelectionContent() {
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function ProfileSelectionSkeleton() {
+  return (
+    <div className="flex w-full flex-col items-center gap-8 p-4 pt-8">
+      <Skeleton className="size-20 rounded-full" />
+      <Skeleton className="h-8 w-28" />
+
+      <div className="grid w-full grid-cols-3 gap-6">
+        {Array.from({ length: 6 }, (_, index) => (
+          <Skeleton key={index} className="aspect-square w-full rounded-full" />
+        ))}
+      </div>
+
+      <div className="flex w-full flex-col gap-2 pt-4">
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLogout } from "@/hooks/useLogout";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import MyRankingCard from "@/components/ranking/MyRankingCard";
@@ -44,12 +45,7 @@ export default function MyPage() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 p-4">
-        <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
-        <p className="text-sm text-muted-foreground">사용자 정보를 불러오는 중입니다...</p>
-      </div>
-    );
+    return <MyPageSkeleton />;
   }
 
   if (error) {
@@ -165,6 +161,38 @@ export default function MyPage() {
           <MyRankingCard />
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function MyPageSkeleton() {
+  return (
+    <div className="flex w-full flex-col gap-6 p-4">
+      <Card className="border border-border bg-card p-6 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Skeleton className="size-16 shrink-0 rounded-full" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-6 w-28" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex flex-col gap-3 text-center">
+        <div className="flex justify-center">
+          <Skeleton className="h-6 w-12" />
+        </div>
+        <div className="flex flex-col items-center gap-4">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-9 w-32 rounded-full" />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {Array.from({ length: 5 }, (_, index) => (
+          <Skeleton key={index} className="h-11 w-full rounded-md" />
+        ))}
+      </div>
     </div>
   );
 }

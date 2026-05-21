@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CircleUserRound } from "lucide-react";
 import { getMyPage, updateProfile, getAvatarSrc } from "@/services/user";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -91,12 +92,7 @@ export default function EditInfo() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[300px] flex-col items-center justify-center gap-2 p-4">
-        <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
-        <p className="text-sm text-muted-foreground">사용자 정보를 불러오는 중입니다...</p>
-      </div>
-    );
+    return <EditInfoSkeleton />;
   }
 
   if (error) {
@@ -188,6 +184,35 @@ export default function EditInfo() {
               {isUpdating ? "변경 중..." : "변경"}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function EditInfoSkeleton() {
+  return (
+    <div className="w-full p-4">
+      <Card>
+        <CardContent className="flex flex-col gap-6 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="size-16 shrink-0 rounded-full" />
+          </div>
+
+          <div className="flex flex-col gap-6">
+            {Array.from({ length: 3 }, (_, index) => (
+              <div key={index} className="flex flex-col gap-2">
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-10 w-full rounded-md" />
+              </div>
+            ))}
+
+            <div className="flex flex-col gap-2 pt-2">
+              <Skeleton className="h-10 w-full rounded-md" />
+              <Skeleton className="h-10 w-full rounded-md" />
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

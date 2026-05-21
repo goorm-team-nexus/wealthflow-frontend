@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getRanking, mapToOverallRankingUI, type OverallRankingUIModel } from "@/services/ranking";
 import { useAuth } from "@/components/providers/AuthProvider";
 
@@ -99,9 +100,13 @@ export default function OverallRanking() {
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground select-none">
               Update: {updatedAt || "26.05.19 18:00"}
             </span>
-            <span className="text-xs font-medium text-blue-500 select-none">
-              {loading ? "불러오는 중..." : `TOP ${rankings.length} 표시 중`}
-            </span>
+            {loading ? (
+              <Skeleton className="mt-1 h-4 w-20" />
+            ) : (
+              <span className="text-xs font-medium text-blue-500 select-none">
+                TOP {rankings.length} 표시 중
+              </span>
+            )}
           </div>
         </div>
 
@@ -120,21 +125,7 @@ export default function OverallRanking() {
           <div className="flex flex-col min-h-[150px]">
             {loading && rankings.length === 0 ? (
               // 최초 진입 시 로딩 스켈레톤
-              Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="grid grid-cols-[40px_1fr_50px_80px_96px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
-                >
-                  <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
-                  <div className="flex items-center gap-3 ml-4">
-                    <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
-                    <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
-                  </div>
-                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-4" />
-                  <div className="h-5 w-14 bg-muted animate-pulse rounded-md ml-auto" />
-                  <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
-                </div>
-              ))
+              Array.from({ length: 5 }).map((_, i) => <RankingRowSkeleton key={i} />)
             ) : rankings.length === 0 ? (
               <div className="flex items-center justify-center py-12 text-sm text-muted-foreground font-medium select-none">
                 랭킹 데이터가 존재하지 않습니다.
@@ -189,21 +180,7 @@ export default function OverallRanking() {
 
             {/* 더보기 시 추가 스켈레톤 로더 */}
             {loadingMore &&
-              Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={`more-${i}`}
-                  className="grid grid-cols-[40px_1fr_50px_80px_96px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
-                >
-                  <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
-                  <div className="flex items-center gap-3 ml-4">
-                    <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
-                    <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
-                  </div>
-                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-4" />
-                  <div className="h-5 w-14 bg-muted animate-pulse rounded-md ml-auto" />
-                  <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
-                </div>
-              ))}
+              Array.from({ length: 3 }).map((_, i) => <RankingRowSkeleton key={`more-${i}`} />)}
           </div>
         </div>
 
@@ -236,5 +213,20 @@ export default function OverallRanking() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function RankingRowSkeleton() {
+  return (
+    <div className="grid grid-cols-[40px_1fr_50px_80px_96px] items-center border-b border-border/40 px-4 py-3.5 last:border-0">
+      <Skeleton className="mx-auto size-6" />
+      <div className="ml-4 flex items-center gap-3">
+        <Skeleton className="size-6 shrink-0 rounded-full" />
+        <Skeleton className="h-5 w-24" />
+      </div>
+      <Skeleton className="ml-auto mr-4 h-5 w-8" />
+      <Skeleton className="ml-auto h-5 w-14" />
+      <Skeleton className="ml-auto h-5 w-16" />
+    </div>
   );
 }

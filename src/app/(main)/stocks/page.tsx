@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   addFavoriteStock,
   fetchFavoriteStocks,
@@ -375,11 +376,11 @@ function MarketIndexCardSkeleton() {
   return (
     <Card className="h-[112px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0">
       <CardContent className="flex h-full flex-col gap-1.5 px-2.5">
-        <div className="h-3 w-10 animate-pulse rounded bg-muted" />
-        <div className="min-h-0 w-full flex-1 animate-pulse rounded bg-muted" />
+        <Skeleton className="h-3 w-10" />
+        <Skeleton className="min-h-0 w-full flex-1 rounded" />
         <div className="flex items-center justify-between gap-1">
-          <div className="h-3.5 w-16 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+          <Skeleton className="h-3.5 w-16 rounded" />
+          <Skeleton className="h-3 w-20 rounded" />
         </div>
       </CardContent>
     </Card>
@@ -651,14 +652,14 @@ function toPendingStock(stock: StockQuoteSeed): Stock {
 function StockRowSkeleton() {
   return (
     <div className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 last:border-0">
-      <div className="size-5 shrink-0 animate-pulse rounded-full bg-muted" />
+      <Skeleton className="size-5 shrink-0 rounded-full" />
       <div className="flex flex-col gap-1">
-        <div className="h-3.5 w-24 animate-pulse rounded bg-muted" />
-        <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
+        <Skeleton className="h-3.5 w-24 rounded" />
+        <Skeleton className="h-2.5 w-12 rounded" />
       </div>
-      <div className="ml-auto h-3.5 w-14 animate-pulse rounded bg-muted" />
-      <div className="ml-auto h-3.5 w-16 animate-pulse rounded bg-muted" />
-      <div className="size-5 shrink-0 animate-pulse rounded bg-muted" />
+      <Skeleton className="ml-auto h-3.5 w-14 rounded" />
+      <Skeleton className="ml-auto h-3.5 w-16 rounded" />
+      <Skeleton className="size-5 shrink-0 rounded" />
     </div>
   );
 }

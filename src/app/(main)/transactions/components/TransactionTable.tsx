@@ -4,6 +4,7 @@ import { Inbox } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { TransactionHistoryItem } from "@/services/investment";
 
 interface TransactionTableProps {
@@ -105,16 +106,16 @@ function TransactionLoadingState() {
         <div key={index} className="flex flex-col">
           <div className="flex items-center px-4 py-4">
             <div className="w-1/4">
-              <div className="h-4 w-16 rounded-md bg-neutral-100" />
+              <Skeleton className="h-4 w-16 bg-neutral-100" />
             </div>
             <div className="w-1/3 pl-2">
-              <div className="h-4 w-20 rounded-md bg-neutral-100" />
+              <Skeleton className="h-4 w-20 bg-neutral-100" />
             </div>
             <div className="flex w-1/5 justify-center">
-              <div className="h-5 w-10 rounded-md bg-neutral-100" />
+              <Skeleton className="h-5 w-10 bg-neutral-100" />
             </div>
             <div className="flex w-1/4 justify-end">
-              <div className="h-4 w-16 rounded-md bg-neutral-100" />
+              <Skeleton className="h-4 w-16 bg-neutral-100" />
             </div>
           </div>
           {index < 3 && <Separator className="bg-neutral-100" />}
