@@ -1,15 +1,21 @@
 "use client";
 
-import { ArrowLeft, CircleUserRound } from "lucide-react";
+import { ArrowLeft, CircleUserRound, Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import mainLogo from "@/assets/images/logos/logo/mainlogo.webp";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getStockQuoteSeed } from "@/services/marketService";
+import {
+  getStockQuoteSeed,
+  fetchFavoriteStocks,
+  addFavoriteStock,
+  removeFavoriteStock,
+} from "@/services/marketService";
 
 const pathMap: Record<string, string> = {
   "/stocks": "시장/거래",
@@ -34,20 +40,92 @@ function isSubPage(pathname: string) {
   return pathname === "/profile" || pathname === "/edit-info" || pathname === "/exchange";
 }
 
-function getTradePageContext(pathname: string) {
-  const match = pathname.match(/^\/stock-detail\/([^/]+)\/(?:purchase|sell)$/);
-
-  if (!match) {
-    return null;
+function getStockPageContext(pathname: string) {
+  const tradeMatch = pathname.match(/^\/stock-detail\/([^/]+)\/(?:purchase|sell)$/);
+  if (tradeMatch) {
+    const ticker = decodeURIComponent(tradeMatch[1]);
+    const stockSeed = getStockQuoteSeed(ticker);
+    return {
+      ticker,
+      backHref: `/stock-detail/${ticker}`,
+      backLabel: "종목 상세로 돌아가기",
+      title: `${stockSeed.name} (${ticker})`,
+    };
   }
 
-  const ticker = decodeURIComponent(match[1]);
-  const stockSeed = getStockQuoteSeed(ticker);
+  const detailMatch = pathname.match(/^\/stock-detail\/([^/]+)$/);
+  if (detailMatch) {
+    const ticker = decodeURIComponent(detailMatch[1]);
+    const stockSeed = getStockQuoteSeed(ticker);
+    return {
+      ticker,
+      backHref: "/stocks",
+      backLabel: "시장/거래 페이지로 돌아가기",
+      title: `${stockSeed.name} (${ticker})`,
+    };
+  }
 
-  return {
-    backHref: `/stock-detail/${ticker}`,
-    title: `${stockSeed.name} (${ticker})`,
+  return null;
+}
+
+function FavoriteButton({ ticker }: { ticker: string }) {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavoriteUpdating, setIsFavoriteUpdating] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadFavoriteState = async () => {
+      try {
+        const favorites = await fetchFavoriteStocks();
+        if (isMounted) {
+          setIsFavorite(favorites.items.some((favoriteStock) => favoriteStock.ticker === ticker));
+        }
+      } catch {
+        // 관심종목 로드 에러 시 묵인
+      }
+    };
+    void loadFavoriteState();
+    return () => {
+      isMounted = false;
+    };
+  }, [ticker]);
+
+  const handleFavoriteToggle = async () => {
+    const nextIsFavorite = !isFavorite;
+    setIsFavoriteUpdating(true);
+    setIsFavorite(nextIsFavorite);
+
+    try {
+      const result = nextIsFavorite
+        ? await addFavoriteStock(ticker)
+        : await removeFavoriteStock(ticker);
+      setIsFavorite(result.favorite ?? nextIsFavorite);
+    } catch {
+      setIsFavorite(!nextIsFavorite);
+    } finally {
+      setIsFavoriteUpdating(false);
+    }
   };
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="size-8 text-foreground"
+      aria-label="관심 종목"
+      aria-pressed={isFavorite}
+      disabled={isFavoriteUpdating}
+      onClick={handleFavoriteToggle}
+    >
+      <Heart
+        className={`size-5 stroke-[2.2] ${
+          isFavorite ? "fill-red-500 text-red-500" : "text-foreground"
+        }`}
+        aria-hidden="true"
+      />
+    </Button>
+  );
 }
 
 export default function GlobalNavigationBar() {
@@ -55,21 +133,36 @@ export default function GlobalNavigationBar() {
   const router = useRouter();
   const { userProfile } = useAuth();
   const avatarSrc = userProfile?.avatarSrc;
-  const tradePageContext = getTradePageContext(pathname);
-  const title = tradePageContext?.title ?? getPageTitle(pathname);
-  const showBack = tradePageContext !== null || isSubPage(pathname);
+  const stockPageContext = getStockPageContext(pathname);
+  const title = stockPageContext?.title ?? getPageTitle(pathname);
+  const showBack = stockPageContext !== null || isSubPage(pathname);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
-      {tradePageContext ? (
+      {stockPageContext ? (
         <div className="grid h-[56px] grid-cols-[32px_minmax(0,1fr)_32px] items-center px-4">
-          <Button asChild variant="ghost" size="icon" className="size-8 -ml-1 text-foreground">
-            <Link href={tradePageContext.backHref} aria-label="종목 상세로 돌아가기">
-              <ArrowLeft className="size-5" aria-hidden="true" />
-            </Link>
-          </Button>
+          {stockPageContext.backHref ? (
+            <Button asChild variant="ghost" size="icon" className="size-8 -ml-1 text-foreground">
+              <Link href={stockPageContext.backHref} aria-label={stockPageContext.backLabel}>
+                <ArrowLeft className="size-5" aria-hidden="true" />
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 -ml-1 text-foreground"
+              onClick={() => router.back()}
+              aria-label="뒤로가기"
+            >
+              <ArrowLeft className="size-5" />
+            </Button>
+          )}
           <span className="truncate text-center text-sm font-semibold">{title}</span>
-          <span aria-hidden="true" />
+          <div className="flex justify-end">
+            <FavoriteButton ticker={stockPageContext.ticker} />
+          </div>
         </div>
       ) : (
         <div className="flex h-[56px] items-center justify-between px-4">
