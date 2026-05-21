@@ -102,7 +102,8 @@ export default function MyRankingCard({ isLink = false, initialData }: MyRanking
 
   if (!data) return null;
 
-  const { nickname, avatarUrl, rank, rankChange, message, isAuthenticated } = data;
+  const { nickname, avatarUrl, rank, rankChange, message, isAuthenticated, totalAssetFormatted } =
+    data;
   const displayAvatar = userProfile?.avatarSrc || avatarUrl;
   const displayName = userProfile?.name || nickname;
 
@@ -165,9 +166,16 @@ export default function MyRankingCard({ isLink = false, initialData }: MyRanking
 
         {/* 3. 하단 소개 메시지 및 백분율 배지 영역 */}
         <div className="flex items-center justify-between gap-4">
-          <span className="text-xs text-muted-foreground tracking-tight whitespace-normal break-keep leading-relaxed truncate min-w-0 pr-2">
-            {message}
-          </span>
+          <div className="flex flex-col min-w-0">
+            {isAuthenticated && totalAssetFormatted && (
+              <span className="text-sm font-bold text-foreground leading-snug">
+                {totalAssetFormatted}
+              </span>
+            )}
+            <span className="text-xs text-muted-foreground tracking-tight whitespace-normal break-keep leading-relaxed truncate min-w-0 pr-2">
+              {message}
+            </span>
+          </div>
           <Badge
             variant="secondary"
             className="rounded-full bg-muted/80 text-foreground text-xs font-semibold px-2.5 py-0.5 border-none shrink-0 select-none"

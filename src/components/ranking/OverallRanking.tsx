@@ -10,16 +10,20 @@ import { useAuth } from "@/components/providers/AuthProvider";
 // 날짜 포맷 변환 함수 (YY.MM.DD HH:mm - 컴포넌트 외부로 분리하여 성능 최적화 및 호이스팅 린트 경고 방지)
 const formatUpdateDate = (dateStr: string) => {
   try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "26.05.19 18:00";
-    const yy = String(d.getFullYear()).slice(-2);
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const hh = String(d.getHours()).padStart(2, "0");
-    const min = String(d.getMinutes()).padStart(2, "0");
-    return `${yy}.${mm}.${dd} ${hh}:${min}`;
+    // 타임존 정보 없는 naive 문자열은 UTC로 강제 처리 (브라우저별 로컬 파싱 방지)
+    const normalized = /Z$|[+-]\d{2}:?\d{2}$/.test(dateStr) ? dateStr : dateStr + "Z";
+    const d = new Date(normalized);
+    if (isNaN(d.getTime())) return "26.05.19 18:00 KST";
+    // UTC → KST (UTC+9) 명시적 변환
+    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    const yy = String(kst.getUTCFullYear()).slice(-2);
+    const mm = String(kst.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(kst.getUTCDate()).padStart(2, "0");
+    const hh = String(kst.getUTCHours()).padStart(2, "0");
+    const min = String(kst.getUTCMinutes()).padStart(2, "0");
+    return `${yy}.${mm}.${dd} ${hh}:${min} KST`;
   } catch {
-    return "26.05.19 18:00";
+    return "26.05.19 18:00 KST";
   }
 };
 
@@ -104,11 +108,12 @@ export default function OverallRanking() {
         {/* 테이블 구조 */}
         <div className="w-full">
           {/* 테이블 헤더 */}
-          <div className="bg-muted/40 grid grid-cols-[40px_1fr_60px_100px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
+          <div className="bg-muted/40 grid grid-cols-[40px_1fr_50px_80px_96px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
             <span className="text-center">순위</span>
             <span className="text-left pl-4">닉네임</span>
-            <span className="text-right pr-6">종목</span>
+            <span className="text-right pr-4">종목</span>
             <span className="text-right">수익률</span>
+            <span className="text-right">총 자산</span>
           </div>
 
           {/* 리스트 아이템 및 스켈레톤 로더 */}
@@ -118,14 +123,15 @@ export default function OverallRanking() {
               Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
+                  className="grid grid-cols-[40px_1fr_50px_80px_96px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
                 >
                   <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
                   <div className="flex items-center gap-3 ml-4">
                     <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
                     <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
                   </div>
-                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-6" />
+                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-4" />
+                  <div className="h-5 w-14 bg-muted animate-pulse rounded-md ml-auto" />
                   <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
                 </div>
               ))
@@ -145,7 +151,7 @@ export default function OverallRanking() {
                 return (
                   <div
                     key={item.rank}
-                    className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0 hover:bg-accent/40 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-1 relative overflow-hidden cursor-default"
+                    className="grid grid-cols-[40px_1fr_50px_80px_96px] py-3.5 px-4 items-center border-b border-border/40 last:border-0 hover:bg-accent/40 transition-all duration-300 group animate-in fade-in slide-in-from-bottom-1 relative overflow-hidden cursor-default"
                   >
                     <span className="text-base font-bold text-center text-foreground group-hover:scale-110 group-hover:text-red-500 transition-all duration-300 tabular-nums">
                       {item.rank}
@@ -161,17 +167,20 @@ export default function OverallRanking() {
                         {item.name}
                       </span>
                     </div>
-                    <span className="text-sm text-right pr-6 text-muted-foreground/80 font-normal group-hover:text-foreground transition-colors duration-300 tabular-nums">
+                    <span className="text-sm text-right pr-4 text-muted-foreground/80 font-normal group-hover:text-foreground transition-colors duration-300 tabular-nums">
                       {item.stocks}
                     </span>
                     <span
-                      className={`text-sm font-normal text-right tabular-nums transition-all duration-300 ${
+                      className={`text-xs font-normal text-right tabular-nums transition-all duration-300 ${
                         isPositive
                           ? "text-red-500 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.2)]"
                           : "text-blue-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]"
                       }`}
                     >
                       {isPositive ? "▲" : "▼"} {cleanRate}
+                    </span>
+                    <span className="text-xs text-right text-foreground font-semibold tabular-nums group-hover:text-primary transition-colors duration-300">
+                      {item.totalAsset}
                     </span>
                   </div>
                 );
@@ -183,14 +192,15 @@ export default function OverallRanking() {
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={`more-${i}`}
-                  className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
+                  className="grid grid-cols-[40px_1fr_50px_80px_96px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
                 >
                   <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
                   <div className="flex items-center gap-3 ml-4">
                     <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
                     <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
                   </div>
-                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-6" />
+                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-4" />
+                  <div className="h-5 w-14 bg-muted animate-pulse rounded-md ml-auto" />
                   <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
                 </div>
               ))}
@@ -198,33 +208,31 @@ export default function OverallRanking() {
         </div>
 
         {/* 버튼 섹션 */}
-        <div className="flex border-t border-border/60">
+        <div className="border-t border-border/60">
           {rankings.length < totalCount ? (
             <Button
               type="button"
               variant="ghost"
               disabled={loading || loadingMore}
               onClick={handleLoadMore}
-              className="flex-1 text-xs font-medium text-muted-foreground h-11 hover:bg-muted/10"
+              className="w-full text-xs font-medium text-muted-foreground h-11 hover:bg-muted/10"
             >
               {loadingMore ? "불러오는 중..." : "10개 더보기"}
             </Button>
           ) : rankings.length > 0 ? (
-            <div className="flex-1 py-4 text-xs text-center text-muted-foreground font-semibold bg-muted/5 uppercase tracking-widest select-none">
-              모든 랭킹을 확인했습니다
+            <div className="py-4 px-4 text-xs text-center text-muted-foreground font-semibold bg-muted/5 uppercase tracking-widest select-none flex items-center justify-center gap-3">
+              <span>모든 랭킹을 확인했습니다</span>
+              {rankings.length > pageSize && (
+                <button
+                  type="button"
+                  onClick={handleCollapse}
+                  className="bg-muted text-foreground rounded px-1.5 py-0.5 text-[11px] font-medium hover:bg-muted/70 transition-colors cursor-pointer normal-case tracking-normal"
+                >
+                  접기
+                </button>
+              )}
             </div>
           ) : null}
-
-          {rankings.length > pageSize && (
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleCollapse}
-              className="w-20 border-l border-border/60 text-xs font-semibold text-destructive h-11 hover:bg-destructive/5"
-            >
-              접기
-            </Button>
-          )}
         </div>
       </CardContent>
     </Card>
