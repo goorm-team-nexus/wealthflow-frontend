@@ -83,35 +83,6 @@ export default function ProfileSelectionContent() {
     }
   };
 
-  const handleDelete = async () => {
-    setIsLoading(true);
-    try {
-      const res = await updateProfile({
-        name: userName,
-        avatarPresetId: 1,
-      });
-      if (res.success) {
-        setSelectedAvatar("purple");
-        localStorage.setItem("wealthflow_profile_avatar", AVATAR_PRESETS[0].src);
-        await refreshUserProfile();
-        showMessageBox("초기화 완료", "프로필이 초기화되었습니다.");
-      } else {
-        showMessageBox(
-          "초기화 실패",
-          res.message || "프로필 초기화에 실패했습니다.\n잠시 후 다시 시도해주세요.",
-        );
-      }
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "프로필 초기화에 실패했습니다.\n잠시 후 다시 시도해주세요.";
-      showMessageBox("초기화 실패", msg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   if (isLoading) {
     return <ProfileSelectionSkeleton />;
   }
@@ -157,9 +128,6 @@ export default function ProfileSelectionContent() {
         <Button type="button" className="w-full" onClick={handleSave}>
           프로필 저장
         </Button>
-        <Button type="button" variant="secondary" className="w-full" onClick={handleDelete}>
-          프로필 삭제
-        </Button>
       </div>
 
       <MessageBox
@@ -186,7 +154,6 @@ function ProfileSelectionSkeleton() {
       </div>
 
       <div className="flex w-full flex-col gap-2 pt-4">
-        <Skeleton className="h-10 w-full rounded-md" />
         <Skeleton className="h-10 w-full rounded-md" />
       </div>
     </div>
