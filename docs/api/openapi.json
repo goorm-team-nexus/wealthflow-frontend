@@ -34,10 +34,47 @@
         },
         "type": "object"
       },
+      "ApiResponseHistoricalPriceResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/HistoricalPriceResponseDto"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ApiResponseListMarketIndexResponseDto": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/MarketIndexResponseDto"
+            },
+            "type": "array"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApiResponseLogoutResponse": {
         "properties": {
           "data": {
             "$ref": "#/components/schemas/LogoutResponse"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ApiResponseMapStringObject": {
+        "properties": {
+          "data": {
+            "additionalProperties": {},
+            "type": "object"
           },
           "success": {
             "type": "boolean"
@@ -144,6 +181,15 @@
         },
         "type": "object"
       },
+      "ApiResponseVoid": {
+        "properties": {
+          "data": {},
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ExchangeRateResponse": {
         "properties": {
           "currency": {
@@ -154,6 +200,48 @@
           },
           "rateDate": {
             "format": "date",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ExchangeRequestDto": {
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "fromCurrency": {
+            "type": "string"
+          },
+          "toCurrency": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ExchangeResponseDto": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "exchangeRate": {
+            "type": "number"
+          },
+          "fromAmount": {
+            "type": "number"
+          },
+          "fromCurrency": {
+            "type": "string"
+          },
+          "id": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "toAmount": {
+            "type": "number"
+          },
+          "toCurrency": {
             "type": "string"
           }
         },
@@ -241,6 +329,23 @@
         },
         "type": "object"
       },
+      "HistoricalPriceResponseDto": {
+        "properties": {
+          "prices": {
+            "items": {
+              "$ref": "#/components/schemas/PricePointDto"
+            },
+            "type": "array"
+          },
+          "range": {
+            "type": "string"
+          },
+          "ticker": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "LoginRequest": {
         "properties": {
           "email": {
@@ -265,6 +370,23 @@
         "properties": {
           "loggedOut": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "MarketIndexResponseDto": {
+        "properties": {
+          "changeAmount": {
+            "type": "number"
+          },
+          "changeRate": {
+            "type": "number"
+          },
+          "currentPrice": {
+            "type": "number"
+          },
+          "indexName": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -378,6 +500,193 @@
         },
         "type": "object"
       },
+      "Pageable": {
+        "properties": {
+          "page": {
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "size": {
+            "format": "int32",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "sort": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "PageableObject": {
+        "properties": {
+          "offset": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "paged": {
+            "type": "boolean"
+          },
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "unpaged": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PageExchangeResponseDto": {
+        "properties": {
+          "content": {
+            "items": {
+              "$ref": "#/components/schemas/ExchangeResponseDto"
+            },
+            "type": "array"
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "number": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "numberOfElements": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "totalElements": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PageTransactionResponseDto": {
+        "properties": {
+          "content": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionResponseDto"
+            },
+            "type": "array"
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "number": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "numberOfElements": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "totalElements": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PasswordResetConfirmRequest": {
+        "properties": {
+          "newPassword": {
+            "example": "NewPassword123!",
+            "minLength": 1,
+            "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{9,}$",
+            "type": "string"
+          },
+          "token": {
+            "example": "abc123...",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "newPassword",
+          "token"
+        ],
+        "type": "object"
+      },
+      "PasswordResetRequest": {
+        "properties": {
+          "email": {
+            "example": "user@example.com",
+            "format": "email",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "type": "object"
+      },
+      "PieChartDto": {
+        "properties": {
+          "percentage": {
+            "type": "number"
+          },
+          "ticker": {
+            "type": "string"
+          },
+          "valueKrw": {
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
       "PortfolioItemResponse": {
         "properties": {
           "averagePrice": {
@@ -411,6 +720,12 @@
       },
       "PortfolioResponse": {
         "properties": {
+          "cashKrw": {
+            "type": "number"
+          },
+          "cashUsd": {
+            "type": "number"
+          },
           "evaluatedAt": {
             "format": "date-time",
             "type": "string"
@@ -420,6 +735,15 @@
               "$ref": "#/components/schemas/PortfolioItemResponse"
             },
             "type": "array"
+          },
+          "pieChart": {
+            "items": {
+              "$ref": "#/components/schemas/PieChartDto"
+            },
+            "type": "array"
+          },
+          "totalAssetKrw": {
+            "type": "number"
           },
           "totalEvaluation": {
             "type": "number"
@@ -433,6 +757,17 @@
           "totalYieldRate": {
             "format": "double",
             "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "PricePointDto": {
+        "properties": {
+          "closePrice": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -498,31 +833,42 @@
         ],
         "type": "object"
       },
+      "SortObject": {
+        "properties": {
+          "empty": {
+            "type": "boolean"
+          },
+          "sorted": {
+            "type": "boolean"
+          },
+          "unsorted": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "StockPriceResponse": {
         "properties": {
-          "changePrice": {
+          "changeAmount": {
             "type": "number"
           },
           "changeRate": {
-            "format": "double",
             "type": "number"
           },
           "currentPrice": {
             "type": "number"
           },
           "marketCap": {
-            "format": "int64",
-            "type": "integer"
+            "type": "number"
           },
           "per": {
-            "format": "double",
+            "type": "number"
+          },
+          "prevClosePrice": {
             "type": "number"
           },
           "priceUpdatedAt": {
             "format": "date-time",
-            "type": "string"
-          },
-          "range52w": {
             "type": "string"
           },
           "ticker": {
@@ -537,6 +883,45 @@
             "type": "string"
           },
           "refreshToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TransactionResponseDto": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "currency": {
+            "enum": [
+              "KRW",
+              "USD"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "ticker": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "tradeType": {
+            "enum": [
+              "BUY",
+              "SELL"
+            ],
             "type": "string"
           }
         },
@@ -750,6 +1135,70 @@
         ]
       }
     },
+    "/api/v1/auth/password-reset/confirm": {
+      "post": {
+        "description": "재설정 링크의 token과 새 비밀번호로 비밀번호를 변경합니다. 완료 시 모든 기기에서 로그아웃됩니다.",
+        "operationId": "confirmPasswordReset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "비밀번호 재설정 완료",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/password-reset/request": {
+      "post": {
+        "description": "이메일 주소로 비밀번호 재설정 메일을 발송합니다. 이메일 회원 전용. 60초 쿨다운 적용.",
+        "operationId": "requestPasswordReset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "비밀번호 재설정 요청",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/v1/auth/refresh": {
       "post": {
         "description": "RTR 방식으로 refresh token을 회전하고 새 token pair를 발급합니다.",
@@ -810,6 +1259,124 @@
         "summary": "회원가입",
         "tags": [
           "Auth"
+        ]
+      }
+    },
+    "/api/v1/exchange": {
+      "post": {
+        "operationId": "exchangeCurrency",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "exchange-controller"
+        ]
+      }
+    },
+    "/api/v1/exchange/history": {
+      "get": {
+        "operationId": "getExchangeHistory",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "fromCurrency",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "toCurrency",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageable",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageExchangeResponseDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "exchange-controller"
+        ]
+      }
+    },
+    "/api/v1/exchange/transactions": {
+      "get": {
+        "operationId": "getTransactions",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tradeType",
+            "required": false,
+            "schema": {
+              "enum": [
+                "BUY",
+                "SELL"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageable",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageTransactionResponseDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "exchange-controller"
         ]
       }
     },
@@ -977,9 +1544,48 @@
         ]
       }
     },
+    "/api/v1/market/charts": {
+      "get": {
+        "operationId": "getStockCharts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ticker",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "range",
+            "required": false,
+            "schema": {
+              "default": "1y",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseHistoricalPriceResponseDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "주요 지수 및 종목 기간별 차트 조회",
+        "tags": [
+          "Market"
+        ]
+      }
+    },
     "/api/v1/market/exchange/{currency}": {
       "get": {
-        "description": "특정 통화의 원화 환율을 조회합니다.",
         "operationId": "getExchange",
         "parameters": [
           {
@@ -1005,7 +1611,50 @@
             "description": "OK"
           }
         },
-        "summary": "환율 조회",
+        "summary": "환율 조회 (기존 규격 유지)",
+        "tags": [
+          "Market"
+        ]
+      }
+    },
+    "/api/v1/market/exchange/rate": {
+      "get": {
+        "operationId": "getLiveExchangeRate",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "실시간 USD/KRW 환율 단독 조회",
+        "tags": [
+          "Market"
+        ]
+      }
+    },
+    "/api/v1/market/indices": {
+      "get": {
+        "description": "코스피, 코스닥, 나스닥, S&P500, 다우, 니케이 지수를 일괄 반환",
+        "operationId": "getMarketIndices",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListMarketIndexResponseDto"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "6대 글로벌 시장 지수 실시간 조회",
         "tags": [
           "Market"
         ]
@@ -1013,7 +1662,6 @@
     },
     "/api/v1/market/stocks/{ticker}": {
       "get": {
-        "description": "티커 심볼로 실시간 주식 시세를 조회합니다.",
         "operationId": "getStockPrice",
         "parameters": [
           {
@@ -1042,6 +1690,26 @@
         "summary": "주식 시세 조회",
         "tags": [
           "Market"
+        ]
+      }
+    },
+    "/api/v1/portfolio": {
+      "get": {
+        "operationId": "getMyPortfolio",
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "portfolio-controller"
         ]
       }
     },
