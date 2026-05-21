@@ -130,14 +130,18 @@ export default function MyPage() {
             <User className="size-5" />내 정보 조회 및 수정
           </Button>
         </Link>
-        <Button variant="outline" size="lg" className="w-full justify-start gap-3">
-          <History className="size-5" />
-          거래 내역
-        </Button>
-        <Button variant="outline" size="lg" className="w-full justify-start gap-3">
-          <Banknote className="size-5" />
-          환전 내역
-        </Button>
+        <Link href="/transactions" className="w-full">
+          <Button variant="outline" size="lg" className="w-full justify-start gap-3">
+            <History className="size-5" />
+            거래 내역
+          </Button>
+        </Link>
+        <Link href="/exchange" className="w-full">
+          <Button variant="outline" size="lg" className="w-full justify-start gap-3">
+            <Banknote className="size-5" />
+            환전 내역
+          </Button>
+        </Link>
         <Button
           type="button"
           variant="destructive"
