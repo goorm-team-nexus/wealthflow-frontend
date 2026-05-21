@@ -105,7 +105,7 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
                     icon={item.icon}
                     label={item.label}
                     href={item.href}
-                    onClick={item.onClick}
+                    onClick={item.onClick || onClose}
                   />
                 ))}
               </div>
@@ -175,7 +175,7 @@ function MenuItem({
 
   if (href) {
     return (
-      <Link href={href} className={className}>
+      <Link href={href} className={className} onClick={onClick}>
         {content}
       </Link>
     );

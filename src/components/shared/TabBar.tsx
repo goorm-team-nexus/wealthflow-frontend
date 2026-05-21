@@ -48,7 +48,7 @@ export function TabBar() {
                   type="button"
                   variant="ghost"
                   onClick={() => {
-                    setIsMenuOpen(true);
+                    setIsMenuOpen((prev) => !prev);
                   }}
                   className={itemClassName}
                   aria-current={isActive ? "page" : undefined}
@@ -61,6 +61,7 @@ export function TabBar() {
                   href={tab.href ?? "/"}
                   className={itemClassName}
                   aria-current={isActive ? "page" : undefined}
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <Icon className="w-5 h-5 mb-1" />
                   <span className="text-xs leading-none">{tab.label}</span>
