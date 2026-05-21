@@ -61,7 +61,7 @@ export default function PortfolioTotalAssets({ data }: PortfolioTotalAssetsProps
                   : "bg-blue-50 text-blue-600 hover:bg-blue-50"
               }`}
             >
-              {isPositive ? "▲" : "▼"} {Math.abs(totalProfitRate)}%
+              {isPositive ? "▲" : "▼"} {Math.abs(totalProfitRate).toFixed(2)}%
             </Badge>
           </div>
         </div>

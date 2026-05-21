@@ -24,6 +24,9 @@ export interface PortfolioItemResponse {
 }
 
 export interface PortfolioResponse {
+  cashKrw?: number;
+  cashUsd?: number;
+  totalAssetKrw?: number;
   totalInvestment: number;
   totalEvaluation: number;
   totalProfitLoss: number;
@@ -112,8 +115,9 @@ const getStockMetadata = (ticker: string): StockMetadata => {
 export const INITIAL_SEED_MONEY = 100_000_000;
 
 export const mapToTotalAssetsData = (data: PortfolioResponse): TotalAssetsData => {
-  // 보유 종목이 없으면 시드머니 1억을 기본 총 자산으로 표시
-  const totalAssets = data.totalEvaluation > 0 ? data.totalEvaluation : INITIAL_SEED_MONEY;
+  // 총 자산(예수금 + 평가금액)을 사용하며, 데이터가 없는 경우 기본 시드머니로 대체합니다.
+  const totalAssets =
+    data.totalAssetKrw && data.totalAssetKrw > 0 ? data.totalAssetKrw : INITIAL_SEED_MONEY;
   return {
     totalAssets,
     totalProfit: data.totalProfitLoss,
