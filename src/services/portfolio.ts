@@ -126,7 +126,7 @@ export const mapToHoldingItems = (items: PortfolioItemResponse[]): HoldingItem[]
     const meta = getStockMetadata(item.ticker);
     return {
       name: meta.name,
-      slug: meta.slug,
+      slug: item.ticker,
       initial: meta.initial,
       shares: item.quantity,
       value: item.evaluationAmount,

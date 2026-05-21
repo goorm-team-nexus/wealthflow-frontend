@@ -108,7 +108,7 @@ function StockRow({ stock, onClose }: { stock: StockItem; onClose: () => void })
   return (
     <div className="flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-muted/50 transition-colors group">
       <Link
-        href={`/stock-detail/${stock.id}`}
+        href={`/stock-detail/${stock.ticker}`}
         onClick={onClose}
         className="flex items-center gap-3 min-w-0 flex-1"
       >
@@ -124,14 +124,14 @@ function StockRow({ stock, onClose }: { stock: StockItem; onClose: () => void })
       </Link>
       <div className="flex items-center gap-1.5">
         <Link
-          href={`/stock-detail/${stock.id}/purchase`}
+          href={`/stock-detail/${stock.ticker}/purchase`}
           onClick={onClose}
           className="px-2.5 py-1 text-xs font-semibold rounded-md bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50 transition-colors"
         >
           매수
         </Link>
         <Link
-          href={`/stock-detail/${stock.id}/sell`}
+          href={`/stock-detail/${stock.ticker}/sell`}
           onClick={onClose}
           className="px-2.5 py-1 text-xs font-semibold rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400 dark:hover:bg-blue-950/50 transition-colors"
         >
