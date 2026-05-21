@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getMyRanking, mapToMyRankingUI, type MyRankingUIModel } from "@/services/ranking";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 // 모든 등수별 랭킹 WebP 아이콘 임포트
 import crownIcon from "@/assets/images/ranking/crown.webp";
@@ -39,6 +40,7 @@ interface MyRankingCardProps {
 export default function MyRankingCard({ isLink = false, initialData }: MyRankingCardProps) {
   const [data, setData] = useState<MyRankingUIModel | null>(initialData || null);
   const [loading, setLoading] = useState(!initialData);
+  const { userProfile } = useAuth();
 
   useEffect(() => {
     if (initialData) return;
@@ -101,6 +103,8 @@ export default function MyRankingCard({ isLink = false, initialData }: MyRanking
   if (!data) return null;
 
   const { nickname, avatarUrl, rank, rankChange, message, isAuthenticated } = data;
+  const displayAvatar = userProfile?.avatarSrc || avatarUrl;
+  const displayName = userProfile?.name || nickname;
 
   // 비로그인 유도 경로 대신 랭킹 메인 대시보드로 통일
   const cardHref = "/ranking";
@@ -133,13 +137,13 @@ export default function MyRankingCard({ isLink = false, initialData }: MyRanking
           {/* 아바타 + 닉네임 */}
           <div className="flex items-center">
             <Avatar className="w-12 h-12 border border-border/60 shadow-sm shrink-0">
-              {avatarUrl ? <AvatarImage src={avatarUrl} alt={nickname} /> : null}
+              {displayAvatar ? <AvatarImage src={displayAvatar} alt={displayName} /> : null}
               <AvatarFallback className="bg-muted text-foreground text-sm font-bold">
-                {nickname && nickname !== "-" ? nickname[0] : "?"}
+                {displayName && displayName !== "-" ? displayName[0] : "?"}
               </AvatarFallback>
             </Avatar>
             <span className="font-bold text-foreground text-base ml-3 leading-none truncate max-w-[120px]">
-              {nickname}
+              {displayName}
             </span>
           </div>
 

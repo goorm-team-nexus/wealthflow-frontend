@@ -1,11 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { getAccessToken, setAccessToken } from "@/lib/api-client";
 import { refresh } from "@/services/auth";
+import { getMyPage, getAvatarSrc } from "@/services/user";
+
+interface UserProfile {
+  name: string;
+  avatarSrc: string | null;
+}
+
+interface AuthContextType {
+  userProfile: UserProfile | null;
+  refreshUserProfile: () => Promise<void>;
+  isInitializing: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  userProfile: null,
+  refreshUserProfile: async () => {},
+  isInitializing: true,
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitializing, setIsInitializing] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await getMyPage();
+      if (res.success && res.data) {
+        const resolvedAvatar = getAvatarSrc(res.data.avatarPresetId);
+        const avatarSrc = resolvedAvatar && resolvedAvatar !== "default" ? resolvedAvatar : null;
+        setUserProfile({
+          name: res.data.name || "사용자",
+          avatarSrc,
+        });
+        if (avatarSrc) {
+          localStorage.setItem("wealthflow_profile_avatar", avatarSrc);
+        } else {
+          localStorage.removeItem("wealthflow_profile_avatar");
+        }
+      } else {
+        setUserProfile(null);
+      }
+    } catch (error) {
+      console.debug("Failed to fetch user profile:", error);
+      setUserProfile(null);
+    }
+  };
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -21,23 +64,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.debug("Silent auth refresh failed:", error);
         }
       }
+
+      // 토큰이 존재하는 경우에만 프로필 조회
+      if (getAccessToken()) {
+        await fetchUserProfile();
+      }
+
       setIsInitializing(false);
     };
 
     initializeAuth();
   }, []);
 
-  // 렌더링 블로킹 여부 결정 (isInitializing 동안 로딩 화면을 보여줄 수 있음)
-  // 여기서는 부드러운 전환을 위해 빈 화면 처리 대신 children을 렌더링할 수도 있지만,
-  // 권한이 필요한 페이지의 깜빡임 방지를 위해 로딩 처리가 권장됨.
-  if (isInitializing) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        {/* 간단한 로딩 표시 */}
-        <div className="size-8 animate-spin rounded-full border-4 border-muted-foreground border-t-transparent"></div>
-      </div>
-    );
-  }
+  const refreshUserProfile = async () => {
+    if (getAccessToken()) {
+      await fetchUserProfile();
+    }
+  };
 
-  return <>{children}</>;
+  return (
+    <AuthContext.Provider value={{ userProfile, refreshUserProfile, isInitializing }}>
+      {isInitializing ? (
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="size-8 animate-spin rounded-full border-4 border-muted-foreground border-t-transparent"></div>
+        </div>
+      ) : (
+        children
+      )}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
 }

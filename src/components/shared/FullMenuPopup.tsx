@@ -15,12 +15,15 @@ import {
   LogOut,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useLogout } from "@/hooks/useLogout";
 import { TradeActionDialog } from "./TradeActionDialog";
+import { useAuth } from "@/components/providers/AuthProvider";
+import mainLogo from "@/assets/images/logos/logo/mainlogo.webp";
 
 interface FullMenuPopupProps {
   isOpen: boolean;
@@ -30,6 +33,9 @@ interface FullMenuPopupProps {
 export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
   const { handleLogout, isLoggingOut, logoutError } = useLogout();
   const [isTradeDialogOpen, setIsTradeDialogOpen] = useState(false);
+  const { userProfile } = useAuth();
+  const avatarSrc = userProfile?.avatarSrc;
+  const userName = userProfile?.name || "사용자";
 
   const menuItems = [
     { icon: LineChart, label: "시장/거래", href: "/stocks" },
@@ -70,12 +76,14 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
             <div className="p-4 pb-0 shrink-0">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <Avatar className="w-10 h-10 rounded-xl bg-foreground">
-                    <AvatarImage src="" alt="Logo" />
-                    <AvatarFallback className="bg-transparent rounded-xl flex items-center justify-center">
-                      <div className="w-5 h-5 bg-background rounded-sm" />
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="size-7 rounded-full overflow-hidden flex items-center justify-center shrink-0 relative border border-border/60">
+                    <Image
+                      src={mainLogo}
+                      alt="WealthFlow Logo"
+                      className="w-full h-full object-cover object-top scale-[1.3] origin-top"
+                      priority
+                    />
+                  </div>
                   <h1 className="text-lg font-semibold">WealthFlow</h1>
                 </div>
                 <Button
@@ -122,14 +130,14 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
                   disabled={isLoggingOut}
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10 rounded-xl bg-muted group-hover:bg-background transition-colors">
-                      <AvatarImage src="" alt="User" />
-                      <AvatarFallback className="bg-transparent text-muted-foreground rounded-xl flex items-center justify-center">
-                        <User className="w-6 h-6" />
+                    <Avatar className="w-7 h-7 rounded-full bg-muted group-hover:bg-background transition-colors border border-border/60">
+                      {avatarSrc ? <AvatarImage src={avatarSrc} alt={userName} /> : null}
+                      <AvatarFallback className="bg-transparent text-muted-foreground rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold leading-tight">사용자</span>
+                      <span className="text-sm font-semibold leading-tight">{userName}</span>
                       <span className="text-xs text-muted-foreground group-hover:text-foreground">
                         {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
                       </span>

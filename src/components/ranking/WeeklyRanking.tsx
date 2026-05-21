@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import { getTop3, mapToWeeklyRankingUI, type WeeklyRankingUIModel } from "@/services/ranking";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 import crownIcon from "@/assets/images/ranking/crown.webp";
 import cupIcon from "@/assets/images/ranking/cup.webp";
@@ -14,6 +15,7 @@ import vipIcon from "@/assets/images/ranking/vip.webp";
 export default function WeeklyRanking() {
   const [data, setData] = useState<WeeklyRankingUIModel | null>(null);
   const [loading, setLoading] = useState(true);
+  const { userProfile } = useAuth();
 
   useEffect(() => {
     let isMounted = true;
@@ -77,6 +79,13 @@ export default function WeeklyRanking() {
   if (!data) return null;
   const { rank1, rank2, rank3 } = data;
 
+  const getWeeklyAvatar = (weeklyUser: { name: string; img: string }) => {
+    if (userProfile && weeklyUser.name === userProfile.name) {
+      return userProfile.avatarSrc || "";
+    }
+    return weeklyUser.img || "";
+  };
+
   return (
     <Card className="w-full border border-border bg-card shadow-none">
       <CardContent className="p-4 flex flex-col items-center">
@@ -89,7 +98,9 @@ export default function WeeklyRanking() {
           <div className="flex flex-col items-center flex-1">
             <Badge className="mb-2 h-auto px-3 py-1 whitespace-nowrap">{rank2.name}</Badge>
             <Avatar className="w-16 h-16 mb-2 border-2 border-white shadow-sm">
-              {rank2.img ? <AvatarImage src={rank2.img} alt="User 2" /> : null}
+              {getWeeklyAvatar(rank2) ? (
+                <AvatarImage src={getWeeklyAvatar(rank2)} alt="User 2" />
+              ) : null}
               <AvatarFallback className="bg-muted text-foreground font-bold">
                 {rank2.name[0]}
               </AvatarFallback>
@@ -110,7 +121,9 @@ export default function WeeklyRanking() {
           {/* 1위 (중앙) */}
           <div className="flex flex-col items-center flex-1 z-10">
             <Avatar className="w-20 h-20 mb-2 border-2 border-white shadow-md">
-              {rank1.img ? <AvatarImage src={rank1.img} alt="User 1" /> : null}
+              {getWeeklyAvatar(rank1) ? (
+                <AvatarImage src={getWeeklyAvatar(rank1)} alt="User 1" />
+              ) : null}
               <AvatarFallback className="bg-muted text-foreground font-bold">
                 {rank1.name[0]}
               </AvatarFallback>
@@ -140,7 +153,9 @@ export default function WeeklyRanking() {
           <div className="flex flex-col items-center flex-1">
             <Badge className="mb-2 h-auto px-3 py-1 whitespace-nowrap">{rank3.name}</Badge>
             <Avatar className="w-16 h-16 mb-2 border-2 border-white shadow-sm">
-              {rank3.img ? <AvatarImage src={rank3.img} alt="User 3" /> : null}
+              {getWeeklyAvatar(rank3) ? (
+                <AvatarImage src={getWeeklyAvatar(rank3)} alt="User 3" />
+              ) : null}
               <AvatarFallback className="bg-muted text-foreground font-bold">
                 {rank3.name[0]}
               </AvatarFallback>
