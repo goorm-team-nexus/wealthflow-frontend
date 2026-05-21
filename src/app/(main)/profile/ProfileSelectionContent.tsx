@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getMyPage, updateProfile, AVATAR_PRESETS } from "@/services/user";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function ProfileSelectionContent() {
   const [selectedAvatar, setSelectedAvatar] = useState<string>("purple");
@@ -21,6 +22,7 @@ export default function ProfileSelectionContent() {
   const [userName, setUserName] = useState("사용자");
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { refreshUserProfile } = useAuth();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -66,6 +68,7 @@ export default function ProfileSelectionContent() {
       if (res.success) {
         const src = preset?.src || "default";
         localStorage.setItem("wealthflow_profile_avatar", src);
+        await refreshUserProfile();
         router.push("/my-page");
       } else {
         alert(res.message || "프로필 저장에 실패했습니다.");
@@ -88,6 +91,7 @@ export default function ProfileSelectionContent() {
       if (res.success) {
         setSelectedAvatar("purple");
         localStorage.setItem("wealthflow_profile_avatar", AVATAR_PRESETS[0].src);
+        await refreshUserProfile();
         alert("프로필이 초기화되었습니다.");
       } else {
         alert(res.message || "프로필 삭제에 실패했습니다.");

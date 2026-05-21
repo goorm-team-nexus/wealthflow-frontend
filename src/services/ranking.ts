@@ -65,6 +65,7 @@ export interface WeeklyRankingUIModel {
 export interface OverallRankingUIModel {
   rank: number;
   name: string;
+  avatarUrl: string;
   rate: string;
   stocks: number;
 }
@@ -186,6 +187,7 @@ export function mapToOverallRankingUI(rankings: RankingUserInfo[] = []): Overall
     return {
       rank: r.rank || 0,
       name: r.nickname || `투자자 ${r.rank || 0}`,
+      avatarUrl: r.profileImg || "",
       rate: formattedRate,
       stocks: r.stockCount || 0,
     };

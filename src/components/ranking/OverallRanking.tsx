@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getRanking, mapToOverallRankingUI, type OverallRankingUIModel } from "@/services/ranking";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 // 날짜 포맷 변환 함수 (YY.MM.DD HH:mm - 컴포넌트 외부로 분리하여 성능 최적화 및 호이스팅 린트 경고 방지)
 const formatUpdateDate = (dateStr: string) => {
@@ -28,6 +30,7 @@ export default function OverallRanking() {
   const [updatedAt, setUpdatedAt] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const { userProfile } = useAuth();
 
   const pageSize = 10;
 
@@ -118,7 +121,10 @@ export default function OverallRanking() {
                   className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
                 >
                   <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
-                  <div className="h-5 w-32 bg-muted animate-pulse rounded-md ml-4" />
+                  <div className="flex items-center gap-3 ml-4">
+                    <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
+                    <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
+                  </div>
                   <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-6" />
                   <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
                 </div>
@@ -131,6 +137,10 @@ export default function OverallRanking() {
               rankings.map((item) => {
                 const isPositive = !item.rate.startsWith("-");
                 const cleanRate = item.rate.replace(/[+-]/g, "");
+                const avatarToShow =
+                  userProfile && item.name === userProfile.name
+                    ? userProfile.avatarSrc || ""
+                    : item.avatarUrl || "";
 
                 return (
                   <div
@@ -140,9 +150,17 @@ export default function OverallRanking() {
                     <span className="text-base font-bold text-center text-foreground group-hover:scale-110 group-hover:text-red-500 transition-all duration-300 tabular-nums">
                       {item.rank}
                     </span>
-                    <span className="text-sm font-medium text-foreground truncate text-left pl-4 group-hover:translate-x-1 transition-transform duration-300">
-                      {item.name}
-                    </span>
+                    <div className="flex items-center gap-3 pl-4 truncate group-hover:translate-x-1 transition-transform duration-300">
+                      <Avatar className="size-6 border border-border/50 shrink-0">
+                        {avatarToShow ? <AvatarImage src={avatarToShow} alt={item.name} /> : null}
+                        <AvatarFallback className="bg-muted text-[10px] font-bold text-foreground">
+                          {item.name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-foreground truncate">
+                        {item.name}
+                      </span>
+                    </div>
                     <span className="text-sm text-right pr-6 text-muted-foreground/80 font-normal group-hover:text-foreground transition-colors duration-300 tabular-nums">
                       {item.stocks}
                     </span>
@@ -168,7 +186,10 @@ export default function OverallRanking() {
                   className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
                 >
                   <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
-                  <div className="h-5 w-32 bg-muted animate-pulse rounded-md ml-4" />
+                  <div className="flex items-center gap-3 ml-4">
+                    <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
+                    <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
+                  </div>
                   <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-6" />
                   <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
                 </div>

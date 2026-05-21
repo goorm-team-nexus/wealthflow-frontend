@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CircleUserRound } from "lucide-react";
 import { getMyPage, updateProfile, getAvatarSrc } from "@/services/user";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function EditInfo() {
   const router = useRouter();
+  const { refreshUserProfile } = useAuth();
   const [avatarPresetId, setAvatarPresetId] = useState<number>(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -74,6 +76,7 @@ export default function EditInfo() {
       });
 
       if (res.success) {
+        await refreshUserProfile();
         alert("회원 정보가 성공적으로 수정되었습니다.");
         router.push("/my-page");
       } else {

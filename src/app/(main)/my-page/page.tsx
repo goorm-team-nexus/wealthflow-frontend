@@ -11,11 +11,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLogout } from "@/hooks/useLogout";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import MyRankingCard from "@/components/ranking/MyRankingCard";
-import { getMyPage, getAvatarSrc, type MyPageResponse } from "@/services/user";
+import { getMyPage, type MyPageResponse } from "@/services/user";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function MyPage() {
   const { handleLogout, isLoggingOut, logoutError } = useLogout();
   const [isRankingOpen, setIsRankingOpen] = useState(false);
+  const { userProfile } = useAuth();
 
   const [userInfo, setUserInfo] = useState<MyPageResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,9 +81,8 @@ export default function MyPage() {
       ? "bg-red-500 hover:bg-red-600 text-white"
       : "bg-blue-500 hover:bg-blue-600 text-white";
 
-  const resolvedAvatar =
-    getAvatarSrc(userInfo?.avatarPresetId) || localStorage.getItem("wealthflow_profile_avatar");
-  const avatarSrc = resolvedAvatar && resolvedAvatar !== "default" ? resolvedAvatar : null;
+  const avatarSrc = userProfile?.avatarSrc;
+  const userName = userProfile?.name || userInfo?.name || "사용자";
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
@@ -98,7 +99,7 @@ export default function MyPage() {
             )}
           </Avatar>
           <div className="flex flex-col">
-            <span className="text-lg font-semibold">@{userInfo?.name || "사용자"}</span>
+            <span className="text-lg font-semibold">@{userName}</span>
             <span className="text-sm text-muted-foreground">{userInfo?.email}</span>
           </div>
         </div>
