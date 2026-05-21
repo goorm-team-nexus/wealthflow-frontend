@@ -1,20 +1,16 @@
 "use client";
 
-import { ArrowLeft, CircleX } from "lucide-react";
-import Link from "next/link";
+import { CircleX } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { placeOrder } from "@/services/investment";
 import { getPortfolio } from "@/services/portfolio";
-import {
-  fetchStockQuoteByTicker,
-  getStockQuoteSeed,
-  getTickerCurrency,
-} from "@/services/marketService";
+import { fetchStockQuoteByTicker, getTickerCurrency } from "@/services/marketService";
 
 type KeypadItem = {
   label: string;
@@ -58,7 +54,6 @@ const keypadItems: KeypadItem[] = [
 export default function StockPurchasePage() {
   const params = useParams<{ slug: string }>();
   const ticker = params.slug;
-  const stockSeed = getStockQuoteSeed(ticker);
   const [quantity, setQuantity] = useState("0");
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
   const [orderMessage, setOrderMessage] = useState("");
@@ -173,14 +168,9 @@ export default function StockPurchasePage() {
     });
   };
 
-  const handleDeleteClick = () => {
-    setQuantity((currentQuantity) => {
-      if (currentQuantity.length <= 1) {
-        return "0";
-      }
-
-      return currentQuantity.slice(0, -1);
-    });
+  const handleClearQuantityClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setQuantity("0");
   };
 
   const handleQuickQuantityClick = (quickQuantity: QuickQuantityItem) => {
@@ -247,17 +237,6 @@ export default function StockPurchasePage() {
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
-      <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
-        <Button asChild variant="ghost" size="icon" className="size-8">
-          <Link href={`/stock-detail/${ticker}`} aria-label="종목 상세로 돌아가기">
-            <ArrowLeft className="size-5 stroke-[2.2]" aria-hidden="true" />
-          </Link>
-        </Button>
-        <h1 className="truncate text-center text-sm font-semibold">
-          {stockSeed.name} ({ticker})
-        </h1>
-      </div>
-
       <Card className="bg-muted/50 py-4 shadow-sm">
         <CardContent className="flex flex-col justify-center gap-3 px-4 py-1">
           <span className="text-xs text-muted-foreground">구매할 가격</span>
@@ -292,22 +271,36 @@ export default function StockPurchasePage() {
       <div ref={purchaseControlsRef} className="flex flex-col gap-6">
         <Card className="py-4 shadow-sm">
           <CardContent className="flex flex-col gap-4 px-4">
-            <label className="flex flex-col gap-2">
-              <span className="text-xs text-muted-foreground">몇 주 구매할까요?</span>
+            <div className="flex flex-col gap-2">
+              <span id="purchase-quantity-label" className="text-xs text-muted-foreground">
+                몇 주 구매할까요?
+              </span>
               <div className="relative" onClick={handleQuantityFieldClick}>
                 <Input
-                  className="h-9 pr-9 text-base font-medium"
+                  className="h-9 pr-16 text-base font-medium"
                   inputMode="numeric"
                   pattern="[0-9]*"
                   value={quantity}
-                  aria-label="구매 수량"
+                  aria-labelledby="purchase-quantity-label"
                   onChange={handleQuantityChange}
                 />
+                {quantity !== "0" ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-7 top-1/2 size-7 -translate-y-1/2 text-muted-foreground"
+                    aria-label="구매 수량 초기화"
+                    onClick={handleClearQuantityClick}
+                  >
+                    <CircleX className="size-4" aria-hidden="true" />
+                  </Button>
+                ) : null}
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                   주
                 </span>
               </div>
-            </label>
+            </div>
 
             <div className="grid grid-cols-4 gap-2">
               {quickQuantityItems.map((quickQuantity) => (
@@ -333,21 +326,15 @@ export default function StockPurchasePage() {
                 key={keypadItem.label}
                 type="button"
                 variant="outline"
-                className="h-12 rounded-md text-xl font-semibold"
+                className={cn(
+                  "h-12 rounded-md text-xl font-semibold",
+                  keypadItem.value === "0" && "col-span-2",
+                )}
                 onClick={() => handleNumberClick(keypadItem.value)}
               >
                 {keypadItem.label}
               </Button>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 rounded-md"
-              aria-label="한 글자 지우기"
-              onClick={handleDeleteClick}
-            >
-              <CircleX className="size-4 stroke-[2.5]" aria-hidden="true" />
-            </Button>
           </section>
         ) : null}
       </div>
