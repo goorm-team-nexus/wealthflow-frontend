@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import type { HoldingItem } from "@/services/portfolio";
+import { getTickerCurrency } from "@/services/marketService";
 
 const DEFAULT_VISIBLE_COUNT = 5;
 const LOAD_MORE_COUNT = 5;
@@ -16,11 +17,22 @@ function formatCurrency(value: number): string {
   return new Intl.NumberFormat("ko-KR").format(value);
 }
 
-interface PortfolioHoldingsListProps {
-  holdings: HoldingItem[];
+function formatUsd(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
-export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsListProps) {
+interface PortfolioHoldingsListProps {
+  holdings: HoldingItem[];
+  exchangeRate?: number;
+}
+
+export default function PortfolioHoldingsList({
+  holdings,
+  exchangeRate = 1350,
+}: PortfolioHoldingsListProps) {
   const [visibleCount, setVisibleCount] = useState(DEFAULT_VISIBLE_COUNT);
 
   const totalCount = holdings.length;
@@ -73,6 +85,11 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
             {visibleItems.map((item) => {
               const isPositive = item.profitRate >= 0;
               const logoSrc = typeof item.logoSrc === "string" ? item.logoSrc : item.logoSrc.src;
+              const isUsd = getTickerCurrency(item.slug) === "USD";
+              const displayValue = isUsd
+                ? formatUsd(item.value / exchangeRate)
+                : formatCurrency(item.value);
+              const currencySymbol = isUsd ? "$" : "₩";
 
               return (
                 <li key={item.name} className="border-b border-border/40 last:border-0">
@@ -112,7 +129,8 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
 
                     {/* Col 4: 평가금액 (우측정렬 + 패딩간격) */}
                     <span className="text-sm font-semibold tracking-tight text-right pr-4 text-foreground tabular-nums">
-                      ₩{formatCurrency(item.value)}
+                      {currencySymbol}
+                      {displayValue}
                     </span>
 
                     {/* Col 5: 수익률 (우측정렬) */}

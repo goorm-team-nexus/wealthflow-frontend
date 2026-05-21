@@ -82,7 +82,12 @@ export default function PortfolioPage() {
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
-      <PortfolioTotalAssets data={totalAssets} />
+      <PortfolioTotalAssets
+        data={totalAssets}
+        cashKrw={cashKrw}
+        cashUsd={cashUsd}
+        exchangeRate={exchangeRate}
+      />
       {hasAssets ? (
         <>
           <PortfolioHoldingsRatio
@@ -91,7 +96,7 @@ export default function PortfolioPage() {
             cashUsd={cashUsd}
             exchangeRate={exchangeRate}
           />
-          <PortfolioHoldingsList holdings={holdings} />
+          <PortfolioHoldingsList holdings={holdings} exchangeRate={exchangeRate} />
         </>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-border/80 bg-white p-8 shadow-sm text-center gap-2">
