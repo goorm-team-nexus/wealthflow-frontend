@@ -7,10 +7,21 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { placeOrder } from "@/services/investment";
 import { getPortfolio } from "@/services/portfolio";
-import { fetchStockQuoteByTicker, getTickerCurrency } from "@/services/marketService";
+import {
+  fetchStockQuoteByTicker,
+  getTickerCurrency,
+  getStockQuoteSeed,
+} from "@/services/marketService";
 
 type KeypadItem = {
   label: string;
@@ -56,8 +67,9 @@ export default function StockPurchasePage() {
   const ticker = params.slug;
   const [quantity, setQuantity] = useState("0");
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
-  const [orderMessage, setOrderMessage] = useState("");
   const [isOrderPending, setIsOrderPending] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: "", description: "" });
   const [stockPrice, setStockPrice] = useState(defaultStockPrice);
   const [currency, setCurrency] = useState<"KRW" | "USD">(() => getTickerCurrency(ticker));
   const [cashBalance, setCashBalance] = useState<number | null>(null);
@@ -124,9 +136,11 @@ export default function StockPurchasePage() {
 
   useEffect(() => {
     const handleDocumentPointerDown = (event: PointerEvent) => {
-      if (!purchaseControlsRef.current?.contains(event.target as Node)) {
-        setIsKeypadOpen(false);
+      const target = event.target as HTMLElement;
+      if (purchaseControlsRef.current?.contains(target) || target.closest("button")) {
+        return;
       }
+      setIsKeypadOpen(false);
     };
 
     document.addEventListener("pointerdown", handleDocumentPointerDown);
@@ -189,32 +203,51 @@ export default function StockPurchasePage() {
 
   const handlePurchaseClick = async () => {
     if (isBalanceLoading) {
-      setOrderMessage("잔고를 조회 중입니다. 잠시 후 다시 시도해주세요.");
+      setModalContent({
+        title: "구매 실패",
+        description: "잔고를 조회 중입니다. 잠시 후 다시 시도해주세요.",
+      });
+      setIsModalOpen(true);
       return;
     }
 
     if (cashBalance === null) {
-      setOrderMessage("잔고를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.");
+      setModalContent({
+        title: "구매 실패",
+        description: "잔고를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.",
+      });
+      setIsModalOpen(true);
       return;
     }
 
     if (maxPurchaseQuantity <= 0) {
-      setOrderMessage("잔고가 부족합니다.");
+      setModalContent({
+        title: "구매 실패",
+        description: "잔고가 부족합니다.",
+      });
+      setIsModalOpen(true);
       return;
     }
 
     if (purchaseQuantity <= 0) {
-      setOrderMessage("1주 이상 입력해주세요.");
+      setModalContent({
+        title: "구매 실패",
+        description: "1주 이상 입력해주세요.",
+      });
+      setIsModalOpen(true);
       return;
     }
 
     if (purchaseQuantity > maxPurchaseQuantity) {
-      setOrderMessage("잔고가 부족합니다.");
+      setModalContent({
+        title: "구매 실패",
+        description: "잔고가 부족합니다.",
+      });
+      setIsModalOpen(true);
       return;
     }
 
     setIsOrderPending(true);
-    setOrderMessage("");
 
     try {
       const orderResult = await placeOrder({
@@ -223,11 +256,22 @@ export default function StockPurchasePage() {
         tradeType: "BUY",
       });
 
-      setOrderMessage(
-        `${orderResult.ticker ?? ticker} ${orderResult.quantity ?? purchaseQuantity}주 구매가 완료되었습니다.`,
-      );
+      const stockName = getStockQuoteSeed(ticker).name;
+      const orderTicker = orderResult.ticker ?? ticker;
+      const orderQty = orderResult.quantity ?? purchaseQuantity;
+
+      setModalContent({
+        title: "구매 완료",
+        description: `${stockName} (${orderTicker}) ${orderQty}주 구매가 완료되었습니다.`,
+      });
+      setIsModalOpen(true);
+      setQuantity("0");
     } catch (error) {
-      setOrderMessage(getOrderErrorMessage(error));
+      setModalContent({
+        title: "구매 실패",
+        description: getOrderErrorMessage(error),
+      });
+      setIsModalOpen(true);
     } finally {
       setIsOrderPending(false);
     }
@@ -339,10 +383,6 @@ export default function StockPurchasePage() {
         ) : null}
       </div>
 
-      {orderMessage ? (
-        <p className="text-center text-sm font-medium text-muted-foreground">{orderMessage}</p>
-      ) : null}
-
       <Button
         type="button"
         className="w-full bg-red-500 text-white hover:bg-red-600"
@@ -351,6 +391,24 @@ export default function StockPurchasePage() {
       >
         {isOrderPending ? "구매 요청 중" : "구매하기"}
       </Button>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-xs" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-center">
+              {modalContent.title}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-sm text-center py-4 text-foreground break-keep">
+            {modalContent.description}
+          </DialogDescription>
+          <div className="flex justify-center mt-2">
+            <Button className="w-24" onClick={() => setIsModalOpen(false)}>
+              확인
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
