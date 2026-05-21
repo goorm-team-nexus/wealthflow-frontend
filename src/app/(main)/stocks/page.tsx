@@ -587,7 +587,7 @@ function StockRow({
   const changeToneClass = stock.tone === "red" ? "text-red-500" : "text-blue-600";
 
   return (
-    <div className="grid grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 border-b border-border/40 px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-accent/40">
+    <div className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-accent/40">
       <Link
         href={`/stock-detail/${stock.ticker}`}
         className="contents"
@@ -602,10 +602,14 @@ function StockRow({
             {stock.ticker}
           </span>
         </span>
-        <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
+        <strong className="text-right text-sm font-semibold tracking-tight whitespace-nowrap tabular-nums text-foreground">
           {stock.price}
         </strong>
-        <span className={`text-sm font-normal ${changeToneClass}`}>{stock.change}</span>
+        <span
+          className={`min-w-0 text-right text-sm leading-none font-normal whitespace-nowrap tabular-nums ${changeToneClass}`}
+        >
+          {stock.change}
+        </span>
       </Link>
       <Button
         type="button"

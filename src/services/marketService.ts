@@ -233,12 +233,14 @@ export type FavoriteStockList = {
 };
 
 type StockPriceResponse = {
+  changeAmount?: number | null;
   changePrice?: number | null;
   changeRate?: number | null;
   currentPrice?: number | null;
   eps?: number | null;
   marketCap?: number | null;
   per?: number | null;
+  prevClosePrice?: number | null;
   priceUpdatedAt?: string | null;
   range52w?: string | null;
   ticker?: string | null;
@@ -354,7 +356,8 @@ async function fetchStockQuote(seed: StockQuoteSeed): Promise<StockQuote> {
 function toStockQuote(seed: StockQuoteSeed, quote: StockPriceResponse): StockQuote {
   const priceValue = quote.currentPrice ?? 0;
   const changeRate = quote.changeRate ?? 0;
-  const changePrice = quote.changePrice ?? 0;
+  const changePrice =
+    quote.changeAmount ?? quote.changePrice ?? priceValue - (quote.prevClosePrice ?? priceValue);
   const isRising = changeRate >= 0;
   const per = quote.per ?? calculatePer(priceValue, quote.eps);
 
