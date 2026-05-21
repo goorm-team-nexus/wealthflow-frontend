@@ -384,8 +384,8 @@ const RANGE_MAPPING: Record<string, string> = {
   "1d": "5d",
   "1w": "1mo",
   "1m": "3mo",
-  "3m": "1y",
-  "1y": "2y",
+  "3m": "6mo",
+  "1y": "1y",
 };
 
 export async function fetchStockCharts(
