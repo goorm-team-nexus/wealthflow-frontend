@@ -14,6 +14,7 @@ import {
   INITIAL_SEED_MONEY,
 } from "@/services/portfolio";
 import type { TotalAssetsData, HoldingItem } from "@/services/portfolio";
+import { getExchangeRate } from "@/services/marketService";
 
 const DEFAULT_TOTAL_ASSETS: TotalAssetsData = {
   totalAssets: INITIAL_SEED_MONEY,
@@ -24,6 +25,9 @@ const DEFAULT_TOTAL_ASSETS: TotalAssetsData = {
 export default function PortfolioPage() {
   const [totalAssets, setTotalAssets] = useState<TotalAssetsData>(DEFAULT_TOTAL_ASSETS);
   const [holdings, setHoldings] = useState<HoldingItem[]>([]);
+  const [cashKrw, setCashKrw] = useState<number>(0);
+  const [cashUsd, setCashUsd] = useState<number>(0);
+  const [exchangeRate, setExchangeRate] = useState<number>(1350);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,11 +36,26 @@ export default function PortfolioPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await getPortfolio();
 
-        if (response.success && response.data) {
-          setTotalAssets(mapToTotalAssetsData(response.data));
-          setHoldings(mapToHoldingItems(response.data.items));
+        const [portfolioRes, rateRes] = await Promise.allSettled([
+          getPortfolio(),
+          getExchangeRate("USD"),
+        ]);
+
+        if (portfolioRes.status === "fulfilled") {
+          const response = portfolioRes.value;
+          if (response.success && response.data) {
+            setTotalAssets(mapToTotalAssetsData(response.data));
+            setHoldings(mapToHoldingItems(response.data.items));
+            setCashKrw(response.data.cashKrw ?? 0);
+            setCashUsd(response.data.cashUsd ?? 0);
+          }
+        } else {
+          throw new Error("포트폴리오 데이터를 불러오지 못했습니다.");
+        }
+
+        if (rateRes.status === "fulfilled" && rateRes.value) {
+          setExchangeRate(rateRes.value.rate);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
@@ -59,13 +78,19 @@ export default function PortfolioPage() {
   }
 
   const hasHoldings = holdings.length > 0;
+  const hasAssets = hasHoldings || cashKrw > 0 || cashUsd > 0;
 
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       <PortfolioTotalAssets data={totalAssets} />
-      {hasHoldings ? (
+      {hasAssets ? (
         <>
-          <PortfolioHoldingsRatio holdings={holdings} />
+          <PortfolioHoldingsRatio
+            holdings={holdings}
+            cashKrw={cashKrw}
+            cashUsd={cashUsd}
+            exchangeRate={exchangeRate}
+          />
           <PortfolioHoldingsList holdings={holdings} />
         </>
       ) : (
@@ -139,7 +164,7 @@ function PortfolioPageSkeleton() {
             <Skeleton className="h-6 w-36" />
             <Skeleton className="h-5 w-16 rounded-full" />
           </div>
-          <div className="grid grid-cols-[20px_1fr_60px_105px_70px] border-y border-border/60 bg-muted/40 px-4 py-3">
+          <div className="grid grid-cols-[20px_1fr_50px_130px_70px] border-y border-border/60 bg-muted/40 px-4 py-3">
             <span />
             <Skeleton className="ml-3 h-3 w-10" />
             <Skeleton className="ml-auto mr-6 h-3 w-8" />
@@ -150,7 +175,7 @@ function PortfolioPageSkeleton() {
             {Array.from({ length: 5 }, (_, index) => (
               <div
                 key={index}
-                className="grid grid-cols-[20px_1fr_60px_105px_70px] items-center border-b border-border/40 px-4 py-3.5 last:border-0"
+                className="grid grid-cols-[20px_1fr_50px_130px_70px] items-center border-b border-border/40 px-4 py-3.5 last:border-0"
               >
                 <Skeleton className="size-5 rounded-full" />
                 <Skeleton className="ml-3 h-4 w-24" />

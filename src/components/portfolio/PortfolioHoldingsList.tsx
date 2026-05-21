@@ -50,7 +50,7 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
         </div>
 
         {/* 2. 관심종목 테이블과 100% 동일한 5열 구조의 테이블 헤더 (업계 표준 정렬 적용) */}
-        <div className="bg-muted/40 grid grid-cols-[20px_1fr_60px_105px_70px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
+        <div className="bg-muted/40 grid grid-cols-[20px_1fr_50px_130px_70px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
           <span></span>
           <span className="text-left pl-3">종목명</span>
           <span className="text-right pr-6">수량</span>
@@ -78,7 +78,7 @@ export default function PortfolioHoldingsList({ holdings }: PortfolioHoldingsLis
                 <li key={item.name} className="border-b border-border/40 last:border-0">
                   <Link
                     href={`/stock-detail/${item.slug}`}
-                    className="grid grid-cols-[20px_1fr_60px_105px_70px] items-center py-3.5 px-4 hover:bg-accent/40 transition-all duration-300 group cursor-pointer"
+                    className="grid grid-cols-[20px_1fr_50px_130px_70px] items-center py-3.5 px-4 hover:bg-accent/40 transition-all duration-300 group cursor-pointer"
                   >
                     {/* Col 1: 로고 (관심종목처럼 size-5로 소형화 및 슬림 아웃라인 테두리 적용) */}
                     <div className="flex items-center justify-center shrink-0">

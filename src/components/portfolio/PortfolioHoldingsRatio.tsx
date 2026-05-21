@@ -9,6 +9,9 @@ const OTHER_COLOR = "#94A3B8";
 
 interface PortfolioHoldingsRatioProps {
   holdings: HoldingItem[];
+  cashKrw?: number;
+  cashUsd?: number;
+  exchangeRate?: number;
 }
 
 type HoldingRatio = {
@@ -17,16 +20,33 @@ type HoldingRatio = {
   color: string;
 };
 
-export default function PortfolioHoldingsRatio({ holdings }: PortfolioHoldingsRatioProps) {
+export default function PortfolioHoldingsRatio({
+  holdings,
+  cashKrw = 0,
+  cashUsd = 0,
+  exchangeRate = 1350,
+}: PortfolioHoldingsRatioProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const ratioData = useMemo(() => {
-    if (!holdings || holdings.length === 0) return { data: [], top5Total: 0 };
+    const assets: { name: string; value: number }[] = holdings.map((item) => ({
+      name: item.name,
+      value: item.value,
+    }));
 
-    const totalValue = holdings.reduce((sum, item) => sum + item.value, 0);
-    if (totalValue === 0) return { data: [], top5Total: 0 };
+    if (cashKrw > 0) {
+      assets.push({ name: "원화", value: cashKrw });
+    }
+    if (cashUsd > 0) {
+      assets.push({ name: "달러", value: cashUsd * exchangeRate });
+    }
 
-    const sorted = [...holdings].sort((a, b) => b.value - a.value);
+    if (assets.length === 0) return { data: [], top5Total: 0, totalAssetCount: 0 };
+
+    const totalValue = assets.reduce((sum, item) => sum + item.value, 0);
+    if (totalValue === 0) return { data: [], top5Total: 0, totalAssetCount: 0 };
+
+    const sorted = [...assets].sort((a, b) => b.value - a.value);
     const top5 = sorted.slice(0, 5);
     const others = sorted.slice(5);
 
@@ -57,10 +77,14 @@ export default function PortfolioHoldingsRatio({ holdings }: PortfolioHoldingsRa
       }
     }
 
-    return { data, top5Total };
-  }, [holdings]);
+    return { data, top5Total, totalAssetCount: assets.length };
+  }, [holdings, cashKrw, cashUsd, exchangeRate]);
 
-  const { data: HOLDINGS_DATA, top5Total: TOP_5_TOTAL } = ratioData;
+  const {
+    data: HOLDINGS_DATA,
+    top5Total: TOP_5_TOTAL,
+    totalAssetCount: TOTAL_ASSET_COUNT,
+  } = ratioData;
 
   const isEmpty = HOLDINGS_DATA.length === 0;
 
@@ -85,9 +109,9 @@ export default function PortfolioHoldingsRatio({ holdings }: PortfolioHoldingsRa
       <CardContent className="p-5 flex flex-col">
         {/* 1. 상단 타이틀 영역 (다른 카드 디자인과 100% 동일한 패딩 및 폰트 핏) */}
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-foreground tracking-tight">보유 종목 비율</h3>
+          <h3 className="text-lg font-bold text-foreground tracking-tight">보유 자산 비율</h3>
           <span className="text-xs text-muted-foreground/80 font-medium select-none bg-muted/60 px-2 py-0.5 rounded-md">
-            주요 종목 5개, 기타(%)
+            주요 자산 5개, 기타(%)
           </span>
         </div>
 
@@ -160,10 +184,10 @@ export default function PortfolioHoldingsRatio({ holdings }: PortfolioHoldingsRa
               ) : (
                 <>
                   <span className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider">
-                    {holdings.length <= 5 ? "보유 종목" : "Top 5"}
+                    {TOTAL_ASSET_COUNT <= 5 ? "보유 자산" : "Top 5"}
                   </span>
                   <span className="text-2xl font-extrabold text-foreground leading-none mt-0.5 tabular-nums">
-                    {holdings.length <= 5 ? "100%" : `${TOP_5_TOTAL}%`}
+                    {TOTAL_ASSET_COUNT <= 5 ? "100%" : `${TOP_5_TOTAL}%`}
                   </span>
                 </>
               )}
@@ -174,7 +198,7 @@ export default function PortfolioHoldingsRatio({ holdings }: PortfolioHoldingsRa
           <div className="shrink-0 w-[130px] flex items-center justify-center">
             {isEmpty ? (
               <span className="text-xs text-muted-foreground/50 font-medium text-center py-4 select-none">
-                보유 종목 없음
+                보유 자산 없음
               </span>
             ) : (
               <ul className="space-y-2.5 w-full">
