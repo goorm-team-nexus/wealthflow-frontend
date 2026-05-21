@@ -2,19 +2,19 @@
 
 import * as React from "react";
 import { Check } from "lucide-react";
-
 import { cn } from "@/lib/utils";
-import { MAIN_STOCK_SEEDS } from "@/services/marketService";
 
 interface Stock {
   name: string;
   code: string;
 }
 
-const ALL_STOCKS: Stock[] = MAIN_STOCK_SEEDS.map((stock) => ({
-  name: stock.name,
-  code: stock.ticker,
-}));
+const ALL_STOCKS: Stock[] = [
+  { name: "NAVER", code: "035420" },
+  { name: "삼성전자", code: "005930" },
+  { name: "SK하이닉스", code: "000660" },
+  { name: "카카오", code: "035720" },
+];
 
 interface StockSearchListProps {
   selectedCodes: string[];

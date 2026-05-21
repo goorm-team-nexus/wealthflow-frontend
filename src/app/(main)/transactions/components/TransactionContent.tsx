@@ -1,216 +1,143 @@
 "use client";
 
 import * as React from "react";
-import type { DateRange } from "react-day-picker";
-
-import { Button } from "@/components/ui/button";
-import { ApiError } from "@/lib/api-client";
-import {
-  getTransactions,
-  type TradeType,
-  type TransactionHistoryItem,
-} from "@/services/investment";
+import { DateRange } from "react-day-picker";
 
 import { TransactionFilter } from "./TransactionFilter";
-import { TransactionTable } from "./TransactionTable";
+import { TransactionTable, TransactionItem } from "./TransactionTable";
 
-type TransactionTypeFilter = TradeType | "ALL";
-
-interface TransactionFilters {
-  selectedCodes: string[];
-  dateRange: DateRange | undefined;
-}
+// Mock data matching the mockup layout and dates
+const MOCK_TRANSACTIONS: TransactionItem[] = [
+  {
+    id: "982341",
+    stockName: "삼성전자",
+    stockCode: "005930",
+    type: "BUY",
+    price: 72400,
+    date: new Date(2025, 5, 20), // June 20, 2025
+  },
+  {
+    id: "982339",
+    stockName: "SK하이닉스",
+    stockCode: "000660",
+    type: "SELL",
+    price: 128500,
+    date: new Date(2025, 5, 15), // June 15, 2025
+  },
+  {
+    id: "982335",
+    stockName: "NAVER",
+    stockCode: "035420",
+    type: "BUY",
+    price: 189200,
+    date: new Date(2025, 5, 5), // June 5, 2025
+  },
+  {
+    id: "982330",
+    stockName: "삼성전자",
+    stockCode: "005930",
+    type: "SELL",
+    price: 73000,
+    date: new Date(2025, 5, 2), // June 2, 2025
+  },
+  {
+    id: "982320",
+    stockName: "카카오",
+    stockCode: "035720",
+    type: "BUY",
+    price: 48000,
+    date: new Date(2025, 4, 28), // May 28, 2025 (Out of default date range)
+  },
+];
 
 export function TransactionContent() {
+  // State for search filters
   const [selectedCodes, setSelectedCodes] = React.useState<string[]>([]);
-  const [selectedType, setSelectedType] = React.useState<TransactionTypeFilter>("ALL");
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
-  const [filteredItems, setFilteredItems] = React.useState<TransactionHistoryItem[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [selectedType, setSelectedType] = React.useState<string>("ALL");
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+    from: new Date(2025, 5, 1), // June 1, 2025
+    to: new Date(2025, 5, 25), // June 25, 2025
+  });
 
-  const loadTransactions = React.useCallback(
-    async (tradeType: TransactionTypeFilter, filters: TransactionFilters) => {
-      setIsLoading(true);
-      setErrorMessage(null);
+  // Filtered items state initialized with the initial filtered mock transactions
+  const [filteredItems, setFilteredItems] = React.useState<TransactionItem[]>(() => {
+    const defaultFrom = new Date(2025, 5, 1);
+    defaultFrom.setHours(0, 0, 0, 0);
+    const defaultTo = new Date(2025, 5, 25);
+    defaultTo.setHours(23, 59, 59, 999);
 
-      try {
-        const transactions = await getTransactions({
-          tradeType: tradeType === "ALL" ? undefined : tradeType,
-        });
+    return MOCK_TRANSACTIONS.filter((item) => {
+      const itemDate = new Date(item.date);
+      itemDate.setHours(0, 0, 0, 0);
+      return itemDate >= defaultFrom && itemDate <= defaultTo;
+    });
+  });
 
-        setFilteredItems(filterTransactions(transactions, filters));
-      } catch (error) {
-        setFilteredItems([]);
-        setErrorMessage(toErrorMessage(error));
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [],
-  );
-
-  React.useEffect(() => {
-    let isActive = true;
-
-    async function loadInitialTransactions() {
-      try {
-        const transactions = await getTransactions();
-
-        if (!isActive) {
-          return;
-        }
-
-        setFilteredItems(transactions);
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-
-        setFilteredItems([]);
-        setErrorMessage(toErrorMessage(error));
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    void loadInitialTransactions();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
+  // Toggle selected stock code
   const handleToggleStock = React.useCallback((code: string) => {
     setSelectedCodes((prev) =>
       prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code],
     );
   }, []);
 
-  const handleTypeChange = React.useCallback((type: string) => {
-    setSelectedType(toTransactionTypeFilter(type));
-  }, []);
+  // Filter evaluation logic
+  const performSearch = React.useCallback(() => {
+    const results = MOCK_TRANSACTIONS.filter((item) => {
+      // 1. Filter by Stock Code (if any are selected)
+      if (selectedCodes.length > 0 && !selectedCodes.includes(item.stockCode)) {
+        return false;
+      }
 
-  const handleDateRangeChange = React.useCallback((range: DateRange | undefined) => {
-    setDateRange(normalizeDateRange(range));
-  }, []);
+      // 2. Filter by Transaction Type
+      if (selectedType !== "ALL" && item.type !== selectedType) {
+        return false;
+      }
 
-  const handleSearch = React.useCallback(() => {
-    void loadTransactions(selectedType, {
-      selectedCodes,
-      dateRange,
+      // 3. Filter by Date Range
+      if (dateRange?.from) {
+        const itemDate = new Date(item.date);
+        itemDate.setHours(0, 0, 0, 0);
+
+        const startDate = new Date(dateRange.from);
+        startDate.setHours(0, 0, 0, 0);
+
+        if (itemDate < startDate) {
+          return false;
+        }
+
+        if (dateRange.to) {
+          const endDate = new Date(dateRange.to);
+          endDate.setHours(23, 59, 59, 999);
+          if (itemDate > endDate) {
+            return false;
+          }
+        }
+      }
+
+      return true;
     });
-  }, [dateRange, loadTransactions, selectedCodes, selectedType]);
 
-  const handleRetry = React.useCallback(() => {
-    void loadTransactions(selectedType, {
-      selectedCodes,
-      dateRange,
-    });
-  }, [dateRange, loadTransactions, selectedCodes, selectedType]);
+    setFilteredItems(results);
+  }, [selectedCodes, selectedType, dateRange]);
 
   return (
     <div className="flex flex-col gap-6 text-foreground">
+      {/* Search and Filters box */}
       <TransactionFilter
         selectedCodes={selectedCodes}
         onToggleStock={handleToggleStock}
         selectedType={selectedType}
-        onTypeChange={handleTypeChange}
+        onTypeChange={setSelectedType}
         dateRange={dateRange}
-        onDateRangeChange={handleDateRangeChange}
-        onSearch={handleSearch}
-        isLoading={isLoading}
+        onDateRangeChange={setDateRange}
+        onSearch={performSearch}
       />
 
+      {/* Transaction Records List */}
       <div className="flex flex-col gap-3">
-        <span className="px-1 text-lg font-bold text-neutral-900">상세 내역</span>
-        {errorMessage ? (
-          <TransactionErrorState message={errorMessage} onRetry={handleRetry} />
-        ) : (
-          <TransactionTable items={filteredItems} isLoading={isLoading} />
-        )}
+        <span className="text-lg font-bold text-neutral-900 px-1">상세 내역</span>
+        <TransactionTable items={filteredItems} />
       </div>
     </div>
   );
-}
-
-function TransactionErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-neutral-100 bg-white py-16 text-center shadow-sm">
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-semibold text-neutral-800">
-          거래 내역을 불러오지 못했습니다
-        </span>
-        <span className="text-xs text-neutral-400">{message}</span>
-      </div>
-      <Button type="button" variant="outline" size="sm" onClick={onRetry}>
-        다시 조회
-      </Button>
-    </div>
-  );
-}
-
-function filterTransactions(
-  transactions: TransactionHistoryItem[],
-  { selectedCodes, dateRange }: TransactionFilters,
-) {
-  const normalizedRange = normalizeDateRange(dateRange);
-
-  return transactions.filter((item) => {
-    if (selectedCodes.length > 0 && !selectedCodes.includes(item.stockCode)) {
-      return false;
-    }
-
-    if (!normalizedRange?.from) {
-      return true;
-    }
-
-    const itemDate = startOfDay(item.date);
-    const startDate = startOfDay(normalizedRange.from);
-
-    if (itemDate < startDate) {
-      return false;
-    }
-
-    if (!normalizedRange.to) {
-      return true;
-    }
-
-    const endDate = endOfDay(normalizedRange.to);
-    return item.date <= endDate;
-  });
-}
-
-function normalizeDateRange(range: DateRange | undefined): DateRange | undefined {
-  if (!range?.from || !range.to) {
-    return range;
-  }
-
-  return range.from <= range.to ? range : { from: range.to, to: range.from };
-}
-
-function startOfDay(date: Date) {
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(0, 0, 0, 0);
-  return normalizedDate;
-}
-
-function endOfDay(date: Date) {
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(23, 59, 59, 999);
-  return normalizedDate;
-}
-
-function toTransactionTypeFilter(type: string): TransactionTypeFilter {
-  return type === "BUY" || type === "SELL" ? type : "ALL";
-}
-
-function toErrorMessage(error: unknown) {
-  if (error instanceof ApiError && error.status === 401) {
-    return "로그인이 필요합니다. 다시 로그인한 뒤 조회해 주세요.";
-  }
-
-  return "잠시 후 다시 시도해 주세요.";
 }

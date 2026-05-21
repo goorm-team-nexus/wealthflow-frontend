@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Calendar as CalendarIcon, ChevronDown } from "lucide-react";
-import type { DateRange } from "react-day-picker";
+import { DateRange } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,12 +16,23 @@ interface DatePickerPopoverProps {
 export function DatePickerPopover({ selectedRange, onChange }: DatePickerPopoverProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const handleSelect = React.useCallback(
-    (range: DateRange | undefined) => {
-      onChange(normalizeDateRange(range));
-    },
-    [onChange],
-  );
+  // Helper to format date as YYYY.M.DD to match "2025.6.01" in the mockup
+  const formatPeriod = (range: DateRange | undefined) => {
+    if (!range?.from) return "조회 기간 선택";
+
+    const formatSingle = (date: Date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}.${month}.${day}`;
+    };
+
+    if (!range.to) {
+      return formatSingle(range.from);
+    }
+
+    return `${formatSingle(range.from)} - ${formatSingle(range.to)}`;
+  };
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -32,9 +43,7 @@ export function DatePickerPopover({ selectedRange, onChange }: DatePickerPopover
           aria-expanded={isOpen}
         >
           <CalendarIcon className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-neutral-400 pointer-events-none" />
-          <span className="min-w-0 flex-1 truncate text-left font-medium">
-            {formatPeriod(selectedRange)}
-          </span>
+          <span className="font-medium">{formatPeriod(selectedRange)}</span>
           <ChevronDown className="size-4 text-neutral-400 shrink-0" />
         </Button>
       </PopoverTrigger>
@@ -42,7 +51,7 @@ export function DatePickerPopover({ selectedRange, onChange }: DatePickerPopover
         <Calendar
           mode="range"
           selected={selectedRange}
-          onSelect={handleSelect}
+          onSelect={onChange}
           captionLayout="dropdown"
           startMonth={new Date(2020, 0)}
           endMonth={new Date(2030, 11)}
@@ -51,33 +60,4 @@ export function DatePickerPopover({ selectedRange, onChange }: DatePickerPopover
       </PopoverContent>
     </Popover>
   );
-}
-
-function formatPeriod(range: DateRange | undefined) {
-  const normalizedRange = normalizeDateRange(range);
-
-  if (!normalizedRange?.from) {
-    return "기간 선택";
-  }
-
-  if (!normalizedRange.to) {
-    return `시작 ${formatDate(normalizedRange.from)} · 종료 선택`;
-  }
-
-  return `시작 ${formatDate(normalizedRange.from)} · 종료 ${formatDate(normalizedRange.to)}`;
-}
-
-function formatDate(date: Date) {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}.${month}.${day}`;
-}
-
-function normalizeDateRange(range: DateRange | undefined): DateRange | undefined {
-  if (!range?.from || !range.to) {
-    return range;
-  }
-
-  return range.from <= range.to ? range : { from: range.to, to: range.from };
 }

@@ -1,5 +1,4 @@
 import { apiClient, ApiError } from "@/lib/api-client";
-import { MAIN_STOCK_SEEDS } from "@/services/marketService";
 
 // --- Types ---
 
@@ -37,48 +36,6 @@ export interface StockPriceResponse {
   priceUpdatedAt?: string;
 }
 
-export interface TransactionResponseDto {
-  createdAt?: string;
-  currency?: "KRW" | "USD";
-  id?: number;
-  price?: number;
-  quantity?: number;
-  ticker?: string;
-  totalAmount?: number;
-  tradeType?: TradeType;
-}
-
-export interface PageTransactionResponseDto {
-  content?: TransactionResponseDto[];
-  empty?: boolean;
-  first?: boolean;
-  last?: boolean;
-  number?: number;
-  numberOfElements?: number;
-  size?: number;
-  totalElements?: number;
-  totalPages?: number;
-}
-
-export interface TransactionHistoryItem {
-  id: string;
-  stockName: string;
-  stockCode: string;
-  type: TradeType;
-  price: number;
-  quantity: number;
-  totalAmount: number;
-  currency: "KRW" | "USD";
-  date: Date;
-}
-
-export interface GetTransactionsParams {
-  tradeType?: TradeType;
-  page?: number;
-  size?: number;
-  sort?: string;
-}
-
 // --- Stock Price ---
 
 /**
@@ -87,35 +44,6 @@ export interface GetTransactionsParams {
  */
 export async function getStockPrice(ticker: string): Promise<ApiResponse<StockPriceResponse>> {
   return apiClient<ApiResponse<StockPriceResponse>>(`/market/stocks/${encodeURIComponent(ticker)}`);
-}
-
-// --- Transaction History ---
-
-/**
- * 모의투자 거래 내역을 조회합니다.
- * GET /api/v1/exchange/transactions
- */
-export async function getTransactions({
-  tradeType,
-  page = 0,
-  size = 200,
-  sort = "createdAt,desc",
-}: GetTransactionsParams = {}): Promise<TransactionHistoryItem[]> {
-  const searchParams = new URLSearchParams({
-    page: String(page),
-    size: String(size),
-    sort,
-  });
-
-  if (tradeType) {
-    searchParams.set("tradeType", tradeType);
-  }
-
-  const response = await apiClient<PageTransactionResponseDto>(
-    `/exchange/transactions?${searchParams.toString()}`,
-  );
-
-  return (response.content ?? []).map(toTransactionHistoryItem);
 }
 
 // --- Trade Order ---
@@ -143,30 +71,4 @@ export async function placeOrder(order: OrderRequest): Promise<OrderResult> {
     }
     throw error;
   }
-}
-
-function toTransactionHistoryItem(transaction: TransactionResponseDto): TransactionHistoryItem {
-  const stockCode = transaction.ticker ?? "";
-  const stockMeta = MAIN_STOCK_SEEDS.find((stock) => stock.ticker === stockCode);
-
-  return {
-    id: String(transaction.id ?? ""),
-    stockName: stockMeta?.name ?? stockCode,
-    stockCode,
-    type: transaction.tradeType ?? "BUY",
-    price: transaction.price ?? 0,
-    quantity: transaction.quantity ?? 0,
-    totalAmount: transaction.totalAmount ?? 0,
-    currency: transaction.currency ?? "KRW",
-    date: toValidDate(transaction.createdAt),
-  };
-}
-
-function toValidDate(value: string | undefined): Date {
-  if (!value) {
-    return new Date(0);
-  }
-
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? new Date(0) : date;
 }
