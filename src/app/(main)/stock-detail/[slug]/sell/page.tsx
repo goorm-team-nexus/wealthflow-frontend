@@ -7,13 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { MessageBox } from "@/components/shared/message-box";
 import { cn } from "@/lib/utils";
 import { placeOrder } from "@/services/investment";
 import { getPortfolio } from "@/services/portfolio";
@@ -260,7 +254,7 @@ export default function StockSellPage() {
 
       setModalContent({
         title: "판매 완료",
-        description: `${stockName} (${orderTicker}) ${orderQty}주 판매가 완료되었습니다.`,
+        description: `${stockName} ${orderQty}주를 성공적으로 판매했습니다.`,
       });
       setIsModalOpen(true);
       setQuantity("0");
@@ -398,23 +392,13 @@ export default function StockSellPage() {
         {isOrderPending ? "판매 요청 중" : "판매하기"}
       </Button>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-xs" showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-center">
-              {modalContent.title}
-            </DialogTitle>
-          </DialogHeader>
-          <DialogDescription className="text-sm text-center py-4 text-foreground break-keep">
-            {modalContent.description}
-          </DialogDescription>
-          <div className="flex justify-center mt-2">
-            <Button className="w-24" onClick={() => setIsModalOpen(false)}>
-              확인
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <MessageBox
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalContent.title}
+        message={modalContent.description}
+        onConfirm={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

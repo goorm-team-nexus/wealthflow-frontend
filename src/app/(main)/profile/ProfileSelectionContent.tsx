@@ -7,19 +7,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { MessageBox } from "@/components/shared/message-box";
 import { getMyPage, updateProfile, AVATAR_PRESETS } from "@/services/user";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function ProfileSelectionContent() {
   const [selectedAvatar, setSelectedAvatar] = useState<string>("purple");
-  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [isMessageBoxOpen, setIsMessageBoxOpen] = useState(false);
+  const [messageBoxContent, setMessageBoxContent] = useState({ title: "", message: "" });
   const [userName, setUserName] = useState("사용자");
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -50,12 +45,12 @@ export default function ProfileSelectionContent() {
 
   const currentAvatarSrc = AVATAR_PRESETS.find((a) => a.key === selectedAvatar)?.src;
 
-  const handleSave = () => {
-    setIsSaveDialogOpen(true);
+  const showMessageBox = (title: string, message: string) => {
+    setMessageBoxContent({ title, message });
+    setIsMessageBoxOpen(true);
   };
 
-  const handleConfirmSave = async () => {
-    setIsSaveDialogOpen(false);
+  const handleSave = async () => {
     setIsLoading(true);
     try {
       const preset = AVATAR_PRESETS.find((a) => a.key === selectedAvatar);
@@ -72,11 +67,17 @@ export default function ProfileSelectionContent() {
         await refreshUserProfile();
         router.push("/my-page");
       } else {
-        alert(res.message || "프로필 저장에 실패했습니다.");
+        showMessageBox(
+          "저장 실패",
+          res.message || "프로필 저장에 실패했습니다.\n잠시 후 다시 시도해주세요.",
+        );
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "프로필 저장에 실패했습니다.";
-      alert(msg);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "프로필 저장에 실패했습니다.\n잠시 후 다시 시도해주세요.";
+      showMessageBox("저장 실패", msg);
     } finally {
       setIsLoading(false);
     }
@@ -87,19 +88,25 @@ export default function ProfileSelectionContent() {
     try {
       const res = await updateProfile({
         name: userName,
-        avatarPresetId: 1, // Reset to purple
+        avatarPresetId: 1,
       });
       if (res.success) {
         setSelectedAvatar("purple");
         localStorage.setItem("wealthflow_profile_avatar", AVATAR_PRESETS[0].src);
         await refreshUserProfile();
-        alert("프로필이 초기화되었습니다.");
+        showMessageBox("초기화 완료", "프로필이 초기화되었습니다.");
       } else {
-        alert(res.message || "프로필 삭제에 실패했습니다.");
+        showMessageBox(
+          "초기화 실패",
+          res.message || "프로필 초기화에 실패했습니다.\n잠시 후 다시 시도해주세요.",
+        );
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "프로필 삭제에 실패했습니다.";
-      alert(msg);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "프로필 초기화에 실패했습니다.\n잠시 후 다시 시도해주세요.";
+      showMessageBox("초기화 실패", msg);
     } finally {
       setIsLoading(false);
     }
@@ -155,21 +162,13 @@ export default function ProfileSelectionContent() {
         </Button>
       </div>
 
-      <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
-        <DialogContent className="sm:max-w-[320px] rounded-2xl">
-          <DialogHeader className="pt-2">
-            <DialogTitle className="text-center text-lg">알림</DialogTitle>
-            <DialogDescription className="text-center text-base pt-2">
-              프로필이 성공적으로 저장되었습니다.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center mt-2">
-            <Button onClick={handleConfirmSave} className="w-full">
-              확인
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <MessageBox
+        isOpen={isMessageBoxOpen}
+        onClose={() => setIsMessageBoxOpen(false)}
+        title={messageBoxContent.title}
+        message={messageBoxContent.message}
+        onConfirm={() => setIsMessageBoxOpen(false)}
+      />
     </div>
   );
 }

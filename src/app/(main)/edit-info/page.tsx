@@ -11,13 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CircleUserRound } from "lucide-react";
 import { getMyPage, updateProfile, getAvatarSrc } from "@/services/user";
 import { useAuth } from "@/components/providers/AuthProvider";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { MessageBox } from "@/components/shared/message-box";
 
 export default function EditInfo() {
   const router = useRouter();
@@ -98,7 +92,7 @@ export default function EditInfo() {
       if (password.length < 9) {
         setModalContent({
           title: "변경 실패",
-          description: "비밀번호는 9자리 이상이어야 합니다.",
+          description: "비밀번호는 영문, 숫자, 특수문자를 포함하여 9자리 이상 입력해주세요.",
           isSuccess: false,
         });
         setIsModalOpen(true);
@@ -107,7 +101,7 @@ export default function EditInfo() {
       if (!passwordConfirm) {
         setModalContent({
           title: "변경 실패",
-          description: "새 비밀번호 재입력을 입력해주세요.",
+          description: "새 비밀번호를 다시 한번 입력해주세요.",
           isSuccess: false,
         });
         setIsModalOpen(true);
@@ -160,13 +154,6 @@ export default function EditInfo() {
       setIsModalOpen(true);
     } finally {
       setIsUpdating(false);
-    }
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    if (modalContent.isSuccess) {
-      router.push("/my-page");
     }
   };
 
@@ -306,23 +293,16 @@ export default function EditInfo() {
             </Button>
           </form>
 
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent className="sm:max-w-xs" showCloseButton={false}>
-              <DialogHeader>
-                <DialogTitle className="text-lg font-bold text-center">
-                  {modalContent.title}
-                </DialogTitle>
-              </DialogHeader>
-              <DialogDescription className="text-sm text-center py-4 text-foreground break-keep">
-                {modalContent.description}
-              </DialogDescription>
-              <div className="flex justify-center mt-2">
-                <Button className="w-24" onClick={handleModalClose}>
-                  확인
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <MessageBox
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            title={modalContent.title}
+            message={modalContent.description}
+            onConfirm={() => {
+              setIsModalOpen(false);
+              if (modalContent.isSuccess) router.push("/my-page");
+            }}
+          />
         </CardContent>
       </Card>
     </div>
