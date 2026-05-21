@@ -347,6 +347,32 @@ export async function fetchMarketIndices(): Promise<MarketIndexQuote[]> {
   );
 }
 
+export type PricePointDto = {
+  closePrice: number;
+  date: string;
+};
+
+export type HistoricalPriceResponseDto = {
+  prices: PricePointDto[];
+  range: string;
+  ticker: string;
+};
+
+export async function fetchStockCharts(
+  ticker: string,
+  range: string,
+): Promise<HistoricalPriceResponseDto> {
+  const apiResponse = await apiClient<ApiResponse<HistoricalPriceResponseDto>>(
+    `/market/charts?ticker=${encodeURIComponent(ticker)}&range=${encodeURIComponent(range)}`,
+  );
+
+  if (!apiResponse.success || !apiResponse.data) {
+    throw new Error("Invalid stock charts response");
+  }
+
+  return apiResponse.data;
+}
+
 export async function fetchStockQuoteByTicker(ticker: string): Promise<StockQuote> {
   return fetchStockQuote(getStockQuoteSeed(ticker));
 }

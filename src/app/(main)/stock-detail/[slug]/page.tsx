@@ -10,11 +10,12 @@ import {
 } from "lightweight-charts";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  fetchStockCharts,
   fetchStockQuoteByTicker,
   getStockQuoteSeed,
   getTickerCurrency,
@@ -137,7 +138,11 @@ function PriceChart({
             </Button>
           ))}
         </div>
-        <TradingViewCandlestickChart selectedPeriod={selectedPeriod} stock={stock} />
+        <TradingViewCandlestickChart
+          key={`${stock.ticker}-${selectedPeriod}`}
+          selectedPeriod={selectedPeriod}
+          stock={stock}
+        />
       </CardContent>
     </Card>
   );
@@ -151,13 +156,83 @@ function TradingViewCandlestickChart({
   stock: StockQuote;
 }) {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  const chartData = useMemo(
-    () => toCandlestickData(selectedPeriod, stock),
-    [selectedPeriod, stock],
-  );
+  const [chartData, setChartData] = useState<CandlestickData<UTCTimestamp>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!chartContainerRef.current) {
+    let isMounted = true;
+
+    const loadChartData = async () => {
+      try {
+        const response = await fetchStockCharts(stock.ticker, selectedPeriod);
+        if (!isMounted) return;
+
+        if (response && response.prices) {
+          const sortedPrices = [...response.prices].sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          );
+
+          const seenTimes = new Set<number>();
+          const candlestickData: CandlestickData<UTCTimestamp>[] = [];
+
+          for (let i = 0; i < sortedPrices.length; i++) {
+            const current = sortedPrices[i];
+
+            // 날짜 파싱
+            let timestamp: number;
+            const parsedTime = Date.parse(current.date);
+            if (isNaN(parsedTime)) {
+              const dateObj = new Date(current.date);
+              timestamp = Math.floor(
+                Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()) / 1000,
+              );
+            } else {
+              timestamp = Math.floor(parsedTime / 1000);
+            }
+
+            const time = timestamp as UTCTimestamp;
+
+            if (seenTimes.has(time)) {
+              continue;
+            }
+            seenTimes.add(time);
+
+            const close = current.closePrice;
+            const open = i > 0 ? sortedPrices[i - 1].closePrice : close;
+
+            candlestickData.push({
+              time,
+              open,
+              // 꼬리가 없는 몸통만 렌더링되도록 처리
+              high: Math.max(open, close),
+              low: Math.min(open, close),
+              close,
+            });
+          }
+
+          setChartData(candlestickData);
+        }
+      } catch (error) {
+        console.error("Failed to load chart data:", error);
+        if (isMounted) {
+          setChartData([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadChartData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [stock.ticker, selectedPeriod]);
+
+  useEffect(() => {
+    if (!chartContainerRef.current || chartData.length === 0) {
       return;
     }
 
@@ -221,196 +296,25 @@ function TradingViewCandlestickChart({
   }, [chartData, selectedPeriod]);
 
   return (
-    <div
-      ref={chartContainerRef}
-      className="h-64 w-full"
-      role="img"
-      aria-label={`${stock.name} \uce94\ub4e4 \ucc28\ud2b8`}
-    />
+    <div className="relative h-64 w-full">
+      {isLoading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
+          <div className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
+        </div>
+      )}
+      {!isLoading && chartData.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
+          {"차트 데이터를 불러올 수 없습니다."}
+        </div>
+      )}
+      <div
+        ref={chartContainerRef}
+        className="h-full w-full"
+        role="img"
+        aria-label={`${stock.name} 캔들 차트`}
+      />
+    </div>
   );
-}
-
-function toCandlestickData(
-  selectedPeriod: ChartPeriod,
-  stock: StockQuote,
-): CandlestickData<UTCTimestamp>[] {
-  if (selectedPeriod !== "1d") {
-    return toPeriodCandlestickData(selectedPeriod, stock);
-  }
-
-  const marketOpenTime = Math.floor(Date.UTC(2026, 4, 18, 0, 0, 0) / 1000);
-  const marketCloseTime = Math.floor(Date.UTC(2026, 4, 18, 6, 30, 0) / 1000);
-  const thirtyMinutes = 30 * 60;
-  const candleCount = 13;
-  const currentPrice = Math.max(stock.priceValue, 1);
-  const previousClose = Math.max(currentPrice - stock.changePrice, 1);
-  const volatility = getChartVolatility(selectedPeriod);
-  let previousCandleClose = previousClose;
-
-  return Array.from({ length: candleCount }, (_, index) => {
-    const progress = (index + 1) / candleCount;
-    const wave = Math.sin(progress * Math.PI * 2) * currentPrice * volatility;
-    const trendPrice = previousClose + (currentPrice - previousClose) * progress;
-    const close = index === candleCount - 1 ? currentPrice : Math.max(trendPrice + wave, 1);
-    const open = previousCandleClose;
-    const wickSpread = Math.max(currentPrice * volatility * (0.8 + progress), 1);
-    const candleData = {
-      time: getKoreanMarketTimestamp({
-        closeTime: marketCloseTime,
-        index,
-        interval: thirtyMinutes,
-        openTime: marketOpenTime,
-        totalCount: candleCount,
-      }),
-      open,
-      high: Math.max(open, close) + wickSpread,
-      low: Math.max(Math.min(open, close) - wickSpread, 1),
-      close,
-    };
-
-    previousCandleClose = close;
-
-    return candleData;
-  });
-}
-
-function toPeriodCandlestickData(
-  selectedPeriod: Exclude<ChartPeriod, "1d">,
-  stock: StockQuote,
-): CandlestickData<UTCTimestamp>[] {
-  const candleCount = getChartCandleCount(selectedPeriod);
-  const currentPrice = Math.max(stock.priceValue, 1);
-  const previousClose = Math.max(currentPrice - stock.changePrice, 1);
-  const startPrice = Math.max(
-    currentPrice - (currentPrice - previousClose) * getChartTrendMultiplier(selectedPeriod),
-    1,
-  );
-  const volatility = getChartVolatility(selectedPeriod);
-  let previousCandleClose = startPrice;
-
-  return Array.from({ length: candleCount }, (_, index) => {
-    const progress = (index + 1) / candleCount;
-    const trendPrice = startPrice + (currentPrice - startPrice) * progress;
-    const wave =
-      Math.sin(progress * Math.PI * 3) * currentPrice * volatility +
-      Math.cos(progress * Math.PI * 7) * currentPrice * volatility * 0.35;
-    const close = index === candleCount - 1 ? currentPrice : Math.max(trendPrice + wave, 1);
-    const open = previousCandleClose;
-    const upperWick = getWickSpread({
-      currentPrice,
-      index,
-      progress,
-      selectedPeriod,
-      side: "upper",
-      volatility,
-    });
-    const lowerWick = getWickSpread({
-      currentPrice,
-      index,
-      progress,
-      selectedPeriod,
-      side: "lower",
-      volatility,
-    });
-    const candleData = {
-      time: getDateTimestamp((candleCount - 1 - index) * getChartDayInterval(selectedPeriod)),
-      open,
-      high: Math.max(open, close) + upperWick,
-      low: Math.max(Math.min(open, close) - lowerWick, 1),
-      close,
-    };
-
-    previousCandleClose = close;
-
-    return candleData;
-  });
-}
-
-function getChartCandleCount(selectedPeriod: Exclude<ChartPeriod, "1d">) {
-  return (
-    {
-      "1w": 7,
-      "1m": 14,
-      "3m": 16,
-      "1y": 18,
-    } satisfies Record<Exclude<ChartPeriod, "1d">, number>
-  )[selectedPeriod];
-}
-
-function getChartDayInterval(selectedPeriod: Exclude<ChartPeriod, "1d">) {
-  return (
-    {
-      "1w": 1,
-      "1m": 2,
-      "3m": 6,
-      "1y": 20,
-    } satisfies Record<Exclude<ChartPeriod, "1d">, number>
-  )[selectedPeriod];
-}
-
-function getChartTrendMultiplier(selectedPeriod: Exclude<ChartPeriod, "1d">) {
-  return (
-    {
-      "1w": 2,
-      "1m": 4,
-      "3m": 7,
-      "1y": 12,
-    } satisfies Record<Exclude<ChartPeriod, "1d">, number>
-  )[selectedPeriod];
-}
-
-function getDateTimestamp(daysBefore: number) {
-  const date = new Date();
-
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() - daysBefore);
-
-  return Math.floor(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 1000,
-  ) as UTCTimestamp;
-}
-
-function getWickSpread({
-  currentPrice,
-  index,
-  progress,
-  selectedPeriod,
-  side,
-  volatility,
-}: {
-  currentPrice: number;
-  index: number;
-  progress: number;
-  selectedPeriod: Exclude<ChartPeriod, "1d">;
-  side: "lower" | "upper";
-  volatility: number;
-}) {
-  const seed = side === "upper" ? index * 12.9898 : index * 78.233;
-  const periodBias = selectedPeriod.length * 0.137;
-  const noise = Math.abs(Math.sin(seed + periodBias) * Math.cos(seed * 0.37 + progress));
-  const bodyBias = side === "upper" ? 0.45 + progress * 0.25 : 0.55 + (1 - progress) * 0.2;
-
-  return Math.max(currentPrice * volatility * (0.25 + noise * 1.15 + bodyBias), 1);
-}
-
-function getKoreanMarketTimestamp({
-  closeTime,
-  index,
-  interval,
-  openTime,
-  totalCount,
-}: {
-  closeTime: number;
-  index: number;
-  interval: number;
-  openTime: number;
-  totalCount: number;
-}) {
-  if (index === totalCount - 1) {
-    return closeTime as UTCTimestamp;
-  }
-
-  return (openTime + index * interval) as UTCTimestamp;
 }
 
 function formatKoreanMarketTime(time: Time) {
@@ -436,18 +340,6 @@ function formatKoreanChartDate(time: Time) {
     month: "2-digit",
     timeZone: "Asia/Seoul",
   }).format(new Date(time * 1000));
-}
-
-function getChartVolatility(selectedPeriod: ChartPeriod) {
-  return (
-    {
-      "1d": 0.006,
-      "1w": 0.014,
-      "1m": 0.028,
-      "3m": 0.06,
-      "1y": 0.12,
-    } satisfies Record<ChartPeriod, number>
-  )[selectedPeriod];
 }
 
 function toPendingStock(seed: StockQuoteSeed): StockQuote {
