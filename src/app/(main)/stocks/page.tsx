@@ -9,20 +9,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   addFavoriteStock,
   fetchFavoriteStocks,
+  fetchMarketIndices,
   fetchMainStockQuotes,
   MAIN_STOCK_SEEDS,
   removeFavoriteStock,
+  type MarketIndexQuote,
   type StockQuote,
   type StockQuoteSeed,
 } from "@/services/marketService";
 
-type MarketIndex = {
-  name: string;
-  change: string;
-  price: string;
-  tone: "blue" | "red";
-  points: string;
-};
+type MarketIndex = MarketIndexQuote;
 
 type Stock = StockQuote;
 
@@ -66,8 +62,9 @@ const copy = {
   favoriteLoadFailed: "\uad00\uc2ec \uc885\ubaa9 \uc5f0\ub3d9 \uc2e4\ud328",
 };
 
-const marketIndexes: MarketIndex[] = [
+const fallbackMarketIndexes: MarketIndex[] = [
   {
+    id: 1,
     name: copy.kospi,
     change: "-24.78 (0.39%)",
     price: "\u20a96,413.25",
@@ -76,6 +73,7 @@ const marketIndexes: MarketIndex[] = [
       "1,50 7,32 13,43 20,18 26,36 33,27 40,15 47,24 54,17 61,39 68,20 75,31 82,23 89,18 95,12",
   },
   {
+    id: 2,
     name: copy.kosdaq,
     change: "+0.47 (0.04%)",
     price: "\u20a91,179.57",
@@ -84,6 +82,7 @@ const marketIndexes: MarketIndex[] = [
       "1,49 7,31 14,45 21,35 28,48 35,17 42,27 49,20 56,26 63,15 70,43 77,29 84,22 91,17 95,14",
   },
   {
+    id: 3,
     name: copy.nasdaq,
     change: "+18.42 (0.12%)",
     price: "\u20a918,204.10",
@@ -91,6 +90,7 @@ const marketIndexes: MarketIndex[] = [
     points: "1,42 8,35 15,29 22,37 29,21 36,25 43,16 50,31 57,24 64,19 71,26 78,14 86,20 95,11",
   },
   {
+    id: 4,
     name: copy.sp500,
     change: "-6.14 (0.08%)",
     price: "\u20a95,921.44",
@@ -98,6 +98,7 @@ const marketIndexes: MarketIndex[] = [
     points: "1,18 8,28 15,20 22,35 29,27 36,38 43,22 50,30 57,24 64,42 71,35 78,31 86,28 95,36",
   },
   {
+    id: 5,
     name: copy.dow,
     change: "+42.10 (0.10%)",
     price: "\u20a942,611.72",
@@ -105,6 +106,7 @@ const marketIndexes: MarketIndex[] = [
     points: "1,41 8,36 15,30 22,33 29,20 36,26 43,16 50,21 57,14 64,25 71,19 78,15 86,18 95,10",
   },
   {
+    id: 6,
     name: copy.nikkei,
     change: "-112.35 (0.28%)",
     price: "\u20a939,872.50",
@@ -125,6 +127,7 @@ export default function Home() {
   const [isStockLoading, setIsStockLoading] = useState(false);
   const [hasFavoriteError, setHasFavoriteError] = useState(false);
   const [hasStockError, setHasStockError] = useState(false);
+  const [marketIndexes, setMarketIndexes] = useState<MarketIndex[]>(fallbackMarketIndexes);
   const [mainStocks, setMainStocks] = useState<Stock[]>(() => stocks.map(toPendingStock));
   const [slideDirection, setSlideDirection] = useState<SlideDirection>("next");
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -148,6 +151,30 @@ export default function Home() {
       if (slideTimerRef.current) {
         clearTimeout(slideTimerRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadMarketIndices = async () => {
+      try {
+        const indices = await fetchMarketIndices();
+
+        if (isMounted) {
+          setMarketIndexes(indices);
+        }
+      } catch {
+        if (isMounted) {
+          setMarketIndexes(fallbackMarketIndexes);
+        }
+      }
+    };
+
+    void loadMarketIndices();
+
+    return () => {
+      isMounted = false;
     };
   }, []);
 
@@ -371,7 +398,7 @@ function MarketIndexSection({
           className={`grid flex-1 grid-cols-2 gap-4 transition-all duration-300 ease-out ${slideClass}`}
         >
           {marketIndexes.map((marketIndex) => (
-            <MarketIndexCard key={marketIndex.name} marketIndex={marketIndex} />
+            <MarketIndexCard key={marketIndex.id} marketIndex={marketIndex} />
           ))}
         </div>
         <Button
@@ -412,7 +439,7 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
     <Card
       className={`${cardToneClass} h-[92px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0`}
     >
-      <CardContent className="flex h-full flex-col gap-1 px-3">
+      <CardContent className="flex h-full flex-col gap-1 px-2.5">
         <div className="flex items-start justify-between gap-2">
           <span className="text-xs font-medium leading-none text-foreground">
             {marketIndex.name}
@@ -421,15 +448,15 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
         </div>
         <svg
           className={`h-12 w-full ${chartToneClass}`}
-          viewBox="0 0 96 56"
+          viewBox="0 0 120 56"
           role="img"
           aria-label={`${marketIndex.name} ${copy.chart}`}
         >
-          <path d="M0 48 H96" className="stroke-current opacity-10" strokeWidth="1" />
-          <path d="M0 36 H96" className="stroke-current opacity-10" strokeWidth="1" />
-          <path d="M0 24 H96" className="stroke-current opacity-10" strokeWidth="1" />
+          <path d="M0 48 H120" className="stroke-current opacity-10" strokeWidth="1" />
+          <path d="M0 36 H120" className="stroke-current opacity-10" strokeWidth="1" />
+          <path d="M0 24 H120" className="stroke-current opacity-10" strokeWidth="1" />
           <path
-            d={`M ${marketIndex.points} L 95 54 L 1 54 Z`}
+            d={`M ${marketIndex.points} L 119 54 L 1 54 Z`}
             className="fill-current opacity-10"
           />
           <polyline
@@ -587,7 +614,7 @@ function StockRow({
   const changeToneClass = stock.tone === "red" ? "text-red-500" : "text-blue-600";
 
   return (
-    <div className="grid grid-cols-[20px_minmax(0,1fr)_84px_60px_20px] items-center gap-3 border-b border-border/40 px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-accent/40">
+    <div className="grid grid-cols-[20px_minmax(0,1fr)_72px_88px_20px] items-center gap-2 border-b border-border/40 px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-accent/40">
       <Link
         href={`/stock-detail/${stock.ticker}`}
         className="contents"
@@ -602,10 +629,14 @@ function StockRow({
             {stock.ticker}
           </span>
         </span>
-        <strong className="text-right text-sm font-semibold tracking-tight text-foreground">
+        <strong className="text-right text-sm font-semibold tracking-tight whitespace-nowrap tabular-nums text-foreground">
           {stock.price}
         </strong>
-        <span className={`text-sm font-normal ${changeToneClass}`}>{stock.change}</span>
+        <span
+          className={`min-w-0 text-right text-sm leading-none font-normal whitespace-nowrap tabular-nums ${changeToneClass}`}
+        >
+          {stock.change}
+        </span>
       </Link>
       <Button
         type="button"

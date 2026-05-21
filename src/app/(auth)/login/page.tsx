@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,11 +10,16 @@ import { Input } from "@/components/ui/input";
 import { setAccessToken } from "@/lib/api-client";
 import { login } from "@/services/auth";
 
-export default function Home() {
+function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState(() =>
+    searchParams.get("authError") === "kakao"
+      ? "카카오 로그인에 실패했습니다. 다시 시도해주세요."
+      : "",
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,10 +122,9 @@ export default function Home() {
               </div>
 
               {/* Kakao - provider color exception */}
-              <button
-                type="button"
+              <a
+                href="/oauth/kakao/start"
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#FEE500] py-2.5 text-sm font-medium text-black transition-colors hover:bg-[#FDD800]"
-                onClick={() => alert("현재 카카오 로그인은 준비 중입니다.")}
               >
                 <svg
                   width="18"
@@ -135,11 +139,25 @@ export default function Home() {
                   />
                 </svg>
                 카카오 로그인
-              </button>
+              </a>
             </form>
           </CardContent>
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="size-8 animate-spin rounded-full border-4 border-muted-foreground border-t-transparent" />
+        </div>
+      }
+    >
+      <LoginPage />
+    </Suspense>
   );
 }

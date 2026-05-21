@@ -106,6 +106,10 @@ export default function StockSellPage() {
     setIsKeypadOpen(true);
   };
 
+  const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuantity(normalizeQuantityInput(event.target.value));
+  };
+
   const handleNumberClick = (value: string) => {
     setQuantity((currentQuantity) => {
       if (currentQuantity === "0") {
@@ -194,9 +198,10 @@ export default function StockSellPage() {
                 <Input
                   className="h-9 pr-9 text-base font-medium"
                   inputMode="numeric"
-                  readOnly
+                  pattern="[0-9]*"
                   value={quantity}
                   aria-label="판매 수량"
+                  onChange={handleQuantityChange}
                 />
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                   주
@@ -265,6 +270,12 @@ export default function StockSellPage() {
 
 function formatCurrency(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
+}
+
+function normalizeQuantityInput(value: string) {
+  const numericValue = value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+
+  return numericValue === "" ? "0" : numericValue;
 }
 
 function getOrderErrorMessage(error: unknown) {
