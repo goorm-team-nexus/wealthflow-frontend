@@ -104,10 +104,11 @@ export default function OverallRanking() {
         {/* 테이블 구조 */}
         <div className="w-full">
           {/* 테이블 헤더 */}
-          <div className="bg-muted/40 grid grid-cols-[40px_1fr_60px_100px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
+          <div className="bg-muted/40 grid grid-cols-[40px_1fr_50px_96px_80px] py-3 px-4 border-y border-border/60 text-[10px] font-semibold text-muted-foreground uppercase select-none">
             <span className="text-center">순위</span>
             <span className="text-left pl-4">닉네임</span>
-            <span className="text-right pr-6">종목</span>
+            <span className="text-right pr-4">종목</span>
+            <span className="text-right">총 자산</span>
             <span className="text-right">수익률</span>
           </div>
 
@@ -118,15 +119,16 @@ export default function OverallRanking() {
               Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
+                  className="grid grid-cols-[40px_1fr_50px_96px_80px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
                 >
                   <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
                   <div className="flex items-center gap-3 ml-4">
                     <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
                     <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
                   </div>
-                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-6" />
+                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-4" />
                   <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
+                  <div className="h-5 w-14 bg-muted animate-pulse rounded-md ml-auto" />
                 </div>
               ))
             ) : rankings.length === 0 ? (
@@ -161,11 +163,14 @@ export default function OverallRanking() {
                         {item.name}
                       </span>
                     </div>
-                    <span className="text-sm text-right pr-6 text-muted-foreground/80 font-normal group-hover:text-foreground transition-colors duration-300 tabular-nums">
+                    <span className="text-sm text-right pr-4 text-muted-foreground/80 font-normal group-hover:text-foreground transition-colors duration-300 tabular-nums">
                       {item.stocks}
                     </span>
+                    <span className="text-xs text-right text-foreground font-semibold tabular-nums group-hover:text-primary transition-colors duration-300">
+                      {item.totalAsset}
+                    </span>
                     <span
-                      className={`text-sm font-normal text-right tabular-nums transition-all duration-300 ${
+                      className={`text-xs font-normal text-right tabular-nums transition-all duration-300 ${
                         isPositive
                           ? "text-red-500 group-hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.2)]"
                           : "text-blue-500 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.2)]"
@@ -183,15 +188,16 @@ export default function OverallRanking() {
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={`more-${i}`}
-                  className="grid grid-cols-[40px_1fr_60px_100px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
+                  className="grid grid-cols-[40px_1fr_50px_96px_80px] py-3.5 px-4 items-center border-b border-border/40 last:border-0"
                 >
                   <div className="h-6 w-6 bg-muted animate-pulse rounded-md mx-auto" />
                   <div className="flex items-center gap-3 ml-4">
                     <div className="h-6 w-6 bg-muted animate-pulse rounded-full shrink-0" />
                     <div className="h-5 w-24 bg-muted animate-pulse rounded-md" />
                   </div>
-                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-6" />
+                  <div className="h-5 w-8 bg-muted animate-pulse rounded-md ml-auto mr-4" />
                   <div className="h-5 w-16 bg-muted animate-pulse rounded-md ml-auto" />
+                  <div className="h-5 w-14 bg-muted animate-pulse rounded-md ml-auto" />
                 </div>
               ))}
           </div>

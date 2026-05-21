@@ -56,19 +56,19 @@ export default function WeeklyRanking() {
             <div className="flex flex-col items-center flex-1">
               <div className="h-5 w-16 bg-muted animate-pulse rounded-md mb-2" />
               <div className="w-16 h-16 bg-muted animate-pulse rounded-full mb-2" />
-              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-32 animate-pulse bg-muted/20" />
+              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-36 animate-pulse bg-muted/20" />
             </div>
             {/* 1위 skeleton */}
             <div className="flex flex-col items-center flex-1 z-10">
               <div className="w-20 h-20 bg-muted animate-pulse rounded-full mb-2" />
               <div className="h-5 w-20 bg-muted animate-pulse rounded-md mb-2" />
-              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-4 shadow-md h-40 animate-pulse bg-muted/20" />
+              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-4 shadow-md h-44 animate-pulse bg-muted/20" />
             </div>
             {/* 3위 skeleton */}
             <div className="flex flex-col items-center flex-1">
               <div className="h-5 w-16 bg-muted animate-pulse rounded-md mb-2" />
               <div className="w-16 h-16 bg-muted animate-pulse rounded-full mb-2" />
-              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-32 animate-pulse bg-muted/20" />
+              <div className="w-full bg-white border border-border/80 rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-36 animate-pulse bg-muted/20" />
             </div>
           </div>
         </CardContent>
@@ -105,13 +105,16 @@ export default function WeeklyRanking() {
                 {rank2.name[0]}
               </AvatarFallback>
             </Avatar>
-            <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-32">
+            <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-36">
               <div className="h-14 flex items-center justify-center">
                 <Image src={cupIcon} alt="2nd place" width={48} height={48} unoptimized priority />
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-2xl font-bold">2</span>
-                <span className="text-red-500 text-xs font-medium leading-none mt-1">
+                <span className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
+                  {rank2.totalAsset}
+                </span>
+                <span className="text-red-500 text-xs font-medium leading-none mt-0.5">
                   {rank2.rate}
                 </span>
               </div>
@@ -129,7 +132,7 @@ export default function WeeklyRanking() {
               </AvatarFallback>
             </Avatar>
             <Badge className="mb-2 h-auto px-3 py-1 whitespace-nowrap">{rank1.name}</Badge>
-            <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-4 shadow-md h-40">
+            <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-4 shadow-md h-44">
               <div className="h-20 flex items-center justify-center">
                 <Image
                   src={crownIcon}
@@ -142,7 +145,10 @@ export default function WeeklyRanking() {
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-3xl font-bold">1</span>
-                <span className="text-red-500 text-sm font-semibold leading-none mt-1">
+                <span className="text-[11px] text-muted-foreground font-medium leading-none mt-0.5">
+                  {rank1.totalAsset}
+                </span>
+                <span className="text-red-500 text-sm font-semibold leading-none mt-0.5">
                   {rank1.rate}
                 </span>
               </div>
@@ -160,13 +166,16 @@ export default function WeeklyRanking() {
                 {rank3.name[0]}
               </AvatarFallback>
             </Avatar>
-            <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-32">
+            <div className="w-full bg-white border border-border rounded-xl flex flex-col items-center pt-2 pb-3 shadow-sm h-36">
               <div className="h-14 flex items-center justify-center">
                 <Image src={vipIcon} alt="3rd place" width={48} height={48} unoptimized priority />
               </div>
               <div className="mt-auto flex flex-col items-center">
                 <span className="text-2xl font-bold">3</span>
-                <span className="text-red-500 text-xs font-medium leading-none mt-1">
+                <span className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">
+                  {rank3.totalAsset}
+                </span>
+                <span className="text-red-500 text-xs font-medium leading-none mt-0.5">
                   {rank3.rate}
                 </span>
               </div>

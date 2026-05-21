@@ -54,6 +54,7 @@ export interface WeeklyUserUIModel {
   name: string;
   rate: string;
   img: string;
+  totalAsset: string;
 }
 
 export interface WeeklyRankingUIModel {
@@ -67,6 +68,7 @@ export interface OverallRankingUIModel {
   name: string;
   avatarUrl: string;
   rate: string;
+  totalAsset: string;
   stocks: number;
 }
 
@@ -98,6 +100,16 @@ export async function getTop3(): Promise<ApiResponseRankingListResponse> {
 // ==========================================
 // 4. Raw API Response -> UI Model 변환 매퍼 (Mapper)
 // ==========================================
+
+function formatTotalAsset(value: number): string {
+  if (value >= 100_000_000) {
+    return `₩${(value / 100_000_000).toFixed(1)}억`;
+  }
+  if (value >= 10_000) {
+    return `₩${Math.floor(value / 10_000).toLocaleString()}만`;
+  }
+  return `₩${value.toLocaleString()}`;
+}
 
 /**
  * 나의 랭킹 정보를 UI 모델로 변환 (인증 오류 또는 빈 데이터에 대한 폴백 처리 완비)
@@ -162,16 +174,19 @@ export function mapToWeeklyRankingUI(rankings: RankingUserInfo[] = []): WeeklyRa
       name: r1?.nickname || "홍길동",
       rate: formatRate(r1?.returnRate),
       img: r1?.profileImg || "",
+      totalAsset: formatTotalAsset(r1?.totalAsset || 0),
     },
     rank2: {
       name: r2?.nickname || "임꺽정",
       rate: formatRate(r2?.returnRate),
       img: r2?.profileImg || "",
+      totalAsset: formatTotalAsset(r2?.totalAsset || 0),
     },
     rank3: {
       name: r3?.nickname || "심청이",
       rate: formatRate(r3?.returnRate),
       img: r3?.profileImg || "",
+      totalAsset: formatTotalAsset(r3?.totalAsset || 0),
     },
   };
 }
@@ -189,6 +204,7 @@ export function mapToOverallRankingUI(rankings: RankingUserInfo[] = []): Overall
       name: r.nickname || `투자자 ${r.rank || 0}`,
       avatarUrl: r.profileImg || "",
       rate: formattedRate,
+      totalAsset: formatTotalAsset(r.totalAsset || 0),
       stocks: r.stockCount || 0,
     };
   });
