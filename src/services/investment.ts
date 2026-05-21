@@ -74,6 +74,8 @@ export interface TransactionHistoryItem {
 
 export interface GetTransactionsParams {
   tradeType?: TradeType;
+  startDate?: Date;
+  endDate?: Date;
   page?: number;
   size?: number;
   sort?: string;
@@ -97,8 +99,10 @@ export async function getStockPrice(ticker: string): Promise<ApiResponse<StockPr
  */
 export async function getTransactions({
   tradeType,
+  startDate,
+  endDate,
   page = 0,
-  size = 200,
+  size = 20,
   sort = "createdAt,desc",
 }: GetTransactionsParams = {}): Promise<TransactionHistoryItem[]> {
   const searchParams = new URLSearchParams({
@@ -109,6 +113,17 @@ export async function getTransactions({
 
   if (tradeType) {
     searchParams.set("tradeType", tradeType);
+  }
+
+  const formattedStartDate = formatDateParam(startDate);
+  const formattedEndDate = formatDateParam(endDate);
+
+  if (formattedStartDate) {
+    searchParams.set("startDate", formattedStartDate);
+  }
+
+  if (formattedEndDate) {
+    searchParams.set("endDate", formattedEndDate);
   }
 
   const response = await apiClient<PageTransactionResponseDto>(
@@ -169,4 +184,16 @@ function toValidDate(value: string | undefined): Date {
 
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? new Date(0) : date;
+}
+
+function formatDateParam(date: Date | undefined) {
+  if (!date || Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
