@@ -24,7 +24,8 @@ type MarketIndex = MarketIndexQuote;
 
 type Stock = StockQuote;
 
-type SortType = "volume" | "price";
+type SortField = "name" | "price" | "change";
+type SortOrder = "asc" | "desc";
 type SlideDirection = "next" | "previous";
 
 const copy = {
@@ -38,6 +39,9 @@ const copy = {
   sortLabel: "\uc815\ub82c\uae30\uc900",
   volumeSort: "\uac70\ub798\ub7c9\uc21c",
   priceSort: "\uac00\uaca9\uc21c",
+  nameSort: "\uc885\ubaa9\uba85",
+  priceSortLabel: "\uac00\uaca9",
+  changeSort: "\ub4f1\ub77d\ub960",
   samsung: "\uc0bc\uc131\uc804\uc790",
   skHynix: "SK\ud558\uc774\ub2c9\uc2a4",
   naver: "\ub124\uc774\ubc84",
@@ -121,7 +125,8 @@ const stocks = MAIN_STOCK_SEEDS;
 
 export default function Home() {
   const [marketPage, setMarketPage] = useState(0);
-  const [sortType, setSortType] = useState<SortType>("volume");
+  const [sortField, setSortField] = useState<SortField>("change");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [favoriteTickers, setFavoriteTickers] = useState<Set<string>>(new Set());
   const [updatingFavoriteTickers, setUpdatingFavoriteTickers] = useState<Set<string>>(new Set());
   const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
@@ -139,16 +144,20 @@ export default function Home() {
   const totalMarketPages = Math.ceil(marketIndexes.length / 2);
   const visibleMarketIndexes = marketIndexes.slice(marketPage * 2, marketPage * 2 + 2);
   const sortedStocks = useMemo(() => {
-    if (sortType === "price") {
-      return [...mainStocks].sort(
-        (firstStock, secondStock) => secondStock.priceValue - firstStock.priceValue,
-      );
-    }
+    return [...mainStocks].sort((firstStock, secondStock) => {
+      let comparison = 0;
 
-    return [...mainStocks].sort(
-      (firstStock, secondStock) => firstStock.volumeRank - secondStock.volumeRank,
-    );
-  }, [mainStocks, sortType]);
+      if (sortField === "name") {
+        comparison = firstStock.name.localeCompare(secondStock.name, "ko");
+      } else if (sortField === "price") {
+        comparison = firstStock.priceValue - secondStock.priceValue;
+      } else if (sortField === "change") {
+        comparison = firstStock.changeRate - secondStock.changeRate;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+  }, [mainStocks, sortField, sortOrder]);
 
   useEffect(() => {
     return () => {
@@ -360,13 +369,15 @@ export default function Home() {
         isFavoriteLoading={isFavoriteLoading}
         isMoreStocksOpen={isMoreStocksOpen}
         isStockLoading={isStockLoading}
-        sortType={sortType}
+        sortField={sortField}
+        sortOrder={sortOrder}
         stocks={sortedStocks}
         updatingFavoriteTickers={updatingFavoriteTickers}
         onFavoriteStock={handleFavoriteStock}
         onMoreStocksClose={() => setIsMoreStocksOpen(false)}
         onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
-        onSortChange={setSortType}
+        onSortFieldChange={setSortField}
+        onSortOrderChange={setSortOrder}
       />
     </div>
   );
@@ -529,13 +540,15 @@ function MainStockSection({
   isFavoriteLoading,
   isMoreStocksOpen,
   isStockLoading,
-  sortType,
+  sortField,
+  sortOrder,
   stocks,
   updatingFavoriteTickers,
   onFavoriteStock,
   onMoreStocksClose,
   onMoreStocksOpen,
-  onSortChange,
+  onSortFieldChange,
+  onSortOrderChange,
 }: {
   favoriteTickers: Set<string>;
   hasFavoriteError: boolean;
@@ -543,13 +556,15 @@ function MainStockSection({
   isFavoriteLoading: boolean;
   isMoreStocksOpen: boolean;
   isStockLoading: boolean;
-  sortType: SortType;
+  sortField: SortField;
+  sortOrder: SortOrder;
   stocks: Stock[];
   updatingFavoriteTickers: Set<string>;
   onFavoriteStock: (stock: Stock) => void;
   onMoreStocksClose: () => void;
   onMoreStocksOpen: () => void;
-  onSortChange: (sortType: SortType) => void;
+  onSortFieldChange: (field: SortField) => void;
+  onSortOrderChange: (order: SortOrder) => void;
 }) {
   const stockListRef = useRef<HTMLDivElement | null>(null);
   const visibleStocks = isMoreStocksOpen ? stocks : stocks.slice(0, 10);
@@ -560,37 +575,70 @@ function MainStockSection({
     }
   }, [isMoreStocksOpen]);
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      onSortOrderChange(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      onSortFieldChange(field);
+      onSortOrderChange(field === "name" ? "asc" : "desc");
+    }
+  };
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) return null;
+    return sortOrder === "asc" ? " ▲" : " ▼";
+  };
+
   return (
     <Card className="shadow-md">
       <CardContent className="p-0">
-        <div className="flex h-6 items-center justify-between px-4 pt-4 pb-3">
+        <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">{copy.mainStocks}</h2>
+            <h2 className="text-lg font-semibold leading-none">{copy.mainStocks}</h2>
             {hasStockError || hasFavoriteError ? (
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-xs font-medium leading-none text-muted-foreground">
                 {hasStockError ? copy.stockLoadFailed : copy.favoriteLoadFailed}
               </span>
             ) : null}
           </div>
           <div className="flex items-center gap-2 text-xs font-medium">
-            <span>{copy.sortLabel}</span>
             <Button
               type="button"
               variant="link"
               size="xs"
-              className={sortType === "volume" ? "text-foreground" : "text-muted-foreground"}
-              onClick={() => onSortChange("volume")}
+              className={`h-auto p-0 hover:no-underline ${
+                sortField === "name" ? "text-foreground font-semibold" : "text-muted-foreground"
+              }`}
+              onClick={() => handleSort("name")}
             >
-              {copy.volumeSort}
+              {copy.nameSort}
+              {getSortIcon("name")}
             </Button>
+            <span className="text-muted-foreground/30">|</span>
             <Button
               type="button"
               variant="link"
               size="xs"
-              className={sortType === "price" ? "text-foreground" : "text-muted-foreground"}
-              onClick={() => onSortChange("price")}
+              className={`h-auto p-0 hover:no-underline ${
+                sortField === "price" ? "text-foreground font-semibold" : "text-muted-foreground"
+              }`}
+              onClick={() => handleSort("price")}
             >
-              {copy.priceSort}
+              {copy.priceSortLabel}
+              {getSortIcon("price")}
+            </Button>
+            <span className="text-muted-foreground/30">|</span>
+            <Button
+              type="button"
+              variant="link"
+              size="xs"
+              className={`h-auto p-0 hover:no-underline ${
+                sortField === "change" ? "text-foreground font-semibold" : "text-muted-foreground"
+              }`}
+              onClick={() => handleSort("change")}
+            >
+              {copy.changeSort}
+              {getSortIcon("change")}
             </Button>
           </div>
         </div>
