@@ -19,6 +19,7 @@ import {
   fetchFavoriteStocks,
   fetchStockQuoteByTicker,
   getStockQuoteSeed,
+  getTickerCurrency,
   removeFavoriteStock,
   type StockQuote,
   type StockQuoteSeed,
@@ -204,7 +205,8 @@ function PriceSummary({ stock }: { stock: StockQuote }) {
       <h2 className="text-3xl font-bold tracking-normal">{stock.price}</h2>
       <div className="flex items-center gap-2">
         <span className={`text-xs font-medium ${changeToneClass}`}>
-          {formatSignedWon(stock.changePrice)} ({formatSignedRate(stock.changeRate)})
+          {formatSignedPrice(stock.changePrice, stock.currency)} (
+          {formatSignedRate(stock.changeRate)})
         </span>
         <span className="text-xs text-muted-foreground">{"\uc624\ub298\uae30\uc900"}</span>
       </div>
@@ -562,6 +564,7 @@ function toPendingStock(seed: StockQuoteSeed): StockQuote {
     change: "-",
     changePrice: 0,
     changeRate: 0,
+    currency: getTickerCurrency(seed.ticker),
     marketCap: null,
     per: null,
     price: "-",
@@ -576,16 +579,23 @@ function getStockMetrics(stock: StockQuote): StockMetric[] {
     { label: "\ud604\uc7ac\uac00", value: stock.price },
     {
       label: "\uc804\uc77c \ub300\ube44",
-      value: `${formatSignedWon(stock.changePrice)} (${formatSignedRate(stock.changeRate)})`,
+      value: `${formatSignedPrice(stock.changePrice, stock.currency)} (${formatSignedRate(stock.changeRate)})`,
       tone: stock.tone === "red" ? "positive" : undefined,
     },
-    { label: "\uc2dc\uac00 \ucd1d\uc561", value: formatMarketCap(getDisplayMarketCap(stock)) },
+    {
+      label: "\uc2dc\uac00 \ucd1d\uc561",
+      value: formatMarketCap(getDisplayMarketCap(stock), stock.currency),
+    },
     { label: "PER", value: formatPer(getDisplayPer(stock)) },
   ];
 }
 
-function formatSignedWon(value: number) {
+function formatSignedPrice(value: number, currency: "KRW" | "USD") {
   const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+
+  if (currency === "USD") {
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
 
   return `${sign}\u20a9${Math.abs(Math.round(value)).toLocaleString("ko-KR")}`;
 }
@@ -596,8 +606,13 @@ function formatSignedRate(value: number) {
   return `${sign}${Math.abs(value).toFixed(2)}%`;
 }
 
-function formatMarketCap(value: number | null) {
-  return value === null ? "-" : `\u20a9${Math.round(value).toLocaleString("ko-KR")}`;
+function formatMarketCap(value: number | null, currency: "KRW" | "USD") {
+  if (value === null) return "-";
+  if (currency === "USD") {
+    return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  return `\u20a9${Math.round(value).toLocaleString("ko-KR")}`;
 }
 
 function formatPer(value: number | null) {

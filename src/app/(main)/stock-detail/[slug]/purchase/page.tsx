@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { placeOrder } from "@/services/investment";
-import { fetchStockQuoteByTicker, getStockQuoteSeed } from "@/services/marketService";
+import {
+  fetchStockQuoteByTicker,
+  getStockQuoteSeed,
+  getTickerCurrency,
+} from "@/services/marketService";
 
 type KeypadItem = {
   label: string;
@@ -60,6 +64,7 @@ export default function StockPurchasePage() {
   const [orderMessage, setOrderMessage] = useState("");
   const [isOrderPending, setIsOrderPending] = useState(false);
   const [stockPrice, setStockPrice] = useState(defaultStockPrice);
+  const [currency, setCurrency] = useState<"KRW" | "USD">(() => getTickerCurrency(ticker));
   const purchaseControlsRef = useRef<HTMLDivElement>(null);
   const purchaseQuantity = Number(quantity);
   const purchasePrice = stockPrice * purchaseQuantity;
@@ -73,6 +78,7 @@ export default function StockPurchasePage() {
 
         if (isMounted) {
           setStockPrice(stockQuote.priceValue);
+          setCurrency(stockQuote.currency);
         }
       } catch {
         if (isMounted) {
@@ -184,7 +190,7 @@ export default function StockPurchasePage() {
         <CardContent className="flex h-24 flex-col justify-center gap-3 px-4">
           <span className="text-xs text-muted-foreground">구매할 가격</span>
           <strong className="text-3xl font-bold tracking-normal">
-            {formatCurrency(purchasePrice)}
+            {formatCurrency(purchasePrice, currency)}
           </strong>
         </CardContent>
       </Card>
@@ -268,8 +274,12 @@ export default function StockPurchasePage() {
   );
 }
 
-function formatCurrency(value: number) {
-  return `${value.toLocaleString("ko-KR")}원`;
+function formatCurrency(value: number, currency: "KRW" | "USD") {
+  if (currency === "USD") {
+    return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  return `${Math.round(value).toLocaleString("ko-KR")}원`;
 }
 
 function normalizeQuantityInput(value: string) {
