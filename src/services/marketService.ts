@@ -11,6 +11,7 @@ export type StockQuote = StockQuoteSeed & {
   change: string;
   changePrice: number;
   changeRate: number;
+  currency: "KRW" | "USD";
   marketCap: number | null;
   per: number | null;
   price: string;
@@ -409,15 +410,17 @@ function toStockQuote(seed: StockQuoteSeed, quote: StockPriceResponse): StockQuo
     quote.changeAmount ?? quote.changePrice ?? priceValue - (quote.prevClosePrice ?? priceValue);
   const isRising = changeRate >= 0;
   const per = quote.per ?? calculatePer(priceValue, quote.eps);
+  const currency = getTickerCurrency(seed.ticker);
 
   return {
     ...seed,
     change: `${isRising ? "\u25b2" : "\u25bc"} ${Math.abs(changeRate).toFixed(2)}%`,
     changePrice,
     changeRate,
+    currency,
     marketCap: quote.marketCap ?? null,
     per,
-    price: formatKoreanWon(priceValue),
+    price: formatPrice(priceValue, currency),
     range52w: quote.range52w ?? null,
     priceValue,
     tone: isRising ? "red" : "blue",
@@ -452,6 +455,7 @@ function toFallbackStockQuote(seed: StockQuoteSeed): StockQuote {
     changePrice: 0,
     changeRate: 0,
     change: "-",
+    currency: getTickerCurrency(seed.ticker),
     marketCap: null,
     per: null,
     price: "-",
@@ -533,16 +537,21 @@ function toFavoriteStockQuote(stock: FavoriteStockItemResponse): StockQuote {
   const changeRate = stock.changeRate ?? 0;
   const changePrice = stock.changePrice ?? 0;
   const isRising = changeRate >= 0;
+  const currency =
+    stock.marketType === "NASDAQ" || stock.marketType === "NYSE"
+      ? "USD"
+      : getTickerCurrency(ticker);
 
   return {
     ...seed,
     change: `${isRising ? "\u25b2" : "\u25bc"} ${Math.abs(changeRate).toFixed(2)}%`,
     changePrice,
     changeRate,
+    currency,
     marketCap: null,
     name: stock.nameKo ?? seed.name,
     per: null,
-    price: formatKoreanWon(priceValue),
+    price: formatPrice(priceValue, currency),
     priceValue,
     range52w: null,
     ticker,
@@ -550,7 +559,15 @@ function toFavoriteStockQuote(stock: FavoriteStockItemResponse): StockQuote {
   };
 }
 
-function formatKoreanWon(value: number) {
+export function getTickerCurrency(ticker: string): "KRW" | "USD" {
+  return /[A-Za-z]/.test(ticker) ? "USD" : "KRW";
+}
+
+function formatPrice(value: number, currency: "KRW" | "USD") {
+  if (currency === "USD") {
+    return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
   return `\u20a9${Math.round(value).toLocaleString("ko-KR")}`;
 }
 
