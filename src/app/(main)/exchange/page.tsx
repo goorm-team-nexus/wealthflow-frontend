@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowUpDown, CheckCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -140,6 +141,12 @@ export default function ExchangePage() {
       {/* 1. 타이틀 */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">환전</h1>
+        <Link
+          href="/exchange/history"
+          className="text-sm font-medium text-muted-foreground underline underline-offset-2"
+        >
+          내역
+        </Link>
       </div>
 
       {/* 2. 현재 환율 카드 */}

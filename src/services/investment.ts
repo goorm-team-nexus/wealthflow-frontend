@@ -81,6 +81,48 @@ export interface GetTransactionsParams {
   sort?: string;
 }
 
+export interface ExchangeResponseDto {
+  id?: number;
+  createdAt?: string;
+  fromCurrency?: string;
+  toCurrency?: string;
+  fromAmount?: number;
+  toAmount?: number;
+  exchangeRate?: number;
+}
+
+export interface PageExchangeResponseDto {
+  content?: ExchangeResponseDto[];
+  empty?: boolean;
+  first?: boolean;
+  last?: boolean;
+  number?: number;
+  numberOfElements?: number;
+  size?: number;
+  totalElements?: number;
+  totalPages?: number;
+}
+
+export interface ExchangeHistoryItem {
+  id: string;
+  fromCurrency: "KRW" | "USD";
+  toCurrency: "KRW" | "USD";
+  fromAmount: number;
+  toAmount: number;
+  exchangeRate: number;
+  date: Date;
+}
+
+export interface GetExchangeHistoryParams {
+  fromCurrency?: "KRW" | "USD";
+  toCurrency?: "KRW" | "USD";
+  startDate?: Date;
+  endDate?: Date;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 // --- Stock Price ---
 
 /**
@@ -131,6 +173,65 @@ export async function getTransactions({
   );
 
   return (response.content ?? []).map(toTransactionHistoryItem);
+}
+
+// --- Exchange History ---
+
+/**
+ * 환전 내역을 조회합니다.
+ * GET /api/v1/exchange/history
+ */
+export async function getExchangeHistory({
+  fromCurrency,
+  toCurrency,
+  startDate,
+  endDate,
+  page = 0,
+  size = 20,
+  sort = "createdAt,desc",
+}: GetExchangeHistoryParams = {}): Promise<ExchangeHistoryItem[]> {
+  const searchParams = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+    sort,
+  });
+
+  if (fromCurrency) {
+    searchParams.set("fromCurrency", fromCurrency);
+  }
+
+  if (toCurrency) {
+    searchParams.set("toCurrency", toCurrency);
+  }
+
+  const formattedStartDate = formatDateParam(startDate);
+  const formattedEndDate = formatDateParam(endDate);
+
+  if (formattedStartDate) {
+    searchParams.set("startDate", formattedStartDate);
+  }
+
+  if (formattedEndDate) {
+    searchParams.set("endDate", formattedEndDate);
+  }
+
+  const response = await apiClient<PageExchangeResponseDto>(
+    `/exchange/history?${searchParams.toString()}`,
+  );
+
+  return (response.content ?? []).map(toExchangeHistoryItem);
+}
+
+function toExchangeHistoryItem(item: ExchangeResponseDto): ExchangeHistoryItem {
+  return {
+    id: String(item.id ?? ""),
+    fromCurrency: (item.fromCurrency as "KRW" | "USD") ?? "KRW",
+    toCurrency: (item.toCurrency as "KRW" | "USD") ?? "USD",
+    fromAmount: item.fromAmount ?? 0,
+    toAmount: item.toAmount ?? 0,
+    exchangeRate: item.exchangeRate ?? 0,
+    date: toValidDate(item.createdAt),
+  };
 }
 
 // --- Trade Order ---
