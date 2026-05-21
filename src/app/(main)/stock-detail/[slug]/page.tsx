@@ -1,6 +1,5 @@
 "use client";
 
-import { CircleDollarSign } from "lucide-react";
 import {
   CandlestickSeries,
   createChart,
@@ -465,7 +464,9 @@ function StockInfoCard({ stock }: { stock: StockQuote }) {
     <Card className="rounded-md py-4">
       <CardContent className="flex flex-col gap-4 px-4">
         <div className="flex items-start gap-2">
-          <CircleDollarSign className="mt-0.5 size-5" aria-hidden="true" />
+          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-xs font-normal text-blue-600">
+            {stock.logo}
+          </span>
           <div className="flex flex-col">
             <h2 className="text-sm font-semibold">{stock.name}</h2>
             <span className="text-xs text-muted-foreground">
