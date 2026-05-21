@@ -370,6 +370,7 @@ function getStockMetrics(stock: StockQuote): StockMetric[] {
       value: formatMarketCap(getDisplayMarketCap(stock), stock.currency),
     },
     { label: "PER", value: formatPer(getDisplayPer(stock)) },
+    { label: "52\uc8fc \ubc94\uc704", value: getDisplayRange52w(stock) },
   ];
 }
 
@@ -446,14 +447,18 @@ function getDisplayRange52w(stock: StockQuote) {
   const lowPrice = stock.priceValue * lowRate;
   const highPrice = stock.priceValue * highRate;
 
-  return `${formatCompactWon(lowPrice)} ~ ${formatCompactWon(highPrice)}`;
+  return `${formatPriceWithoutSign(lowPrice, stock.currency)} ~ ${formatPriceWithoutSign(highPrice, stock.currency)}`;
 }
 
 function getTickerSeed(ticker: string) {
   return Array.from(ticker).reduce((sum, character) => sum + character.charCodeAt(0), 0);
 }
 
-function formatCompactWon(value: number) {
+function formatPriceWithoutSign(value: number, currency: "KRW" | "USD") {
+  if (currency === "USD") {
+    return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
   return `\u20a9${Math.round(value).toLocaleString("ko-KR")}`;
 }
 
@@ -490,13 +495,6 @@ function StockInfoCard({ stock }: { stock: StockQuote }) {
               </strong>
             </div>
           ))}
-        </div>
-        <div className="flex h-8 items-center justify-between">
-          <span className="text-xs text-muted-foreground">52{"\uc8fc \ubc94\uc704"}</span>
-          <div className="flex items-end gap-0.5">
-            <span className="text-sm text-muted-foreground">{getDisplayRange52w(stock)}</span>
-            <strong className="text-sm font-semibold text-foreground">{stock.price}</strong>
-          </div>
         </div>
       </CardContent>
     </Card>
