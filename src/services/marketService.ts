@@ -381,11 +381,11 @@ export function getBackendChartTicker(ticker: string): string {
 }
 
 const RANGE_MAPPING: Record<string, string> = {
-  "1d": "1d",
-  "1w": "5d",
-  "1m": "1mo",
-  "3m": "3mo",
-  "1y": "1y",
+  "1d": "5d",
+  "1w": "1mo",
+  "1m": "3mo",
+  "3m": "1y",
+  "1y": "2y",
 };
 
 export async function fetchStockCharts(
