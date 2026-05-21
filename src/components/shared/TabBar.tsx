@@ -31,11 +31,11 @@ export function TabBar() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-1/2 z-[101] flex h-16 w-full max-w-[500px] -translate-x-1/2 items-center justify-around gap-1 border-x border-t border-border bg-background px-2">
-        {tabs.map((tab, index) => {
+      <nav className="fixed bottom-0 left-1/2 z-[101] flex h-16 w-full max-w-[500px] -translate-x-1/2 items-center justify-around border-x border-t border-border bg-background">
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = tab.href ? pathname.startsWith(tab.href) : isMenuOpen;
-          const itemClassName = `flex h-12 w-16 flex-col items-center justify-center rounded-lg transition-colors ${
+          const itemClassName = `flex h-full flex-1 flex-col items-center justify-center rounded-none p-0 shadow-none group ${
             isActive
               ? "bg-muted text-foreground font-semibold"
               : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -53,8 +53,10 @@ export function TabBar() {
                   className={itemClassName}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-xs leading-none">{tab.label}</span>
+                  <Icon className="w-5 h-5 mb-1 group-hover:scale-110" />
+                  <span className="text-xs leading-none inline-block origin-center group-hover:scale-110">
+                    {tab.label}
+                  </span>
                 </Button>
               ) : (
                 <Link
@@ -62,11 +64,12 @@ export function TabBar() {
                   className={itemClassName}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-xs leading-none">{tab.label}</span>
+                  <Icon className="w-5 h-5 mb-1 group-hover:scale-110" />
+                  <span className="text-xs leading-none inline-block origin-center group-hover:scale-110">
+                    {tab.label}
+                  </span>
                 </Link>
               )}
-              {index < tabs.length - 1 && <div className="w-px h-5 bg-border shrink-0" />}
             </React.Fragment>
           );
         })}

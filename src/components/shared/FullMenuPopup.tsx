@@ -104,8 +104,10 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
             </div>
 
             {/* Menu Items Area */}
-            <div className="px-4 py-0">
-              <Separator className="bg-border/50" />
+            <div className="py-0">
+              <div className="px-4">
+                <Separator className="bg-border/50" />
+              </div>
               <div className="flex flex-col gap-0 pt-2">
                 {menuItems.map((item, index) => (
                   <MenuItem
@@ -121,15 +123,17 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
 
             {/* Footer Profile Section */}
             <div>
-              <Separator className="bg-border/50" />
-              <div className="p-4">
+              <div className="px-4">
+                <Separator className="bg-border/50" />
+              </div>
+              <div className="py-2">
                 <button
                   type="button"
-                  className="group -m-2 flex w-[calc(100%+16px)] cursor-pointer items-center justify-between rounded-xl p-2 text-left transition-all duration-150 hover:-translate-y-0.5 hover:bg-muted hover:shadow-md active:translate-y-0 active:shadow-inner disabled:pointer-events-none disabled:opacity-60"
+                  className="group flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-60"
                   onClick={handleLogout}
                   disabled={isLoggingOut}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 group-hover:translate-x-1 transition-transform duration-300">
                     <Avatar className="w-7 h-7 rounded-full bg-muted group-hover:bg-background transition-colors border border-border/60">
                       {avatarSrc ? <AvatarImage src={avatarSrc} alt={userName} /> : null}
                       <AvatarFallback className="bg-transparent text-muted-foreground rounded-full flex items-center justify-center">
@@ -143,11 +147,11 @@ export function FullMenuPopup({ isOpen, onClose }: FullMenuPopupProps) {
                       </span>
                     </div>
                   </div>
-                  <div className="p-2 text-muted-foreground group-hover:text-foreground">
+                  <div className="p-2 text-muted-foreground group-hover:text-foreground group-hover:scale-110">
                     <LogOut className="w-5 h-5" />
                   </div>
                 </button>
-                {logoutError && <p className="mt-3 text-xs text-destructive">{logoutError}</p>}
+                {logoutError && <p className="mt-3 px-4 text-xs text-destructive">{logoutError}</p>}
               </div>
             </div>
           </div>
@@ -173,13 +177,15 @@ function MenuItem({
 }) {
   const content = (
     <>
-      <Icon className="w-5 h-5 text-foreground/80 group-hover:text-foreground transition-colors shrink-0" />
-      <span className="flex-1 text-sm font-medium text-left">{label}</span>
+      <Icon className="w-5 h-5 text-foreground/80 group-hover:text-foreground group-hover:scale-110 shrink-0" />
+      <span className="flex-1 text-sm font-medium text-left group-hover:translate-x-1">
+        {label}
+      </span>
     </>
   );
 
   const className =
-    "flex w-full items-center gap-3 px-3.5 py-2 rounded-xl text-foreground hover:bg-muted hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-inner transition-all duration-150 group cursor-pointer";
+    "flex w-full items-center gap-3 px-4 py-2.5 rounded-none text-foreground hover:bg-muted group cursor-pointer";
 
   if (href) {
     return (

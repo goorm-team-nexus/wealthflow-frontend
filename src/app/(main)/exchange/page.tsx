@@ -235,7 +235,7 @@ export default function ExchangePage() {
         type="button"
         onClick={handleExchangeSubmit}
         disabled={!fromAmount || Number(fromAmount) <= 0}
-        className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-foreground font-bold text-background shadow-md hover:bg-foreground/90 disabled:opacity-50"
+        className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary/90 disabled:opacity-50"
       >
         <CheckCircle className="size-4" />
         <span>환전하기</span>

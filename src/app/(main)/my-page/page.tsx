@@ -76,10 +76,10 @@ export default function MyPage() {
   const formattedRate = `${isPositive ? "+" : ""}${profitRate.toFixed(2)}%`;
 
   const badgeColor = isZero
-    ? "bg-muted text-muted-foreground hover:bg-muted"
+    ? "bg-muted text-muted-foreground"
     : isPositive
-      ? "bg-red-500 hover:bg-red-600 text-white"
-      : "bg-blue-500 hover:bg-blue-600 text-white";
+      ? "bg-red-500 text-white"
+      : "bg-primary text-primary-foreground";
 
   const avatarSrc = userProfile?.avatarSrc;
   const userName = userProfile?.name || userInfo?.name || "사용자";
