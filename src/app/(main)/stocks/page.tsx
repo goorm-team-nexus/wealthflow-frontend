@@ -26,6 +26,7 @@ type Stock = StockQuote;
 
 type SortField = "name" | "price" | "change";
 type SortOrder = "asc" | "desc";
+type MarketFilter = "all" | "krw" | "usd";
 type SlideDirection = "next" | "previous";
 
 const copy = {
@@ -127,6 +128,7 @@ export default function Home() {
   const [marketPage, setMarketPage] = useState(0);
   const [sortField, setSortField] = useState<SortField>("change");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [marketFilter, setMarketFilter] = useState<MarketFilter>("all");
   const [favoriteTickers, setFavoriteTickers] = useState<Set<string>>(new Set());
   const [updatingFavoriteTickers, setUpdatingFavoriteTickers] = useState<Set<string>>(new Set());
   const [isMoreStocksOpen, setIsMoreStocksOpen] = useState(false);
@@ -143,8 +145,15 @@ export default function Home() {
 
   const totalMarketPages = Math.ceil(marketIndexes.length / 2);
   const visibleMarketIndexes = marketIndexes.slice(marketPage * 2, marketPage * 2 + 2);
+  const filteredStocks = useMemo(() => {
+    if (marketFilter === "all") return mainStocks;
+    return mainStocks.filter((stock) =>
+      marketFilter === "krw" ? stock.currency === "KRW" : stock.currency === "USD",
+    );
+  }, [mainStocks, marketFilter]);
+
   const sortedStocks = useMemo(() => {
-    return [...mainStocks].sort((firstStock, secondStock) => {
+    return [...filteredStocks].sort((firstStock, secondStock) => {
       let comparison = 0;
 
       if (sortField === "name") {
@@ -157,7 +166,7 @@ export default function Home() {
 
       return sortOrder === "asc" ? comparison : -comparison;
     });
-  }, [mainStocks, sortField, sortOrder]);
+  }, [filteredStocks, sortField, sortOrder]);
 
   useEffect(() => {
     return () => {
@@ -369,11 +378,13 @@ export default function Home() {
         isFavoriteLoading={isFavoriteLoading}
         isMoreStocksOpen={isMoreStocksOpen}
         isStockLoading={isStockLoading}
+        marketFilter={marketFilter}
         sortField={sortField}
         sortOrder={sortOrder}
         stocks={sortedStocks}
         updatingFavoriteTickers={updatingFavoriteTickers}
         onFavoriteStock={handleFavoriteStock}
+        onMarketFilterChange={setMarketFilter}
         onMoreStocksClose={() => setIsMoreStocksOpen(false)}
         onMoreStocksOpen={() => setIsMoreStocksOpen(true)}
         onSortFieldChange={setSortField}
@@ -540,11 +551,13 @@ function MainStockSection({
   isFavoriteLoading,
   isMoreStocksOpen,
   isStockLoading,
+  marketFilter,
   sortField,
   sortOrder,
   stocks,
   updatingFavoriteTickers,
   onFavoriteStock,
+  onMarketFilterChange,
   onMoreStocksClose,
   onMoreStocksOpen,
   onSortFieldChange,
@@ -556,11 +569,13 @@ function MainStockSection({
   isFavoriteLoading: boolean;
   isMoreStocksOpen: boolean;
   isStockLoading: boolean;
+  marketFilter: MarketFilter;
   sortField: SortField;
   sortOrder: SortOrder;
   stocks: Stock[];
   updatingFavoriteTickers: Set<string>;
   onFavoriteStock: (stock: Stock) => void;
+  onMarketFilterChange: (filter: MarketFilter) => void;
   onMoreStocksClose: () => void;
   onMoreStocksOpen: () => void;
   onSortFieldChange: (field: SortField) => void;
@@ -592,7 +607,7 @@ function MainStockSection({
   return (
     <Card className="shadow-md">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between px-4 py-3.5">
+        <div className="flex items-center justify-between px-4 pt-4 pb-2.5">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold leading-none">{copy.mainStocks}</h2>
             {hasStockError || hasFavoriteError ? (
@@ -601,7 +616,31 @@ function MainStockSection({
               </span>
             ) : null}
           </div>
-          <div className="flex items-center gap-2 text-xs font-medium">
+        </div>
+
+        <div className="flex gap-1.5 px-4 pb-3">
+          {(["all", "krw", "usd"] as const).map((filter) => {
+            const label = filter === "all" ? "전체" : filter === "krw" ? "한국 주식" : "미국 주식";
+            const isActive = marketFilter === filter;
+            return (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => onMarketFilterChange(filter)}
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center justify-end border-t border-border/40 bg-zinc-50/50 px-4 py-2.5 text-xs font-medium">
+          <div className="flex items-center gap-2">
             <Button
               type="button"
               variant="link"
