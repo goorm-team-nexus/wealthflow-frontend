@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { placeOrder } from "@/services/investment";
+import { getPortfolio } from "@/services/portfolio";
 import {
   fetchStockQuoteByTicker,
   getStockQuoteSeed,
@@ -31,7 +32,6 @@ type QuickQuantityItem =
       type: "max";
     };
 
-const maxPurchaseQuantity = 99;
 const defaultStockPrice = 219500;
 
 const quickQuantityItems: QuickQuantityItem[] = [
@@ -65,9 +65,16 @@ export default function StockPurchasePage() {
   const [isOrderPending, setIsOrderPending] = useState(false);
   const [stockPrice, setStockPrice] = useState(defaultStockPrice);
   const [currency, setCurrency] = useState<"KRW" | "USD">(() => getTickerCurrency(ticker));
+  const [cashBalance, setCashBalance] = useState<number | null>(null);
+  const [isBalanceLoading, setIsBalanceLoading] = useState(true);
   const purchaseControlsRef = useRef<HTMLDivElement>(null);
   const purchaseQuantity = Number(quantity);
   const purchasePrice = stockPrice * purchaseQuantity;
+
+  const maxPurchaseQuantity =
+    cashBalance !== null && stockPrice > 0 ? Math.floor(cashBalance / stockPrice) : 0;
+  const isPurchaseDisabled =
+    isOrderPending || isBalanceLoading || cashBalance === null || purchaseQuantity <= 0;
 
   useEffect(() => {
     let isMounted = true;
@@ -95,6 +102,32 @@ export default function StockPurchasePage() {
   }, [ticker]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const loadBalance = async () => {
+      try {
+        const response = await getPortfolio();
+
+        if (isMounted && response.data) {
+          const balance =
+            currency === "USD" ? (response.data.cashUsd ?? 0) : (response.data.cashKrw ?? 0);
+          setCashBalance(balance);
+        }
+      } catch {
+        // 잔고 조회 실패 시 null 유지
+      } finally {
+        if (isMounted) setIsBalanceLoading(false);
+      }
+    };
+
+    void loadBalance();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currency]);
+
+  useEffect(() => {
     const handleDocumentPointerDown = (event: PointerEvent) => {
       if (!purchaseControlsRef.current?.contains(event.target as Node)) {
         setIsKeypadOpen(false);
@@ -108,21 +141,35 @@ export default function StockPurchasePage() {
     };
   }, []);
 
+  const clampToMax = (value: number) => {
+    if (cashBalance !== null && value > maxPurchaseQuantity) {
+      return maxPurchaseQuantity;
+    }
+    return value;
+  };
+
   const handleQuantityFieldClick = () => {
     setIsKeypadOpen(true);
   };
 
   const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuantity(normalizeQuantityInput(event.target.value));
+    const normalized = normalizeQuantityInput(event.target.value);
+    const clamped = clampToMax(Number(normalized));
+    setQuantity(String(clamped));
   };
 
   const handleNumberClick = (value: string) => {
     setQuantity((currentQuantity) => {
+      let next: string;
+
       if (currentQuantity === "0") {
-        return value === "00" ? "0" : value;
+        next = value === "00" ? "0" : value;
+      } else {
+        next = `${currentQuantity}${value}`;
       }
 
-      return `${currentQuantity}${value}`;
+      const clamped = clampToMax(Number(next));
+      return String(clamped);
     });
   };
 
@@ -144,12 +191,35 @@ export default function StockPurchasePage() {
       return;
     }
 
-    setQuantity((currentQuantity) => String(Number(currentQuantity) + quickQuantity.increment));
+    setQuantity((currentQuantity) => {
+      const next = Number(currentQuantity) + quickQuantity.increment;
+      return String(clampToMax(next));
+    });
   };
 
   const handlePurchaseClick = async () => {
+    if (isBalanceLoading) {
+      setOrderMessage("잔고를 조회 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    if (cashBalance === null) {
+      setOrderMessage("잔고를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    if (maxPurchaseQuantity <= 0) {
+      setOrderMessage("잔고가 부족합니다.");
+      return;
+    }
+
     if (purchaseQuantity <= 0) {
       setOrderMessage("1주 이상 입력해주세요.");
+      return;
+    }
+
+    if (purchaseQuantity > maxPurchaseQuantity) {
+      setOrderMessage("잔고가 부족합니다.");
       return;
     }
 
@@ -173,6 +243,8 @@ export default function StockPurchasePage() {
     }
   };
 
+  const remainingBalance = cashBalance !== null ? cashBalance - purchasePrice : null;
+
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
@@ -187,11 +259,33 @@ export default function StockPurchasePage() {
       </div>
 
       <Card className="bg-muted/50 py-4 shadow-sm">
-        <CardContent className="flex h-24 flex-col justify-center gap-3 px-4">
+        <CardContent className="flex flex-col justify-center gap-3 px-4 py-1">
           <span className="text-xs text-muted-foreground">구매할 가격</span>
           <strong className="text-3xl font-bold tracking-normal">
             {formatCurrency(purchasePrice, currency)}
           </strong>
+          <div className="flex items-center justify-between border-t border-border/50 pt-2">
+            <span className="text-xs text-muted-foreground">
+              {currency === "USD" ? "USD 잔고" : "원화 잔고"}
+            </span>
+            <span className="text-xs font-medium">
+              {isBalanceLoading
+                ? "조회 중..."
+                : cashBalance !== null
+                  ? formatCurrency(cashBalance, currency)
+                  : "조회 실패"}
+            </span>
+          </div>
+          {purchaseQuantity > 0 && cashBalance !== null ? (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">거래 후 잔고</span>
+              <span
+                className={`text-xs font-medium ${remainingBalance !== null && remainingBalance < 0 ? "text-red-500" : ""}`}
+              >
+                {remainingBalance !== null ? formatCurrency(remainingBalance, currency) : "-"}
+              </span>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -265,7 +359,7 @@ export default function StockPurchasePage() {
       <Button
         type="button"
         className="w-full bg-red-500 text-white hover:bg-red-600"
-        disabled={isOrderPending}
+        disabled={isPurchaseDisabled}
         onClick={handlePurchaseClick}
       >
         {isOrderPending ? "구매 요청 중" : "구매하기"}

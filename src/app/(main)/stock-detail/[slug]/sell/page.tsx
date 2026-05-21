@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { placeOrder } from "@/services/investment";
+import { getPortfolio } from "@/services/portfolio";
 import {
   fetchStockQuoteByTicker,
   getStockQuoteSeed,
@@ -31,7 +32,6 @@ type QuickQuantityItem =
       type: "max";
     };
 
-const maxSellQuantity = 27;
 const defaultStockPrice = 219500;
 
 const quickQuantityItems: QuickQuantityItem[] = [
@@ -65,9 +65,15 @@ export default function StockSellPage() {
   const [isOrderPending, setIsOrderPending] = useState(false);
   const [stockPrice, setStockPrice] = useState(defaultStockPrice);
   const [currency, setCurrency] = useState<"KRW" | "USD">(() => getTickerCurrency(ticker));
+  const [holdingQuantity, setHoldingQuantity] = useState<number | null>(null);
+  const [isBalanceLoading, setIsBalanceLoading] = useState(true);
   const sellControlsRef = useRef<HTMLDivElement>(null);
   const sellQuantity = Number(quantity);
   const sellPrice = stockPrice * sellQuantity;
+
+  const maxSellQuantity = holdingQuantity ?? 0;
+  const isSellDisabled =
+    isOrderPending || isBalanceLoading || holdingQuantity === null || sellQuantity <= 0;
 
   useEffect(() => {
     let isMounted = true;
@@ -95,6 +101,31 @@ export default function StockSellPage() {
   }, [ticker]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const loadHolding = async () => {
+      try {
+        const response = await getPortfolio();
+
+        if (isMounted && response.data) {
+          const item = response.data.items.find((i) => i.ticker === ticker);
+          setHoldingQuantity(item?.quantity ?? 0);
+        }
+      } catch {
+        // 보유 수량 조회 실패 시 null 유지
+      } finally {
+        if (isMounted) setIsBalanceLoading(false);
+      }
+    };
+
+    void loadHolding();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [ticker]);
+
+  useEffect(() => {
     const handleDocumentPointerDown = (event: PointerEvent) => {
       if (!sellControlsRef.current?.contains(event.target as Node)) {
         setIsKeypadOpen(false);
@@ -108,21 +139,35 @@ export default function StockSellPage() {
     };
   }, []);
 
+  const clampToMax = (value: number) => {
+    if (holdingQuantity !== null && value > maxSellQuantity) {
+      return maxSellQuantity;
+    }
+    return value;
+  };
+
   const handleQuantityFieldClick = () => {
     setIsKeypadOpen(true);
   };
 
   const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuantity(normalizeQuantityInput(event.target.value));
+    const normalized = normalizeQuantityInput(event.target.value);
+    const clamped = clampToMax(Number(normalized));
+    setQuantity(String(clamped));
   };
 
   const handleNumberClick = (value: string) => {
     setQuantity((currentQuantity) => {
+      let next: string;
+
       if (currentQuantity === "0") {
-        return value === "00" ? "0" : value;
+        next = value === "00" ? "0" : value;
+      } else {
+        next = `${currentQuantity}${value}`;
       }
 
-      return `${currentQuantity}${value}`;
+      const clamped = clampToMax(Number(next));
+      return String(clamped);
     });
   };
 
@@ -144,12 +189,35 @@ export default function StockSellPage() {
       return;
     }
 
-    setQuantity((currentQuantity) => String(Number(currentQuantity) + quickQuantity.increment));
+    setQuantity((currentQuantity) => {
+      const next = Number(currentQuantity) + quickQuantity.increment;
+      return String(clampToMax(next));
+    });
   };
 
   const handleSellClick = async () => {
+    if (isBalanceLoading) {
+      setOrderMessage("보유 수량을 조회 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    if (holdingQuantity === null) {
+      setOrderMessage("보유 수량을 확인할 수 없습니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    if (maxSellQuantity <= 0) {
+      setOrderMessage("보유 수량이 없습니다.");
+      return;
+    }
+
     if (sellQuantity <= 0) {
       setOrderMessage("1주 이상 입력해주세요.");
+      return;
+    }
+
+    if (sellQuantity > maxSellQuantity) {
+      setOrderMessage("보유 수량을 초과할 수 없습니다.");
       return;
     }
 
@@ -173,6 +241,9 @@ export default function StockSellPage() {
     }
   };
 
+  const remainingShares =
+    holdingQuantity !== null && sellQuantity > 0 ? holdingQuantity - sellQuantity : null;
+
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       <div className="grid h-8 grid-cols-[32px_minmax(0,1fr)_32px] items-center">
@@ -187,11 +258,29 @@ export default function StockSellPage() {
       </div>
 
       <Card className="bg-muted/50 py-4 shadow-sm">
-        <CardContent className="flex h-24 flex-col justify-center gap-3 px-4">
+        <CardContent className="flex flex-col justify-center gap-3 px-4 py-1">
           <span className="text-xs text-muted-foreground">판매할 가격</span>
           <strong className="text-3xl font-bold tracking-normal">
             {formatCurrency(sellPrice, currency)}
           </strong>
+          <div className="flex items-center justify-between border-t border-border/50 pt-2">
+            <span className="text-xs text-muted-foreground">보유 수량</span>
+            <span className="text-xs font-medium">
+              {isBalanceLoading
+                ? "조회 중..."
+                : holdingQuantity !== null
+                  ? `${holdingQuantity.toLocaleString("ko-KR")}주`
+                  : "조회 실패"}
+            </span>
+          </div>
+          {remainingShares !== null ? (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">거래 후 보유</span>
+              <span className="text-xs font-medium">
+                {remainingShares.toLocaleString("ko-KR")}주
+              </span>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -265,7 +354,7 @@ export default function StockSellPage() {
       <Button
         type="button"
         className="w-full bg-blue-500 text-white hover:bg-blue-600"
-        disabled={isOrderPending}
+        disabled={isSellDisabled}
         onClick={handleSellClick}
       >
         {isOrderPending ? "판매 요청 중" : "판매하기"}
