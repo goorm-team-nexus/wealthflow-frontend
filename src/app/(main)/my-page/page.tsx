@@ -169,7 +169,7 @@ export default function MyPage() {
             거래 내역
           </Button>
         </Link>
-        <Link href="/exchange" className="w-full">
+        <Link href="/exchange/history" className="w-full">
           <Button variant="outline" size="lg" className="w-full justify-start gap-3">
             <Banknote className="size-5" />
             환전 내역
