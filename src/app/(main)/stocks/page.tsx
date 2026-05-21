@@ -373,14 +373,14 @@ export default function Home() {
 
 function MarketIndexCardSkeleton() {
   return (
-    <Card className="h-[92px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0">
-      <CardContent className="flex h-full flex-col gap-1 px-2.5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="h-3 w-10 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+    <Card className="h-[112px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0">
+      <CardContent className="flex h-full flex-col gap-1.5 px-2.5">
+        <div className="h-3 w-10 animate-pulse rounded bg-muted" />
+        <div className="min-h-0 w-full flex-1 animate-pulse rounded bg-muted" />
+        <div className="flex items-center justify-between gap-1">
+          <div className="h-3.5 w-16 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
         </div>
-        <div className="h-12 w-full animate-pulse rounded bg-muted" />
-        <div className="h-4 w-20 animate-pulse rounded bg-muted" />
       </CardContent>
     </Card>
   );
@@ -482,18 +482,14 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
 
   return (
     <Card
-      className={`${cardToneClass} h-[92px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0`}
+      className={`${cardToneClass} h-[112px] rounded-lg py-2 shadow-md shadow-zinc-200/80 ring-0`}
     >
-      <CardContent className="flex h-full flex-col gap-1 px-2.5">
-        <div className="flex items-start justify-between gap-2">
-          <span className="text-xs font-medium leading-none text-foreground">
-            {marketIndex.name}
-          </span>
-          <span className={`text-xs leading-none ${changeToneClass}`}>{marketIndex.change}</span>
-        </div>
+      <CardContent className="flex h-full flex-col gap-1.5 px-2.5">
+        <span className="text-xs font-medium leading-none text-foreground">{marketIndex.name}</span>
         <svg
-          className={`h-12 w-full ${chartToneClass}`}
+          className={`min-h-0 w-full flex-1 ${chartToneClass}`}
           viewBox="0 0 120 56"
+          preserveAspectRatio="none"
           role="img"
           aria-label={`${marketIndex.name} ${copy.chart}`}
         >
@@ -512,9 +508,14 @@ function MarketIndexCard({ marketIndex }: { marketIndex: MarketIndex }) {
             strokeWidth="1.4"
           />
         </svg>
-        <strong className="text-base leading-none font-bold tracking-tight text-foreground">
-          {marketIndex.price}
-        </strong>
+        <div className="flex items-baseline justify-between gap-1">
+          <strong className="text-sm font-bold leading-none tracking-tight text-foreground">
+            {marketIndex.price}
+          </strong>
+          <span className={`text-[11px] font-medium leading-none ${changeToneClass}`}>
+            {marketIndex.change}
+          </span>
+        </div>
       </CardContent>
     </Card>
   );
