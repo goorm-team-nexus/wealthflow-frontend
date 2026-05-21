@@ -19,6 +19,30 @@ export type StockQuote = StockQuoteSeed & {
   tone: "blue" | "red";
 };
 
+export type MarketIndexQuote = {
+  id: number;
+  change: string;
+  name: string;
+  points: string;
+  price: string;
+  tone: "blue" | "red";
+};
+
+type MarketIndexSeed = {
+  apiName: string;
+  id: number;
+  name: string;
+};
+
+const MARKET_INDEX_SEEDS: MarketIndexSeed[] = [
+  { apiName: "KOSPI", id: 1, name: "\ucf54\uc2a4\ud53c" },
+  { apiName: "KOSDAQ", id: 2, name: "\ucf54\uc2a4\ub2e5" },
+  { apiName: "NASDAQ", id: 3, name: "\ub098\uc2a4\ub2e5" },
+  { apiName: "S&P500", id: 4, name: "S&P 500" },
+  { apiName: "DOW", id: 5, name: "\ub2e4\uc6b0" },
+  { apiName: "NIKKEI", id: 6, name: "\ub2c8\ucf00\uc774" },
+];
+
 export const MAIN_STOCK_SEEDS: StockQuoteSeed[] = [
   { id: 1, logo: "S", name: "\uc0bc\uc131\uc804\uc790", ticker: "005930", volumeRank: 1 },
   { id: 2, logo: "S", name: "SK\ud558\uc774\ub2c9\uc2a4", ticker: "000660", volumeRank: 2 },
@@ -268,6 +292,15 @@ type FavoriteStockResultResponse = {
   ticker?: string;
 };
 
+type MarketIndexResponseDto = {
+  changeAmount?: number | null;
+  changeRate?: number | null;
+  currentPrice?: number | null;
+  indexName?: string | null;
+};
+
+type MarketIndexListResponse = ApiResponse<MarketIndexResponseDto[]>;
+
 export async function fetchMainStockQuotes(seeds: StockQuoteSeed[]): Promise<StockQuote[]> {
   const results = await Promise.allSettled(seeds.map((seed) => fetchStockQuote(seed)));
 
@@ -278,6 +311,22 @@ export async function fetchMainStockQuotes(seeds: StockQuoteSeed[]): Promise<Sto
 
     return toFallbackStockQuote(seeds[index]);
   });
+}
+
+export async function fetchMarketIndices(): Promise<MarketIndexQuote[]> {
+  const apiResponse = await apiClient<MarketIndexListResponse>("/market/indices");
+
+  if (!apiResponse.success || !apiResponse.data) {
+    throw new Error("Invalid market index response");
+  }
+
+  const indexMap = new Map(
+    apiResponse.data.map((marketIndex) => [normalizeIndexName(marketIndex.indexName), marketIndex]),
+  );
+
+  return MARKET_INDEX_SEEDS.map((seed) =>
+    toMarketIndexQuote(seed, indexMap.get(normalizeIndexName(seed.apiName))),
+  );
 }
 
 export async function fetchStockQuoteByTicker(ticker: string): Promise<StockQuote> {
@@ -375,6 +424,28 @@ function toStockQuote(seed: StockQuoteSeed, quote: StockPriceResponse): StockQuo
   };
 }
 
+function toMarketIndexQuote(
+  seed: MarketIndexSeed,
+  marketIndex?: MarketIndexResponseDto,
+): MarketIndexQuote {
+  const currentPrice = marketIndex?.currentPrice ?? 0;
+  const changeAmount = marketIndex?.changeAmount ?? 0;
+  const changeRate = marketIndex?.changeRate ?? 0;
+  const isRising = changeRate >= 0;
+
+  return {
+    ...seed,
+    change: `${formatSignedNumber(changeAmount)} (${formatSignedPercent(changeRate)})`,
+    points: toMarketIndexPoints({
+      changeAmount,
+      currentPrice,
+      seed: seed.id,
+    }),
+    price: formatIndexPrice(currentPrice),
+    tone: isRising ? "red" : "blue",
+  };
+}
+
 function toFallbackStockQuote(seed: StockQuoteSeed): StockQuote {
   return {
     ...seed,
@@ -388,6 +459,71 @@ function toFallbackStockQuote(seed: StockQuoteSeed): StockQuote {
     priceValue: 0,
     tone: "blue",
   };
+}
+
+function normalizeIndexName(indexName?: string | null) {
+  return (indexName ?? "").replace(/\s/g, "").toUpperCase();
+}
+
+function toMarketIndexPoints({
+  changeAmount,
+  currentPrice,
+  seed,
+}: {
+  changeAmount: number;
+  currentPrice: number;
+  seed: number;
+}) {
+  const fiveMinutePointCount = 24;
+  const previousPrice = currentPrice - changeAmount;
+  const basePrice = previousPrice || currentPrice || 1;
+  const changeScale = Math.max(Math.abs(changeAmount), Math.max(currentPrice * 0.002, 1));
+  const prices = Array.from({ length: fiveMinutePointCount }, (_, index) => {
+    const progress = index / (fiveMinutePointCount - 1);
+    const trendPrice = basePrice + (currentPrice - basePrice) * progress;
+    const shortSpike =
+      Math.sin((index + seed) * 2.15) * changeScale * 0.32 +
+      Math.cos((index + seed * 3) * 3.7) * changeScale * 0.18;
+    const sawTooth = (index % 2 === 0 ? 1 : -1) * changeScale * 0.22;
+
+    return index === fiveMinutePointCount - 1
+      ? currentPrice
+      : Math.max(trendPrice + shortSpike + sawTooth, 1);
+  });
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const range = Math.max(maxPrice - minPrice, 1);
+
+  return prices
+    .map((price, index) => {
+      const x = Math.round(1 + (index * 118) / (fiveMinutePointCount - 1));
+      const y = Math.round(50 - ((price - minPrice) / range) * 40);
+
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
+function formatIndexPrice(value: number) {
+  return value.toLocaleString("ko-KR", {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  });
+}
+
+function formatSignedNumber(value: number) {
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+
+  return `${sign}${Math.abs(value).toLocaleString("ko-KR", {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  })}`;
+}
+
+function formatSignedPercent(value: number) {
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+
+  return `${sign}${Math.abs(value).toFixed(2)}%`;
 }
 
 function toFavoriteStockQuote(stock: FavoriteStockItemResponse): StockQuote {

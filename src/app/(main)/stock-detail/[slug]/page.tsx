@@ -15,8 +15,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  addFavoriteStock,
+  fetchFavoriteStocks,
   fetchStockQuoteByTicker,
   getStockQuoteSeed,
+  removeFavoriteStock,
   type StockQuote,
   type StockQuoteSeed,
 } from "@/services/marketService";
@@ -41,6 +44,8 @@ export default function StockDetailPage() {
   const params = useParams<{ slug: string }>();
   const ticker = params.slug;
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavoriteUpdating, setIsFavoriteUpdating] = useState(false);
+  const [hasFavoriteError, setHasFavoriteError] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("1d");
   const [stock, setStock] = useState<StockQuote>(() => toPendingStock(getStockQuoteSeed(ticker)));
 
@@ -68,13 +73,62 @@ export default function StockDetailPage() {
     };
   }, [ticker]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadFavoriteState = async () => {
+      setHasFavoriteError(false);
+
+      try {
+        const favorites = await fetchFavoriteStocks();
+
+        if (isMounted) {
+          setIsFavorite(favorites.items.some((favoriteStock) => favoriteStock.ticker === ticker));
+        }
+      } catch {
+        if (isMounted) {
+          setHasFavoriteError(true);
+        }
+      }
+    };
+
+    void loadFavoriteState();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [ticker]);
+
+  const handleFavoriteToggle = async () => {
+    const nextIsFavorite = !isFavorite;
+
+    setHasFavoriteError(false);
+    setIsFavoriteUpdating(true);
+    setIsFavorite(nextIsFavorite);
+
+    try {
+      const result = nextIsFavorite
+        ? await addFavoriteStock(stock.ticker)
+        : await removeFavoriteStock(stock.ticker);
+
+      setIsFavorite(result.favorite ?? nextIsFavorite);
+    } catch {
+      setHasFavoriteError(true);
+      setIsFavorite(!nextIsFavorite);
+    } finally {
+      setIsFavoriteUpdating(false);
+    }
+  };
+
   return (
     <div className="flex w-full flex-col gap-4 p-4">
       <StockDetailHeader
+        hasFavoriteError={hasFavoriteError}
         isFavorite={isFavorite}
+        isFavoriteUpdating={isFavoriteUpdating}
         stockName={stock.name}
         ticker={stock.ticker}
-        onFavoriteToggle={() => setIsFavorite((currentIsFavorite) => !currentIsFavorite)}
+        onFavoriteToggle={handleFavoriteToggle}
       />
       <PriceSummary stock={stock} />
       <PriceChart
@@ -96,36 +150,48 @@ export default function StockDetailPage() {
 }
 
 function StockDetailHeader({
+  hasFavoriteError,
   isFavorite,
+  isFavoriteUpdating,
   stockName,
   ticker,
   onFavoriteToggle,
 }: {
+  hasFavoriteError: boolean;
   isFavorite: boolean;
+  isFavoriteUpdating: boolean;
   stockName: string;
   ticker: string;
   onFavoriteToggle: () => void;
 }) {
   return (
-    <div className="grid h-8 grid-cols-[minmax(0,1fr)_32px] items-center">
-      <h1 className="truncate text-sm font-semibold">
-        {stockName} ({ticker})
-      </h1>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label="\uad00\uc2ec \uc885\ubaa9"
-        aria-pressed={isFavorite}
-        onClick={onFavoriteToggle}
-      >
-        <Heart
-          className={`size-5 stroke-[2.2] ${
-            isFavorite ? "fill-red-500 text-red-500" : "text-foreground"
-          }`}
-          aria-hidden="true"
-        />
-      </Button>
+    <div className="flex flex-col gap-1">
+      <div className="grid h-8 grid-cols-[minmax(0,1fr)_32px] items-center">
+        <h1 className="truncate text-sm font-semibold">
+          {stockName} ({ticker})
+        </h1>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="\uad00\uc2ec \uc885\ubaa9"
+          aria-pressed={isFavorite}
+          disabled={isFavoriteUpdating}
+          onClick={onFavoriteToggle}
+        >
+          <Heart
+            className={`size-5 stroke-[2.2] ${
+              isFavorite ? "fill-red-500 text-red-500" : "text-foreground"
+            }`}
+            aria-hidden="true"
+          />
+        </Button>
+      </div>
+      {hasFavoriteError ? (
+        <span className="text-xs font-medium text-muted-foreground">
+          {"\uad00\uc2ec \uc885\ubaa9 \uc5f0\ub3d9 \uc2e4\ud328"}
+        </span>
+      ) : null}
     </div>
   );
 }
