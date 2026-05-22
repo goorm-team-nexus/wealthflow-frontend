@@ -133,6 +133,11 @@ export default function MyPage() {
                 </span>
               )}
             </div>
+            {userInfo?.joinedAt && (
+              <span className="text-xs text-muted-foreground/80 mt-1">
+                가입일: {formatJoinedDate(userInfo.joinedAt)}
+              </span>
+            )}
           </div>
         </div>
       </Card>
@@ -231,4 +236,17 @@ function MyPageSkeleton() {
       </div>
     </div>
   );
+}
+
+function formatJoinedDate(value: string | undefined): string {
+  if (!value) return "";
+  // 백엔드 날짜가 타임존 없이 올 경우 UTC로 가정하여 Z 추가 (이동 통신/환전 내역과 동일)
+  const normalized = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : value + "Z";
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}.${month}.${day}`;
 }
