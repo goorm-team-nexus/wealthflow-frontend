@@ -33,6 +33,8 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
+    "@emnapi/core": "^1.10.0",
+    "@emnapi/runtime": "^1.10.0",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
