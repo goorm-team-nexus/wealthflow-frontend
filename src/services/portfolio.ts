@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 import type { StaticImageData } from "next/image";
+import { MAIN_STOCK_SEEDS } from "@/services/marketService";
 
 import naverLogo from "@/assets/images/logos/stocks/stock-naver.svg";
 import tossLogo from "@/assets/images/logos/stocks/stock-toss.svg";
@@ -97,14 +98,29 @@ const STOCK_META_MAP: Record<string, StockMetadata> = {
 };
 
 const getStockMetadata = (ticker: string): StockMetadata => {
-  return (
-    STOCK_META_MAP[ticker] || {
-      name: ticker,
-      slug: ticker.toLowerCase(),
-      initial: ticker.charAt(0).toUpperCase(),
+  // .KS, .KQ 등의 접미사 제거 (예: 005930.KS -> 005930)
+  const cleanTicker = ticker.split(".")[0];
+
+  if (STOCK_META_MAP[cleanTicker]) {
+    return STOCK_META_MAP[cleanTicker];
+  }
+
+  const seed = MAIN_STOCK_SEEDS.find((s) => s.ticker === cleanTicker);
+  if (seed) {
+    return {
+      name: seed.name,
+      slug: seed.ticker,
+      initial: seed.logo,
       logoSrc: "",
-    }
-  );
+    };
+  }
+
+  return {
+    name: ticker,
+    slug: cleanTicker.toLowerCase(),
+    initial: cleanTicker.charAt(0).toUpperCase(),
+    logoSrc: "",
+  };
 };
 
 // ---------------------------------------------------------

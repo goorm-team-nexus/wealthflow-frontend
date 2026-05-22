@@ -310,7 +310,9 @@ function toValidDate(value: string | undefined): Date {
     return new Date(0);
   }
 
-  const date = new Date(value);
+  // 백엔드에서 반환하는 날짜가 UTC 기준일 경우 KST로 정상 변환되도록 Z 추가
+  const normalized = /Z$|[+-]\d{2}:?\d{2}$/.test(value) ? value : value + "Z";
+  const date = new Date(normalized);
   return Number.isNaN(date.getTime()) ? new Date(0) : date;
 }
 
